@@ -1,0 +1,53 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false"
+           controller="SigninController">
+    <head lang="en">
+        <!-- jQuery 3 -->
+        <apex:includeScript value="https://code.jquery.com/jquery-3.3.1.min.js" />
+        
+        <!-- Bootstrap 3 -->
+        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+        <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
+        
+        <!-- Fonts -->
+        <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
+        <apex:stylesheet value="https://fonts.googleapis.com/css?family=Titan+One|Nanum+Pen" />
+        
+        <!-- Custom styles -->
+        <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
+    </head>
+    <body>
+        <div class="lmnopHeader">
+            <div class="lmnopIcon">
+                <span>lmnop</span>
+            </div>
+            <h1 class="marker">
+                little Movie Night online planner
+            </h1>
+        </div>
+        <div class="col-md-12 silverback lmnopLogin">
+            <apex:form >
+                <div class="email">
+                    <label for="email" class="marker">Email</label>
+                    <apex:inputText id="email" value="{!username}" />
+                </div>
+                <div>
+                    <label for="password" class="marker">Password</label>
+                    <apex:inputSecret id="password" value="{!password}" />
+                </div>
+                <div>
+                    <apex:commandButton value="Submit" action="{!login}" styleClass="btn btn-primary marker submit" />
+                    <button class="btn btn-primary marker password">
+                        Forgot Password
+                    </button>
+                </div>
+            </apex:form>
+        </div>
+        <div class="lmnopFooter">
+            <a href="" class="clickable">New user? Register here for access.</a>
+        </div>
+    </body>
+    <script type="text/javascript">
+    
+    </script>
+</apex:page>

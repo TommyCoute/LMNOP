@@ -1,0 +1,231 @@
+/*************************************************
+ * lmnop Movie Night Controller Extension
+ * Test code provided by lmnopTest
+ * 
+ * DATE			DEV		NOTES
+ * 2019-01-14	TKC		Initial creation
+*************************************************/
+
+public class MovieNightExtension {
+    
+    // extend movie night standard controller
+    private final Movie_Night__c mn;
+    public MovieNightExtension(ApexPages.StandardController stdController) {
+        this.mn = (Movie_Night__c)stdController.getRecord();
+    }
+
+    // login page controls
+    public String username {get;set;}
+    public String password {get;set;}
+    public PageReference lmnopLogin() {
+        return Site.login(username, password, '/library/calendar');
+    }
+    
+    // get current user's contact id
+    public String contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
+
+    // get list of movie nights for current user
+    public List<Movie_Audience__c> mns {
+        get {
+            return [
+                SELECT Id, Movie_Night__r.Id, Movie_Night__r.Status__c, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c
+                FROM Movie_Audience__c 
+                WHERE Contact__c = :contactId
+                ORDER BY Movie_Night__r.Showtime__c DESC
+            ];
+        }
+    }
+    
+    // submit request for new movie night
+    public void requestMovieNight() {
+        
+        // get user input values
+        String showtimeString = ApexPages.currentPage().getParameters().get('showtime').replace('T', ' ') + ':00';
+        String comments = ApexPages.currentPage().getParameters().get('comments');
+        DateTime showtime = DateTime.valueOf(showtimeString);
+        
+        // create new movie night as "Requested"
+        Movie_Night__c newMovieNight = new Movie_Night__c();
+        newMovieNight.Status__c = 'Requested';
+        newMovieNight.Showtime__c = showtime;
+        newMovieNight.Comments__c = comments;
+        insert newMovieNight;
+        
+        // add requestor to movie audience
+        Movie_Audience__c newAudience = new Movie_Audience__c();
+        newAudience.Movie_Night__c = newMovieNight.Id;
+        newAudience.Contact__c = contactId;
+        insert newAudience;
+    }
+    
+    // get list of movie suggestions for current movie night
+    public List<Movie_Suggestion__c> suggestedMovies {
+        get {
+            if (mn.Id != null) {
+                return [
+                    SELECT Id, Name, IMDB_Id__c, Movie_Night__c, CreatedDate
+                    FROM Movie_Suggestion__c 
+                    WHERE Movie_Night__c = :mn.Id
+                    ORDER BY CreatedDate ASC
+                ];
+            } else {
+                return null;
+            }
+        }
+    }
+        
+    // search movie titles via OMDb and return results
+    public String userQuery {get;set;}
+    public List<OMDbResult> omdbResultList = new List<OMDbResult>();
+    public List<OMDbResult> omdbList {
+        get {
+            return omdbResultList;
+        }
+    }
+    public void searchOmdb() {
+        
+        // get user query from URL parameters
+        if (ApexPages.currentPage().getParameters().get('titlesearch') != null) {
+            userQuery = ApexPages.currentPage().getParameters().get('titlesearch');
+            
+            // sanitize user query
+            String movieTitle = String.escapeSingleQuotes(userQuery).replaceAll(' ', '+');
+
+            // get API token from custom settings
+            String token = [
+                SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'OMDb' LIMIT 1
+            ].Token__c;
+                        
+            // web callout
+            Http http = new Http();
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint('http://www.omdbapi.com/?apikey=' + token + '&type=movie&s=' + movieTitle);
+            request.setMethod('GET');
+            HttpResponse response = http.send(request);
+            String responseBody = response.getBody();
+            
+            // check for successful JSON data
+            if (response.getStatusCode() == 200) {
+                // parse data from JSON
+                JSONParser parser = JSON.createParser(responseBody);
+                while (parser.nextToken() != null) {
+                    // start at the array of results
+                    if (parser.getCurrentToken() == JSONToken.START_ARRAY) {
+                        while (parser.nextToken() != null) {
+                            // advance to the start object marker to find next result
+                            if (parser.getCurrentToken() == JSONToken.START_OBJECT) {
+                                // read entire result object, including its array of reviews
+                                OMDbResult movie = (OMDbResult)parser.readValueAs(OMDbResult.class);
+                                omdbResultList.add(movie);
+                            }
+                        }
+                    }
+                }
+                // refresh search results
+            } else {
+                // return error
+            }
+        }
+        System.debug('omdbResultList.size(): ' + omdbResultList.size());
+    }
+    
+    // use IMDB id to add to list of suggestions for movie night
+    public void suggestMovie() {
+        
+        // get IMDB id from user selection
+            String imdb = ApexPages.currentPage().getParameters().get('imdb');
+        
+        // create set of IMDB ids from currently suggested movies and check for duplicates
+        Set<String> currentImdbIds = new Set<String>();
+        for (Movie_Suggestion__c ms : suggestedMovies) {
+            currentImdbIds.add(ms.IMDB_Id__c);
+        }
+        if (!currentImdbIds.contains(imdb)) {
+                        
+            // get API token from custom settings
+            String token = [
+                SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'OMDb' LIMIT 1
+            ].Token__c;
+            
+            // web callout to OMDb
+            Http http = new Http();
+            HttpRequest request = new HttpRequest();
+            request.setEndpoint('http://www.omdbapi.com/?apikey=' + token + '&i=' + imdb);
+            request.setMethod('GET');
+            HttpResponse response = http.send(request);
+            String responseBody = response.getBody();
+            
+            // check for successful JSON data
+            if (response.getStatusCode() == 200) {
+                // parse data from JSON
+                JSONParser parser = JSON.createParser(responseBody);
+                while (parser.nextToken() != null) {
+                    // start at the array of results
+                    if (parser.getCurrentToken() == JSONToken.START_OBJECT) {
+                        // read entire result object, including its array of reviews
+                        OMDbMovie movie = (OMDbMovie)parser.readValueAs(OMDbMovie.class);
+                        // copy data to new movie selection object
+                        Movie_Suggestion__c newSuggestion = new Movie_Suggestion__c();
+                        newSuggestion.Movie_Night__c = mn.Id;
+                        newSuggestion.Name = movie.Title;
+                        newSuggestion.Year__c = movie.Year;
+                        newSuggestion.Rated__c = movie.Rated;
+                        newSuggestion.Runtime__c = movie.Runtime;
+                        // trim plot text if larger than 255 characters
+                        if (movie.Plot.length() > 255) {
+                            newSuggestion.Plot__c = movie.Plot.left(252) + '...';
+                        } else {
+                            newSuggestion.Plot__c = movie.Plot;
+                        }
+                        newSuggestion.Poster__c = movie.Poster;
+                        newSuggestion.IMDB_Id__c = movie.ImdbId;
+                        insert NewSuggestion;
+                        parser.skipChildren();
+                    }
+                }
+            }
+        }
+    }
+    
+    // inner classes used for serialization by JSON parser
+    public class OMDbResult {
+        public String Title {get;set;}
+        public String Year {get;set;}
+        public String Poster {get;set;}
+        public String ImdbId {get;set;}
+        
+        public OMDbResult(String t, String y, String p, String i) {
+            Title = t;
+            Year = y;
+            Poster = p;
+            ImdbId = i;
+        }
+    }
+    
+    public class OMDbMovie {
+        public String Title {get;set;}
+        public String Year {get;set;}
+        public String Rated {get;set;}
+        public String Runtime {get;set;}
+        public String Plot {get;set;}
+        public String Poster {get;set;}
+        public String ImdbId {get;set;}
+        // List<Review> Reviews {get;set;}
+        
+        public OMDbMovie(String ti, String ye, String ra, String ru, String pl, String po, String im) {
+            Title = ti;
+            Year = ye;
+            Rated = ra;
+            Runtime = ru;
+            Plot = pl;
+            Poster = po;
+            ImdbId = im;
+            // Reviews = omdbReviews.clone();
+        }
+    }
+    
+    public class Review {
+        public String Source {get;set;}
+        public String Value {get;set;}
+    }
+}
