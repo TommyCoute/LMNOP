@@ -58,12 +58,21 @@
             </apex:form>
         </div>
         <div class="lmnopLogin">
-            <div class="forgotPassword clickable">
+            <div class="newUser clickable">
                 New user? Register here.
             </div>
         </div>
+        <div id="lmnopFooter">
+            Copyright (c) 2019 Tommy Coute
+        </div>
     </body>
     <script type="text/javascript">
-    
+    // fix footer height
+    function fixFooter() {
+        $('div#lmnopFooter').css('bottom', 0);
+        var ff = $(window).height() - $(document).height();
+        $('div#lmnopFooter').css('bottom', ff);
+    }
+    window.addEventListener('resize', fixFooter);
     </script>
 </apex:page>
