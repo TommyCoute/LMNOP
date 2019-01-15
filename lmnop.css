@@ -1,36 +1,119 @@
-body {
-    background-color: black;
-    color: black;
-    font-size: 22pt;
-    font-family: 'Nanum Pen', sans-serif;
+html {
+    background: url('https://tommycoutecommunity-developer-edition.na81.force.com/lmnop/resource/1547501840000/MovieTheater')
+        no-repeat center top; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: auto 1740px;
 }
 
-.marker {
+body {
+    background-color: unset;
+    color: black;
+    font-size: 22pt;
+    font-family: 'Nanum Pen Script', sans-serif;
+}
+
+.titan {
     font-family: 'Titan One', cursive;
 }
 
 .lmnopHeader {
-    height: 180px;
+    height: auto;
+}
+
+.lmnopLogo {
+    margin: 100px auto;
+    width: 680px;
 }
 
 .lmnopIcon {
-    background-color: gold;
-    border-radius: 50%;
-    box-shadow: inset -6px -6px 12px 2px darkgoldenrod;
-    color: black;
     float: left;
-    height: 150px;
-    width: 150px;
-    margin: 30px;
-    padding: 18px 18px;
-    font-size: 72px;
-    letter-spacing: -17px;
+    width: 160px;
+}
+
+.lmnopIcon-r1 {
+    border: 15px solid gold;
+    border-radius: 50%;
+    float: left;
+    height: 50px;
+    margin: 13px 0px 0px 4px;
+    width: 50px;
+}
+
+.lmnopIcon-r2 {
+    border: 15px solid gold;
+    border-radius: 50%;
+    height: 60px;
+    margin: 0px 0px -9px 0px;
+    left: 54px;
+    position: relative;
+    width: 60px;
+}
+
+.lmnopIcon-box {
+    background-color: gold;
+    border-radius: 10px;
+    color: black;
+    font-size: 50px;
+    height: 60px;
+    line-height: 40px;
+    padding: 8px;
+    width: 120px;
+}
+
+.lmnopIcon-lens {
+    border: 20px solid transparent;
+    border-right: 40px solid gold;
+    height: 0px;
+    left: 80px;
+    position: relative;
+    top: -50px;
+    width: 0px;
+    z-index: -1;
+}
+
+.lmnopIcon-b1 {
+    background-color: gold;
+    height: 15px;
+    left: 60px;
+    position: relative;
+    top: -46px;
+    transform: rotate(33deg);
+    width: 30px;
+}
+
+.lmnopIcon-b2 {
+    background-color: gold;
+    height: 15px;
+    left: 29px;
+    position: relative;
+    top: -61px;
+    transform: rotate(-33deg);
+    width: 30px;
 }
 
 .lmnopHeader h1 {
     padding-top: 64px;
     margin: 0px;
     text-shadow: 6px 6px 6px darkgoldenrod;
+}
+
+.lmnopLogo h1 {
+    margin: 10px;
+    text-shadow: 6px 6px 6px darkgoldenrod;
+}
+
+.lmnopLogo h1.l {
+    font-size: 1.5em;
+    margin-bottom: -20px;
+    text-shadow: none;
+}
+
+.lmnopLogo h1.op {
+    font-size: 1.5em;
+    text-align: right;
+    text-shadow: none;
 }
 
 .nav-tabs {
@@ -93,34 +176,42 @@ div#searchResults {
     color: white;
 }
 
-.lmnopLogin {
-    font-size: 1.5em;
+.silverback {
+    background-color: #ffffff7f;
+    border-radius: 8px;
+    margin: 30px;
+    padding: 30px 27px 30px 30px;
 }
 
-.lmnopLogin label {
-    margin-right: 20px;
-    text-align: right;
-    width: 25%;
+.lmnopLogin {
+    font-size: 1.5em;
+    padding-bottom: 10px;
 }
 
 .lmnopLogin div {
-    display: flex;
-}
-
-.lmnopLogin input {
-    flex: 1;
-}
-
-.lmnopLogin div.email {
     margin-bottom: 20px;
 }
 
-.lmnopLogin input.submit {
-     margin-top: 20px;
+.lmnopLogin input {
+    border: 2px solid gray;
+    border-radius: 8px;
+    width: 100%;
+}
+
+.lmnopLogin input.login {
+    border: none;
+    float: left;
+    margin-top: 20px;
+    width: 50%;
 }
 .lmnopLogin button.password {
     margin: 20px 0px 0px 20px;;
     padding: 0px 24px;
+}
+
+.lmnopLogin .forgotPassword {
+    text-align: center;
+    text-shadow: 6px 6px 6px black;
 }
 
 .findMovie {
@@ -135,12 +226,6 @@ div#searchResults {
 
 .findMovie button {
     padding: 10px 25px;
-}
-
-.silverback {
-    background-color: silver;
-    margin: 30px;
-    padding: 30px 27px 30px 30px;
 }
 
 div.lmnopTabs>ul {
