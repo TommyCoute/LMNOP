@@ -1,0 +1,73 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
+    <head lang="en">
+        <!-- jQuery 3 -->
+        <apex:includeScript value="https://code.jquery.com/jquery-3.3.1.min.js" />
+        
+        <!-- Bootstrap 3 -->
+        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+        <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
+        
+        <!-- Fonts -->
+        <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
+        <apex:stylesheet value="https://fonts.googleapis.com/css?family=Titan+One|Nanum+Pen+Script" />
+        
+        <!-- Custom -->
+        <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
+        <apex:includeScript value="{!URLFOR($Resource.jslmnop)}" />
+    </head>
+    <body>
+        <apex:variable var="headerType" value="" />
+        <apex:variable var="heading" value="" />
+        <apex:insert name="header">
+        </apex:insert>
+        <apex:outputPanel rendered="{!headerType = 'big'}">
+            <div class="lmnopLogo">
+                <div class="lmnopIcon">
+                    <div class="lmnopIcon-r1" />
+                    <div class="lmnopIcon-r2" />
+                    <div class="lmnopIcon-box">
+                        lmnop
+                    </div>
+                    <div class="lmnopIcon-lens" />
+                    <div class="lmnopIcon-b1" />
+                    <div class="lmnopIcon-b2" />
+                </div>
+                <h1 class="l">
+                    little
+                </h1>
+                <h1 class="titan">
+                    Movie Night
+                </h1>
+                <h1 class="op">
+                    online planner
+                </h1>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!headerType = 'small'}">
+            <div class="lmnopHeader">
+                <div class="lmnopIcon">
+                    <div class="lmnopIcon-r1" />
+                    <div class="lmnopIcon-r2" />
+                    <div class="lmnopIcon-box">
+                        lmnop
+                    </div>
+                    <div class="lmnopIcon-lens" />
+                    <div class="lmnopIcon-b1" />
+                    <div class="lmnopIcon-b2" />
+                </div>
+                <h1 class="titan">
+                    {!heading}
+                </h1>
+            </div>
+        </apex:outputPanel>        
+        
+        <div id="lmnopPage">
+            <apex:insert name="lmnopContent" />
+        </div>
+        
+        <div id="lmnopFooter">
+            Copyright (c) 2019 Tommy Coute
+        </div>
+    </body>
+</apex:page>
