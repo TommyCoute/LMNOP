@@ -1,16 +1,15 @@
 html {
-    background: url('https://tommycoutecommunity-developer-edition.na81.force.com/lmnop/resource/1547501840000/MovieTheater')
-        no-repeat center top; 
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
+    background-color: black;
+    background-image: url('https://tommycoutecommunity-developer-edition.na81.force.com/lmnop/resource/1547501840000/MovieTheater?test');
+    background-position: center top;
+    background-repeat: no-repeat;
     background-size: auto 1740px;
 }
 
 body {
     background-color: unset;
     color: black;
-    font-size: 22pt;
+    font-size: 50px;
     font-family: 'Nanum Pen Script', sans-serif;
 }
 
@@ -23,7 +22,7 @@ body {
 }
 
 .lmnopLogo {
-    margin: 100px auto;
+    margin: 80px auto 120px auto;
     width: 680px;
 }
 
@@ -100,18 +99,20 @@ body {
 }
 
 .lmnopLogo h1 {
+    font-size: 80px;
     margin: 10px;
-    text-shadow: 6px 6px 6px darkgoldenrod;
+    text-shadow: 6px 0px 6px darkgoldenrod;
 }
 
 .lmnopLogo h1.l {
-    font-size: 1.5em;
-    margin-bottom: -20px;
+    font-size: 50px;
+    margin-bottom: -33px;
     text-shadow: none;
 }
 
 .lmnopLogo h1.op {
-    font-size: 1.5em;
+    font-size: 50px;
+    margin-top: -10px;
     text-align: right;
     text-shadow: none;
 }
@@ -150,21 +151,22 @@ a, a:hover {
     text-decoration: none;
 }
 
+.btn {
+    font-size: .8em;
+}
+
 .btn-primary, .btn-primary:hover, .btn-primary:focus {
     background-color: gold !important;
-    background-image: linear-gradient(to bottom, gold, darkgoldenrod 100%) !important;
-    border: 0px;
+    background-image: unset !important;
+    border: 2px solid gray !important;
     color: black;
-    font-size: 1em;
 }
 
 .requestForm {
     display: none;
-	font-size: 1.5em;
 }
 
 .form-control {
-    font-size: 1em;
     height: 1.5em;
 }
 
@@ -184,17 +186,22 @@ div#searchResults {
 }
 
 .lmnopLogin {
-    font-size: 1.5em;
+    margin-bottom: 20px;
     padding-bottom: 10px;
 }
 
+.lmnopLogin form {
+    margin-top: -20px;
+}
+
 .lmnopLogin div {
-    margin-bottom: 20px;
+    margin: 20px;
 }
 
 .lmnopLogin input {
     border: 2px solid gray;
     border-radius: 8px;
+    padding-left: 10px;
     width: 100%;
 }
 
@@ -209,14 +216,18 @@ div#searchResults {
     padding: 0px 24px;
 }
 
-.lmnopLogin .forgotPassword {
+.lmnopLogin .forgotPassword, .lmnopLogin .newUser {
+    line-height: 1em;
     text-align: center;
-    text-shadow: 6px 6px 6px black;
+    text-shadow: 6px 0px 6px black;
+}
+
+.lmnopLogin .newUser {
+    margin-bottom: 100px;
 }
 
 .findMovie {
     display: flex;
-    font-size: 1.5em;
 }
 
 .findMovie input {
@@ -239,14 +250,12 @@ div.lmnopTabs>.nav-tabs>li {
 
 div.lmnopTabs>.nav-tabs>li>a {
     background-color: black;
-    font-size: 1.5em;
     font-weight: bold;
 }
 
 div.lmnopTabs>.nav-tabs>li.active>a {
     background-color: silver;
     color: black;
-    font-size: 1.5em;
     font-weight: bold;
 }
 
@@ -270,7 +279,6 @@ div.lmnopTabs>.nav-tabs>li.active>a {
 
 .grayback {
     background-color: #707070;
-    font-size: 1.5em;
     line-height: 1.5em;
     margin: 30px 3px;
     padding: 30px;
@@ -299,10 +307,15 @@ div#searchResults {
 .searchResult div {
     color: gold;
     display: table-cell;
-    font-size: 1.5em;
     vertical-align: middle;
 }
 
-.lmnopFooter {
+#lmnopFooter {
+    background: linear-gradient(#00000000, #000000);
+    bottom: 0px;
+    color: silver;
+    padding: 15px;
+    position: absolute;
     text-align: center;
+    width: 100%;
 }
