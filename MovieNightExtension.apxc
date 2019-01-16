@@ -22,7 +22,7 @@ public class MovieNightExtension {
     public List<Movie_Audience__c> mns {
         get {
             return [
-                SELECT Id, Movie_Night__r.Id, Movie_Night__r.Status__c, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c
+                SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c
                 FROM Movie_Audience__c 
                 WHERE Contact__c = :contactId
                 ORDER BY Movie_Night__r.Showtime__c DESC
@@ -40,9 +40,7 @@ public class MovieNightExtension {
         
         // create new movie night as "Requested"
         Movie_Night__c newMovieNight = new Movie_Night__c();
-        newMovieNight.Status__c = 'Requested';
         newMovieNight.Showtime__c = showtime;
-        newMovieNight.Comments__c = comments;
         insert newMovieNight;
         
         // add requestor to movie audience
