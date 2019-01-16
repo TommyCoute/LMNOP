@@ -1,3 +1,15 @@
+/* atomic */
+
+.titan {
+    font-family: 'Titan One', cursive;
+}
+
+.width-100p {
+    width: 100%;
+}
+
+/* elements */
+
 html {
     background-color: black;
     background-image: url('https://tommycoutecommunity-developer-edition.na81.force.com/lmnop/resource/1547501840000/MovieTheater?test');
@@ -13,16 +25,39 @@ body {
     font-family: 'Nanum Pen Script', sans-serif;
 }
 
-.titan {
-    font-family: 'Titan One', cursive;
+h1 {
+    color : gold;
+    font-size: 1em;
 }
+
+h2 {
+    font-size: 2em;
+    margin-top: 0px;
+}
+
+h3 {
+    color: black;
+    font-size: 1.5em;
+}
+
+h4 {
+    font-size: 1em;
+}
+
+a, a:hover {
+    color: gold;
+    text-decoration: none;
+}
+
+/* classes */
 
 .lmnopHeader {
     height: auto;
+    margin: -10px 15px 45px 0px;
 }
 
 .lmnopLogo {
-    margin: 80px auto 120px auto;
+    margin: 88px auto 120px auto;
     width: 680px;
 }
 
@@ -93,42 +128,28 @@ body {
 }
 
 .lmnopHeader h1 {
-    padding-top: 64px;
+    padding-top: 52px;
     margin: 0px;
-    text-shadow: 6px 6px 6px darkgoldenrod;
 }
 
 .lmnopLogo h1 {
     font-size: 80px;
     margin: 10px;
-    text-shadow: 6px 0px 6px darkgoldenrod;
 }
 
 .lmnopLogo h1.l {
     font-size: 50px;
     margin-bottom: -33px;
-    text-shadow: none;
 }
 
 .lmnopLogo h1.op {
     font-size: 50px;
-    margin-top: -10px;
+    margin-top: -14px;
     text-align: right;
-    text-shadow: none;
 }
 
 .nav-tabs {
     border: 0px;
-}
-
-h1 {
-    color : gold;
-    font-size: 2.5em;
-}
-
-h2 {
-    font-size: 2em;
-    margin-top: 0px;
 }
 
 h2.black {
@@ -138,20 +159,10 @@ h2.black {
 
 h2.gold {
     color: gold;
-    text-shadow: 6px 6px 6px black;
-}
-
-h3 {
-    color: black;
-    font-size: 1.5em;
-}
-
-a, a:hover {
-    color: gold;
-    text-decoration: none;
 }
 
 .btn {
+    border-radius: 10px;
     font-size: .8em;
 }
 
@@ -170,19 +181,11 @@ a, a:hover {
     height: 1.5em;
 }
 
-div#blankSearch {
-    margin: 30px 30px 10px 30px;
-}
-
-div#searchResults {
-    color: white;
-}
-
 .silverback {
     background-color: #ffffff7f;
-    border-radius: 8px;
+    border-radius: 10px;
     margin: 30px;
-    padding: 30px 27px 30px 30px;
+    padding: 30px 27px 36px 30px;
 }
 
 .lmnopLogin {
@@ -200,7 +203,7 @@ div#searchResults {
 
 .lmnopLogin input {
     border: 2px solid gray;
-    border-radius: 8px;
+    border-radius: 10px;
     padding-left: 10px;
     width: 100%;
 }
@@ -219,7 +222,7 @@ div#searchResults {
 .lmnopLogin .forgotPassword, .lmnopLogin .newUser {
     line-height: 1em;
     text-align: center;
-    text-shadow: 6px 0px 6px black;
+    text-shadow: 4px 0px 12px black;
 }
 
 .lmnopLogin .newUser {
@@ -284,16 +287,6 @@ div.lmnopTabs>.nav-tabs>li.active>a {
     padding: 30px;
 }
 
-div#blankSearch {
-    display: none;
-}
-
-div#searchResults {
-    background-color: black;
-    margin-top: 30px;
-    padding: 30px;
-}
-
 .searchResult {
     display: table;
     margin-top: 30px;
@@ -308,6 +301,26 @@ div#searchResults {
     color: gold;
     display: table-cell;
     vertical-align: middle;
+}
+
+/* ids */
+
+div#blankSearch {
+    margin: 30px 30px 10px 30px;
+}
+
+div#searchResults {
+    color: white;
+}
+
+div#blankSearch {
+    display: none;
+}
+
+div#searchResults {
+    background-color: black;
+    margin-top: 30px;
+    padding: 30px;
 }
 
 #lmnopFooter {
