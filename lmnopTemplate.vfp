@@ -22,7 +22,7 @@
         <apex:insert name="header">
         </apex:insert>
         <apex:outputPanel rendered="{!headerType = 'big'}">
-            <div class="lmnopLogo">
+            <div class="lmnopLogo" onclick="window.location = '/lmnop'">
                 <div class="lmnopIcon">
                     <div class="lmnopIcon-r1" />
                     <div class="lmnopIcon-r2" />
@@ -46,7 +46,7 @@
         </apex:outputPanel>
         <apex:outputPanel rendered="{!headerType = 'small'}">
             <div class="lmnopHeader">
-                <div class="lmnopIcon">
+                <div class="lmnopIcon" onclick="window.location = '/lmnop'">
                     <div class="lmnopIcon-r1" />
                     <div class="lmnopIcon-r2" />
                     <div class="lmnopIcon-box">
@@ -67,7 +67,7 @@
         </div>
         
         <div id="lmnopFooter">
-            Copyright (c) 2019 Tommy Coute
+            <a href="{!$Site.Prefix}/About">Copyright (c) 2019 Tommy Coute</a>
         </div>
     </body>
 </apex:page>
