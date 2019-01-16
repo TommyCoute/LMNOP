@@ -47,6 +47,7 @@ h4 {
 a, a:hover {
     color: gold;
     text-decoration: none;
+    word-break: break-all;
 }
 
 /* classes */
@@ -63,6 +64,7 @@ a, a:hover {
 
 .lmnopIcon {
     float: left;
+    height: 140px;
     width: 160px;
 }
 
@@ -170,7 +172,7 @@ h2.gold {
     background-color: gold !important;
     background-image: unset !important;
     border: 2px solid gray !important;
-    color: black;
+    color: black !important;
 }
 
 .requestForm {
@@ -223,6 +225,10 @@ h2.gold {
     line-height: 1em;
     text-align: center;
     text-shadow: 4px 0px 12px black;
+}
+
+.lmnopLogin .submit {
+    margin: 40px 20px;
 }
 
 .lmnopLogin .newUser {
@@ -326,9 +332,13 @@ div#searchResults {
 #lmnopFooter {
     background: linear-gradient(#00000000, #000000);
     bottom: 0px;
-    color: silver;
+    font-size: .8em;
     padding: 15px;
     position: absolute;
     text-align: center;
     width: 100%;
+}
+
+#lmnopFooter a {
+    color: silver;
 }
