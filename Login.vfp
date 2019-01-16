@@ -1,78 +1,36 @@
-<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false"
-           controller="SigninController">
-    <head lang="en">
-        <!-- jQuery 3 -->
-        <apex:includeScript value="https://code.jquery.com/jquery-3.3.1.min.js" />
-        
-        <!-- Bootstrap 3 -->
-        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
-        <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
-        
-        <!-- Fonts -->
-        <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
-        <apex:stylesheet value="https://fonts.googleapis.com/css?family=Titan+One|Nanum+Pen+Script" />
-        
-        <!-- Custom styles -->
-        <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
-    </head>
-    <body>
-        <div class="lmnopLogo">
-            <div class="lmnopIcon">
-                <div class="lmnopIcon-r1" />
-                <div class="lmnopIcon-r2" />
-                <div class="lmnopIcon-box">
-                    lmnop
-                </div>
-                <div class="lmnopIcon-lens" />
-                <div class="lmnopIcon-b1" />
-                <div class="lmnopIcon-b2" />
-            </div>
-            <h1 class="l">
-                little
-            </h1>
-            <h1 class="titan">
-                Movie Night
-            </h1>
-            <h1 class="op">
-                online planner
-            </h1>
-        </div>
-        <div class="col-md-12 silverback lmnopLogin">
-            <apex:form >
-                <div>
-                    Email
-                    <apex:inputText id="email" value="{!username}" />
-                </div>
-                <div>
-                    Password
-                    <apex:inputSecret id="password" value="{!password}" />
-                </div>
-                <div>
-                    <apex:commandButton value="Log In" action="{!login}" styleClass="btn btn-primary titan login" />
-                    <div class="forgotPassword clickable">
-                        Forgot Password?<br/>
-                        Reset it here.
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false" controller="SigninController">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="headerType" value="big" />
+        </apex:define>
+        <apex:define name="lmnopContent">
+            <div class="col-md-12 silverback lmnopLogin">
+                <apex:form>
+                    <apex:pageMessages id="error" />
+                    <div>
+                        Email
+                        <apex:inputText id="email" value="{!username}" />
                     </div>
-                </div>
-            </apex:form>
-        </div>
-        <div class="lmnopLogin">
-            <div class="newUser clickable">
-                New user? Register here.
+                    <div>
+                        Password
+                        <apex:inputSecret id="password" value="{!password}" />
+                    </div>
+                    <div>
+                        <apex:commandButton value="Log In" action="{!login}" styleClass="btn btn-primary titan login" />
+                        <div class="forgotPassword clickable">
+                            <a href="{!$Site.Prefix}/ResetPassword">
+                                Forgot Password?<br/>
+                                Reset it here.
+                            </a>
+                        </div>
+                    </div>
+                </apex:form>
             </div>
-        </div>
-        <div id="lmnopFooter">
-            Copyright (c) 2019 Tommy Coute
-        </div>
-    </body>
-    <script type="text/javascript">
-    // fix footer height
-    function fixFooter() {
-        $('div#lmnopFooter').css('bottom', 0);
-        var ff = $(window).height() - $(document).height();
-        $('div#lmnopFooter').css('bottom', ff);
-    }
-    window.addEventListener('resize', fixFooter);
-    </script>
+            <div class="lmnopLogin">
+                <div class="newUser clickable">
+                    <a href="{!$Site.Prefix}/CommunitiesSelfReg">New user? Register here.</a>
+                </div>
+            </div>
+        </apex:define>
+    </apex:composition>
 </apex:page>
