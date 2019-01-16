@@ -4,6 +4,7 @@
  * 
  * DATE			DEV		NOTES
  * 2019-01-14	TKC		Initial creation
+ * 2019-01-15	TKC		Removed login controls (sticking with standard controllers)
 *************************************************/
 
 public class MovieNightExtension {
@@ -12,13 +13,6 @@ public class MovieNightExtension {
     private final Movie_Night__c mn;
     public MovieNightExtension(ApexPages.StandardController stdController) {
         this.mn = (Movie_Night__c)stdController.getRecord();
-    }
-
-    // login page controls
-    public String username {get;set;}
-    public String password {get;set;}
-    public PageReference lmnopLogin() {
-        return Site.login(username, password, '/library/calendar');
     }
     
     // get current user's contact id
