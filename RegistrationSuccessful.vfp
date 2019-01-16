@@ -1,0 +1,26 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false" controller="lmnopRegistrationController">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="headerType" value="big" />
+        </apex:define>
+        <apex:define name="lmnopContent">
+            <div class="col-md-12 silverback lmnopLogin register">
+                Thanks! An email has been sent with your lmnop login information.
+            </div>
+            <div class="lmnopLogin">
+                <div class="newUser">
+                    
+                </div>
+            </div>
+        </apex:define>
+    </apex:composition>
+    <script type="text/javascript">
+    function setNickname() {
+        var first = $('input[field="first"]').val();
+        var last = $('input[field="last"]').val();
+        var nickname = first + last + '.' + Date.now();
+        nickname = nickname.substr(0, 40);
+        $('input[field="nickname"]').val(nickname);
+    }
+    </script>
+</apex:page>

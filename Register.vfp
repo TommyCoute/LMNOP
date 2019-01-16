@@ -1,0 +1,44 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false" controller="lmnopRegistrationController">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="headerType" value="big" />
+        </apex:define>
+        <apex:define name="lmnopContent">
+            <div class="col-md-12 silverback lmnopLogin register">
+                <apex:form id="theForm" forceSSL="true">
+                    <apex:pageMessages id="error"/>
+                    <div>
+                        First Name
+                        <apex:inputText onblur="setNickname()" required="true" value="{!firstName}" label="First Name" html-field="first" />
+                    </div>
+                    <div>
+                        Last Name
+                        <apex:inputText onblur="setNickname()" required="true" value="{!lastName}" label="Last Name" html-field="last" />
+                    </div>
+                    <div>
+                        Email Address
+                        <apex:inputText required="true" id="email" value="{!email}" label="{!$Label.site.email}" html-field="email" />
+                        <apex:inputHidden id="communityNickname" value="{!communityNickname}" html-field="nickname" />
+                    </div>
+                    <div class="submit">
+                        <apex:commandButton action="{!registerUser}" value="Create Account" styleClass="btn btn-primary titan" />
+                    </div>
+                </apex:form>
+            </div>
+            <div class="lmnopLogin">
+                <div class="newUser">
+                    
+                </div>
+            </div>
+        </apex:define>
+    </apex:composition>
+    <script type="text/javascript">
+    function setNickname() {
+        var first = $('input[field="first"]').val();
+        var last = $('input[field="last"]').val();
+        var nickname = first + last + '.' + Date.now();
+        nickname = nickname.substr(0, 40);
+        $('input[field="nickname"]').val(nickname);
+    }
+    </script>
+</apex:page>
