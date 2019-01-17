@@ -1,0 +1,48 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false" controller="MyProfilePageController">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="heading" value="{!user.FirstName} {!user.LastName}" />
+        </apex:define>
+        <apex:define name="body">
+            <div class="col-md-12 silverback form">
+                <a href="/" class="btn btn-primary titan width-100p options">
+                    Go To Calendar
+                </a>
+                <a href="/About" class="btn btn-primary titan width-100p options">
+                    About lmnop
+                </a>
+                <a href="/secur/logout.jsp" class="btn btn-primary titan width-100p options">
+                    Log Out
+                </a>
+                
+                <apex:form id="theForm">
+                    <apex:pageMessages />
+                    <div>
+                        First Name
+                        <apex:inputField id="editfirstName" value="{!user.firstName}" required="true" /> 
+                    </div>
+                    <div>
+                        Last Name
+                        <apex:inputField id="editlastName" value="{!user.lastName}" required="true" /> 
+                    </div>
+                    <div>
+                        Email Address (username)
+                        <span class="btn btn-disabled" onclick="alert('Your email address is the same as your username and cannot be changed at this time.')">
+                            {!user.email}
+                        </span>
+                    </div>
+                    <div>
+                        Time Zone
+                        <apex:inputField id="edittimezone" value="{!user.timezonesidkey}" required="true" /> 
+                    </div>
+                    <div class="formSubmit">
+                        <apex:commandButton id="save" value="Update" action="{!save}" oncomplete="location.reload();return false;" styleClass="btn btn-primary titan" />
+                        <a href="{!$Site.Prefix}/secur/forgotpassword.jsp" class="btn btn-primary titan">
+                            Reset Password
+                        </a>
+                    </div>
+                </apex:form>
+            </div>
+        </apex:define>
+    </apex:composition>
+</apex:page>
