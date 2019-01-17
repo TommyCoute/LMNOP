@@ -12,36 +12,42 @@
 
 html {
     background-color: black;
-    background-image: url('https://tommycoutecommunity-developer-edition.na81.force.com/lmnop/resource/1547501840000/MovieTheater?test');
     background-position: center top;
     background-repeat: no-repeat;
-    background-size: auto 1740px;
+    background-size: auto 750px;
+    font-size: 22px;
+}
+
+@media (min-width: 768px) {
+    html {
+        background-size: auto 1080px;
+    }
 }
 
 body {
     background-color: unset;
     color: black;
-    font-size: 50px;
+    font-size: 1rem;
     font-family: 'Nanum Pen Script', sans-serif;
 }
 
 h1 {
     color : gold;
-    font-size: 1em;
+    font-size: 24px;
 }
 
 h2 {
-    font-size: 2em;
-    margin-top: 0px;
+    /* font-size: 2em; */
+    /* margin-top: 0px; */
 }
 
 h3 {
     color: black;
-    font-size: 1.5em;
+    /* font-size: 1.5em; */
 }
 
 h4 {
-    font-size: 1em;
+    /* font-size: 1em; */
 }
 
 a, a:hover {
@@ -50,104 +56,11 @@ a, a:hover {
     word-break: break-all;
 }
 
-/* classes */
+/* general classes */
 
-.lmnopHeader {
-    height: auto;
-    margin: -10px 15px 45px 0px;
-}
-
-.lmnopLogo {
-    margin: 88px auto 120px auto;
-    width: 680px;
-}
-
-.lmnopIcon {
-    float: left;
-    height: 140px;
-    width: 160px;
-}
-
-.lmnopIcon-r1 {
-    border: 15px solid gold;
-    border-radius: 50%;
-    float: left;
-    height: 50px;
-    margin: 13px 0px 0px 4px;
-    width: 50px;
-}
-
-.lmnopIcon-r2 {
-    border: 15px solid gold;
-    border-radius: 50%;
-    height: 60px;
-    margin: 0px 0px -9px 0px;
-    left: 54px;
-    position: relative;
-    width: 60px;
-}
-
-.lmnopIcon-box {
-    background-color: gold;
-    border-radius: 10px;
-    color: black;
-    font-size: 50px;
-    height: 60px;
-    line-height: 40px;
-    padding: 8px;
-    width: 120px;
-}
-
-.lmnopIcon-lens {
-    border: 20px solid transparent;
-    border-right: 40px solid gold;
-    height: 0px;
-    left: 80px;
-    position: relative;
-    top: -50px;
-    width: 0px;
-    z-index: -1;
-}
-
-.lmnopIcon-b1 {
-    background-color: gold;
-    height: 15px;
-    left: 60px;
-    position: relative;
-    top: -46px;
-    transform: rotate(33deg);
-    width: 30px;
-}
-
-.lmnopIcon-b2 {
-    background-color: gold;
-    height: 15px;
-    left: 29px;
-    position: relative;
-    top: -61px;
-    transform: rotate(-33deg);
-    width: 30px;
-}
-
-.lmnopHeader h1 {
-    padding-top: 52px;
-    margin: 0px;
-}
-
-.lmnopLogo h1 {
-    font-size: 80px;
-    margin: 10px;
-}
-
-.lmnopLogo h1.l {
-    font-size: 50px;
-    margin-bottom: -33px;
-}
-
-.lmnopLogo h1.op {
-    font-size: 50px;
-    margin-top: -14px;
-    text-align: right;
+.container {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .nav-tabs {
@@ -156,7 +69,7 @@ a, a:hover {
 
 h2.black {
     color: black;
-    margin-top: 15px;
+    /* margin-top: 15px; */
 }
 
 h2.gold {
@@ -164,16 +77,149 @@ h2.gold {
 }
 
 .btn {
-    border-radius: 10px;
+    border-radius: 4px;
     font-size: .8em;
+    padding: 4px;
 }
 
 .btn-primary, .btn-primary:hover, .btn-primary:focus {
     background-color: gold !important;
     background-image: unset !important;
-    border: 2px solid gray !important;
+    border: 1px solid gray !important;
     color: black !important;
 }
+
+.silverback {
+    background-color: #ffffff7f;
+    border-radius: 4px;
+    margin: 10px 0px;
+    padding: 10px;
+}
+
+.clickable {
+    color: gold;
+}
+
+/* header/logo classes */
+
+.lmnopLogo {
+    margin: 34px auto 60px auto;
+    width: 243px;
+}
+
+@media (min-width: 768px) {
+    .lmnopLogo {
+        margin: 66px auto 144px auto;
+    }
+}
+
+.lmnopIcon {
+    float: left;
+    height: 55px;
+    width: 65px;
+}
+
+.lmnopIcon-r1 {
+    border: 7px solid gold;
+    border-radius: 50%;
+    float: left;
+    height: 20px;
+    margin: 7px 0px 0px 1px;
+    width: 20px;
+}
+
+.lmnopIcon-r2 {
+    border: 7px solid gold;
+    border-radius: 50%;
+    height: 26px;
+    margin: 0px 0px -4px 0px;
+    left: 21px;
+    position: relative;
+    width: 26px;
+}
+
+.lmnopIcon-box {
+    background-color: gold;
+    border-radius: 5px;
+    color: black;
+    font-size: 20px;
+    height: 26px;
+    line-height: 18px;
+    padding: 4px;
+    width: 48px;
+}
+
+.lmnopIcon-lens {
+    border: 8px solid transparent;
+    border-right: 20px solid gold;
+    height: 0px;
+    left: 29px;
+    position: relative;
+    top: -21px;
+    width: 0px;
+    z-index: -1;
+}
+
+.lmnopIcon-b1 {
+    background-color: gold;
+    height: 6px;
+    left: 11px;
+    position: relative;
+    top: -18px;
+    transform: rotate(-33deg);
+    width: 12px;
+}
+
+.lmnopIcon-b2 {
+    background-color: gold;
+    height: 6px;
+    left: 24px;
+    position: relative;
+    top: -24px;
+    transform: rotate(33deg);
+    width: 12px;
+}
+
+.lmnopLogo h1 {
+    font-size: 28px;
+    margin: 0px;
+}
+
+.lmnopLogo h1.l {
+    font-size: 20px;
+    margin-bottom: -8px;
+    padding-top: 4px;
+}
+
+.lmnopLogo h1.op {
+    font-size: 20px;
+    margin-top: -2px;
+    text-align: right;
+}
+
+.lmnopHeader {
+    height: auto;
+    /* margin: -10px 15px 45px 0px; */
+}
+
+.lmnopHeader h1 {
+    padding-top: 24px;
+    margin: 0px;
+}
+
+/* error pages */
+
+table.topPanelContainer {
+    background-color: #ffffff7f;
+    border-radius: 4px;
+    margin-top: -50px;
+}
+
+td img {
+    display: none;
+}
+
+/* login pages */
 
 .requestForm {
     display: none;
@@ -183,57 +229,50 @@ h2.gold {
     height: 1.5em;
 }
 
-.silverback {
-    background-color: #ffffff7f;
-    border-radius: 10px;
-    margin: 30px;
-    padding: 30px 27px 36px 30px;
-}
-
 .lmnopLogin {
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-}
-
-.lmnopLogin form {
-    margin-top: -20px;
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 450px;
 }
 
 .lmnopLogin div {
-    margin: 20px;
+    margin: -5px 0px 10px 0px;
 }
 
 .lmnopLogin input {
-    border: 2px solid gray;
-    border-radius: 10px;
-    padding-left: 10px;
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding-left: 4px;
     width: 100%;
 }
 
 .lmnopLogin input.login {
     border: none;
     float: left;
-    margin-top: 20px;
     width: 50%;
 }
-.lmnopLogin button.password {
-    margin: 20px 0px 0px 20px;;
-    padding: 0px 24px;
+
+.lmnopLogin .formSubmit {
+    padding-top: 10px;
 }
 
 .lmnopLogin .forgotPassword, .lmnopLogin .newUser {
     line-height: 1em;
     text-align: center;
-    text-shadow: 4px 0px 12px black;
+    text-shadow: 1px 1px 2px black;
 }
 
-.lmnopLogin .submit {
-    margin: 40px 20px;
+div.newUser {
+    margin-top: 10px;
+    margin-bottom: 40px;
 }
 
-.lmnopLogin .newUser {
-    margin-bottom: 100px;
+.lmnopLogin.register, .lmnopLogin.about {
+    margin-top: -22px;
 }
+
+/* movienight pages */
 
 .findMovie {
     display: flex;
@@ -241,15 +280,15 @@ h2.gold {
 
 .findMovie input {
     flex: 1;
-    padding: 10px 25px;
+    /* padding: 10px 25px; */
 }
 
 .findMovie button {
-    padding: 10px 25px;
+    /* padding: 10px 25px; */
 }
 
 div.lmnopTabs>ul {
-    margin: -30px -30px 15px -30px;
+    /* margin: -30px -30px 15px -30px; */
     text-align: center;
 }
 
@@ -270,8 +309,8 @@ div.lmnopTabs>.nav-tabs>li.active>a {
 
 .goldback {
     background-color: #ffd70180;
-    border: 15px solid gold;
-    margin: 30px 0px;
+    /* border: 15px solid gold;
+    margin: 30px 0px; */
 }
 
 .goldback.lmnopPlanned {
@@ -282,25 +321,21 @@ div.lmnopTabs>.nav-tabs>li.active>a {
     color: black;
 }
 
-.clickable {
-    color: gold;
-}
-
 .grayback {
     background-color: #707070;
     line-height: 1.5em;
-    margin: 30px 3px;
-    padding: 30px;
+    /* margin: 30px 3px;
+    padding: 30px; */
 }
 
 .searchResult {
     display: table;
-    margin-top: 30px;
+    /* margin-top: 30px; */
 }
 
 .searchResult img {
-    border: 4px solid gold;
-    margin-right: 25px;
+    /* border: 4px solid gold;
+    margin-right: 25px; */
 }
 
 .searchResult div {
@@ -312,7 +347,7 @@ div.lmnopTabs>.nav-tabs>li.active>a {
 /* ids */
 
 div#blankSearch {
-    margin: 30px 30px 10px 30px;
+    /* margin: 30px 30px 10px 30px; */
 }
 
 div#searchResults {
@@ -325,15 +360,14 @@ div#blankSearch {
 
 div#searchResults {
     background-color: black;
-    margin-top: 30px;
-    padding: 30px;
+    /* margin-top: 30px;
+    padding: 30px; */
 }
 
 #lmnopFooter {
     background: linear-gradient(#00000000, #000000);
     bottom: 0px;
     font-size: .8em;
-    padding: 15px;
     position: absolute;
     text-align: center;
     width: 100%;
