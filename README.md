@@ -4,11 +4,12 @@ Little Movie Night Online Planner - a force.com dev project
 Copyright (c) 2019 Tommy Coute
 
 ## Setup Instructions ##
-The following custom objects and fields must be created:
-1. Movie_Night__c - Main object coordinating and tracking movie night events
-1.1. Comments__c (long text area) - Used by requestors to add any additional information (who to attend, etc)
-1.2. Movie_Title__c (text, 255) - Displays the selected movie suggestion
-1.3. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+A managed/unmanaged package may be available in the future. For now, it is possible to manually install LMNOP in a Salesforce org by following the instructions below.
+
+# The following custom objects and fields must be created:
+1. Movie_Night__c - Main object for coordinating and tracking movie night events
+1.1. Movie_Title__c (text, 255) - Displays the selected movie suggestion
+1.2. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
 2.1. Contact__c (master-detail)
 2.2. Movie_Night__c (master-detail)
@@ -23,3 +24,15 @@ The following custom objects and fields must be created:
 4. Refreshment__c - Child of the Movie Night object for tracking food and drinks per event
 4.1. Movie_Night__c (master-detail)
 
+# The folling custom settings and fields must be created:
+NOTE: in order to create new custom settings of type "List", you must enable "Manage List Custom Settings Type". This option is found under "Data", then "Schema Settings" within the Salesforce setup page.
+1. API_Tokens__c (list) - Stores API tokens for use within apex code
+1.1. Token__c (text, 255) - The API key/token to be used
+Record: create an API token with the name "OMDb", and put your API token in the new Token__c field. You can obtain an OMDb API key from http://www.omdbapi.com/
+
+# The follwing static resources must be created:
+NOTE: all static resources listed below should be set to "Public"
+1. jslmnop - JS 
+2. lmnop - CSS
+3. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
+4. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
