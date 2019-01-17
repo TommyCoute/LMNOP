@@ -15,14 +15,18 @@
         <!-- Custom -->
         <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
         <apex:includeScript value="{!URLFOR($Resource.jslmnop)}" />
+        <style type="text/css">
+            html {
+            background-image: url('{!$Resource.MovieTheater}');
+            }
+        </style>
     </head>
     <body>
-        <apex:variable var="headerType" value="" />
         <apex:variable var="heading" value="" />
         <apex:insert name="header">
         </apex:insert>
-        <apex:outputPanel rendered="{!headerType = 'big'}">
-            <div class="lmnopLogo" onclick="window.location = '/lmnop'">
+        <apex:outputPanel rendered="{!heading = null}">
+            <div class="lmnopLogo" onclick="window.location = '/'">
                 <div class="lmnopIcon">
                     <div class="lmnopIcon-r1" />
                     <div class="lmnopIcon-r2" />
@@ -44,9 +48,9 @@
                 </h1>
             </div>
         </apex:outputPanel>
-        <apex:outputPanel rendered="{!headerType = 'small'}">
+        <apex:outputPanel rendered="{!heading != null}">
             <div class="lmnopHeader">
-                <div class="lmnopIcon" onclick="window.location = '/lmnop'">
+                <div class="lmnopIcon" onclick="window.location = '/'">
                     <div class="lmnopIcon-r1" />
                     <div class="lmnopIcon-r2" />
                     <div class="lmnopIcon-box">
@@ -63,7 +67,7 @@
         </apex:outputPanel>        
         
         <div id="lmnopPage">
-            <apex:insert name="lmnopContent" />
+            <apex:insert name="body" />
         </div>
         
         <div id="lmnopFooter">

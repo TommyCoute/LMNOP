@@ -1,11 +1,8 @@
 <apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false" controller="SigninController">
     <apex:composition template="lmnopTemplate">
-        <apex:define name="header">
-            <apex:variable var="headerType" value="big" />
-        </apex:define>
-        <apex:define name="lmnopContent">
+        <apex:define name="body">
             <div class="col-md-12 silverback lmnopLogin">
-                <apex:form>
+                <apex:form >
                     <apex:pageMessages id="error" />
                     <div>
                         Email
@@ -18,7 +15,7 @@
                     <div>
                         <apex:commandButton value="Log In" action="{!login}" styleClass="btn btn-primary titan login" />
                         <div class="forgotPassword clickable">
-                            <a href="{!$Site.Prefix}/ResetPassword">
+                            <a href="{!$Site.Prefix}/secur/forgotpassword.jsp">
                                 Forgot Password?<br/>
                                 Reset it here.
                             </a>
@@ -28,7 +25,7 @@
             </div>
             <div class="lmnopLogin">
                 <div class="newUser clickable">
-                    <a href="{!$Site.Prefix}/CommunitiesSelfReg">New user? Register here.</a>
+                    <a href="{!$Site.Prefix}/Register">New user? Register here.</a>
                 </div>
             </div>
         </apex:define>

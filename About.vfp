@@ -1,9 +1,6 @@
 <apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
     <apex:composition template="lmnopTemplate">
-        <apex:define name="header">
-            <apex:variable var="headerType" value="big" />
-        </apex:define>
-        <apex:define name="lmnopContent">
+        <apex:define name="body">
             <div class="col-md-12 silverback lmnopLogin">
                 <p>
                     The "Little Movie Night Online Planner" lmnop is a force.com dev project meant to showcase

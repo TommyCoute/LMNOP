@@ -2,10 +2,9 @@
            standardController="Movie_Night__c" extensions="MovieNightExtension" action="{!searchOmdb}">
     <apex:composition template="lmnopTemplate">
         <apex:define name="header">
-            <apex:variable var="headerType" value="small" />
             <apex:variable var="heading" value="{!IF(Movie_Night__c.Id == null, 'Calendar', 'INSERT DATE/TIME HERE')}" />
         </apex:define>
-        <apex:define name="lmnopContent">
+        <apex:define name="body">
             <!-- CALENDAR SECTION -->
             <apex:outputPanel rendered="{!IF(Movie_Night__c.Id == null, 'true', 'false')}">
                 <div class="col-md-12 silverback">
@@ -15,36 +14,14 @@
                     
                     <apex:repeat value="{!mns}" var="mn">
                         <a href="{!$Site.Prefix}/mn?id={!mn.Movie_Night__r.Id}">
-                            <apex:outputPanel rendered="{!mn.Movie_Night__r.Status__c == 'Requested'}">
-                                <div class="col-md-12 goldback">
-                                    <h2 class="black marker">
-                                        <apex:outputField value="{!mn.Movie_Night__r.Showtime__c}" />
-                                    </h2>
-                                    <p>
-                                        Your request for this movie night has been submitted
-                                    </p>
-                                </div>
-                            </apex:outputPanel>
-                            <apex:outputPanel rendered="{!mn.Movie_Night__r.Status__c == 'Planned'}">
-                                <div class="col-md-12 goldback lmnopPlanned">
-                                    <h2 class="black marker">
-                                        <apex:outputField value="{!mn.Movie_Night__r.Showtime__c}" />
-                                    </h2>
-                                    <p>
-                                        Top Suggestion: {!mn.Movie_Night__r.Movie_Title__c}
-                                    </p>
-                                </div>
-                            </apex:outputPanel>
-                            <apex:outputPanel rendered="{!mn.Movie_Night__r.Status__c == 'Archived'}">
-                                <div class="col-md-12 goldback">
-                                    <h2 class="black marker">
-                                        <apex:outputField value="{!mn.Movie_Night__r.Showtime__c}" />
-                                    </h2>
-                                    <p>
-                                        {!mn.Movie_Night__r.Movie_Title__c}
-                                    </p>
-                                </div>
-                            </apex:outputPanel>
+                            <div class="col-md-12 goldback">
+                                <h2 class="black marker">
+                                    <apex:outputField value="{!mn.Movie_Night__r.Showtime__c}" />
+                                </h2>
+                                <p>
+                                    {!mn.Movie_Night__r.Movie_Title__c}
+                                </p>
+                            </div>
                         </a>
                     </apex:repeat>
                 </div>
