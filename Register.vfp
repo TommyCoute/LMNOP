@@ -17,7 +17,7 @@
                         <apex:inputText required="true" id="email" value="{!email}" label="{!$Label.site.email}" html-field="email" />
                         <apex:inputHidden id="communityNickname" value="{!communityNickname}" html-field="nickname" />
                     </div>
-                    <div class="submit">
+                    <div class="formSubmit">
                         <apex:commandButton action="{!registerUser}" value="Create Account" styleClass="btn btn-primary titan" />
                     </div>
                 </apex:form>

@@ -12,7 +12,7 @@
                         Password
                         <apex:inputSecret id="password" value="{!password}" />
                     </div>
-                    <div>
+                    <div class="formSubmit">
                         <apex:commandButton value="Log In" action="{!login}" styleClass="btn btn-primary titan login" />
                         <div class="forgotPassword clickable">
                             <a href="{!$Site.Prefix}/secur/forgotpassword.jsp">
