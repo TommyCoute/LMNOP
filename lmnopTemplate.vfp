@@ -1,77 +1,81 @@
 <apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
-    <head lang="en">
-        <!-- jQuery 3 -->
-        <apex:includeScript value="https://code.jquery.com/jquery-3.3.1.min.js" />
-        
-        <!-- Bootstrap 3 -->
-        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-        <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
-        <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
-        
-        <!-- Fonts -->
-        <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
-        <apex:stylesheet value="https://fonts.googleapis.com/css?family=Titan+One|Nanum+Pen+Script" />
-        
-        <!-- Custom -->
-        <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
-        <apex:includeScript value="{!URLFOR($Resource.jslmnop)}" />
-        <style type="text/css">
-            html {
-            background-image: url('{!$Resource.MovieTheater}');
-            }
-        </style>
-    </head>
-    <body>
-        <apex:variable var="heading" value="" />
-        <apex:insert name="header">
-        </apex:insert>
-        <apex:outputPanel rendered="{!heading = null}">
-            <div class="lmnopLogo" onclick="window.location = '/'">
-                <div class="lmnopIcon">
-                    <div class="lmnopIcon-r1" />
-                    <div class="lmnopIcon-r2" />
-                    <div class="lmnopIcon-box">
-                        lmnop
+    <html>
+        <head lang="en">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            
+            <!-- jQuery 3 -->
+            <apex:includeScript value="https://code.jquery.com/jquery-3.3.1.min.js" />
+            
+            <!-- Bootstrap 3 -->
+            <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+            <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+            <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
+            
+            <!-- Fonts -->
+            <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
+            <apex:stylesheet value="https://fonts.googleapis.com/css?family=Titan+One|Nanum+Pen+Script" />
+            
+            <!-- Custom -->
+            <apex:stylesheet value="{!URLFOR($Resource.lmnop)}" />
+            <apex:includeScript value="{!URLFOR($Resource.jslmnop)}" />
+            <style type="text/css">
+                html {
+                background-image: url('{!$Resource.MovieTheater}');
+                }
+            </style>
+        </head>
+        <body>
+            <apex:variable var="heading" value="" />
+            <apex:insert name="header">
+            </apex:insert>
+            <apex:outputPanel rendered="{!heading = null}">
+                <div class="lmnopLogo" onclick="window.location = '/'">
+                    <div class="lmnopIcon">
+                        <div class="lmnopIcon-r1" />
+                        <div class="lmnopIcon-r2" />
+                        <div class="lmnopIcon-box">
+                            lmnop
+                        </div>
+                        <div class="lmnopIcon-lens" />
+                        <div class="lmnopIcon-b1" />
+                        <div class="lmnopIcon-b2" />
                     </div>
-                    <div class="lmnopIcon-lens" />
-                    <div class="lmnopIcon-b1" />
-                    <div class="lmnopIcon-b2" />
+                    <h1 class="l">
+                        little
+                    </h1>
+                    <h1 class="titan">
+                        Movie Night
+                    </h1>
+                    <h1 class="op">
+                        online planner
+                    </h1>
                 </div>
-                <h1 class="l">
-                    little
-                </h1>
-                <h1 class="titan">
-                    Movie Night
-                </h1>
-                <h1 class="op">
-                    online planner
-                </h1>
-            </div>
-        </apex:outputPanel>
-        <apex:outputPanel rendered="{!heading != null}">
-            <div class="lmnopHeader">
-                <div class="lmnopIcon" onclick="window.location = '/'">
-                    <div class="lmnopIcon-r1" />
-                    <div class="lmnopIcon-r2" />
-                    <div class="lmnopIcon-box">
-                        lmnop
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!heading != null}">
+                <div class="lmnopHeader">
+                    <div class="lmnopIcon" onclick="window.location = '/'">
+                        <div class="lmnopIcon-r1" />
+                        <div class="lmnopIcon-r2" />
+                        <div class="lmnopIcon-box">
+                            lmnop
+                        </div>
+                        <div class="lmnopIcon-lens" />
+                        <div class="lmnopIcon-b1" />
+                        <div class="lmnopIcon-b2" />
                     </div>
-                    <div class="lmnopIcon-lens" />
-                    <div class="lmnopIcon-b1" />
-                    <div class="lmnopIcon-b2" />
+                    <h1 class="titan">
+                        {!heading}
+                    </h1>
                 </div>
-                <h1 class="titan">
-                    {!heading}
-                </h1>
+            </apex:outputPanel>        
+            
+            <div id="lmnopPage" class="container">
+                <apex:insert name="body" />
             </div>
-        </apex:outputPanel>        
-        
-        <div id="lmnopPage">
-            <apex:insert name="body" />
-        </div>
-        
-        <div id="lmnopFooter">
-            <a href="{!$Site.Prefix}/About">Copyright (c) 2019 Tommy Coute</a>
-        </div>
-    </body>
+            
+            <div id="lmnopFooter">
+                <a href="{!$Site.Prefix}/About">Copyright (c) 2019 Tommy Coute</a>
+            </div>
+        </body>
+    </html>
 </apex:page>
