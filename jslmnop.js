@@ -5,3 +5,6 @@ function fixFooter() {
     $('div#lmnopFooter').css('bottom', ff);
 }
 window.addEventListener('resize', fixFooter);
+$(document).ready(function() {
+    fixFooter();
+});
