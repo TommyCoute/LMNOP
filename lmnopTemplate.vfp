@@ -25,54 +25,54 @@
             </style>
         </head>
         <body>
-            <apex:variable var="heading" value="" />
-            <apex:insert name="header">
-            </apex:insert>
-            <apex:outputPanel rendered="{!heading = null}">
-                <div class="lmnopLogo" onclick="window.location = '/'">
-                    <div class="lmnopIcon">
-                        <div class="lmnopIcon-r1" />
-                        <div class="lmnopIcon-r2" />
-                        <div class="lmnopIcon-box">
-                            lmnop
-                        </div>
-                        <div class="lmnopIcon-lens" />
-                        <div class="lmnopIcon-b1" />
-                        <div class="lmnopIcon-b2" />
-                    </div>
-                    <h1 class="l">
-                        little
-                    </h1>
-                    <h1 class="titan">
-                        Movie Night
-                    </h1>
-                    <h1 class="op">
-                        online planner
-                    </h1>
-                </div>
-            </apex:outputPanel>
-            <apex:outputPanel rendered="{!heading != null}">
-                <div class="lmnopHeader">
-                    <div class="lmnopIcon" onclick="window.location = '/'">
-                        <div class="lmnopIcon-r1" />
-                        <div class="lmnopIcon-r2" />
-                        <div class="lmnopIcon-box">
-                            lmnop
-                        </div>
-                        <div class="lmnopIcon-lens" />
-                        <div class="lmnopIcon-b1" />
-                        <div class="lmnopIcon-b2" />
-                    </div>
-                    <h1 class="titan">
-                        {!heading}
-                    </h1>
-                </div>
-            </apex:outputPanel>        
-            
             <div id="lmnopPage" class="container">
-                <apex:insert name="body" />
+                <apex:variable var="heading" value="" />
+                <apex:insert name="header">
+                </apex:insert>
+                <apex:outputPanel rendered="{!heading = null}">
+                    <div class="lmnopLogo" onclick="window.location = '/'">
+                        <div class="lmnopIcon">
+                            <div class="lmnopIcon-r1" />
+                            <div class="lmnopIcon-r2" />
+                            <div class="lmnopIcon-box">
+                                lmnop
+                            </div>
+                            <div class="lmnopIcon-lens" />
+                            <div class="lmnopIcon-b1" />
+                            <div class="lmnopIcon-b2" />
+                        </div>
+                        <h1 class="l">
+                            little
+                        </h1>
+                        <h1 class="titan">
+                            Movie Night
+                        </h1>
+                        <h1 class="op">
+                            online planner
+                        </h1>
+                    </div>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!heading != null}">
+                    <div class="lmnopHeader">
+                        <div class="lmnopIcon" onclick="window.location = '{!$Site.Prefix}/Profile'">
+                            <div class="lmnopIcon-r1" />
+                            <div class="lmnopIcon-r2" />
+                            <div class="lmnopIcon-box">
+                                lmnop
+                            </div>
+                            <div class="lmnopIcon-lens" />
+                            <div class="lmnopIcon-b1" />
+                            <div class="lmnopIcon-b2" />
+                        </div>
+                        <h1 class="titan">
+                            {!heading}
+                        </h1>
+                    </div>
+                </apex:outputPanel>        
+                
+                <apex:insert name="body" />                
             </div>
-            
+            <br/>
             <div id="lmnopFooter">
                 <a href="{!$Site.Prefix}/About">Copyright (c) 2019 Tommy Coute</a>
             </div>
