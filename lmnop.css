@@ -37,6 +37,7 @@ body {
     color: black;
     font-size: 1rem;
     font-family: 'Nanum Pen Script', sans-serif;
+    line-height: 1em;
 }
 
 h1 {
@@ -289,6 +290,26 @@ div.newUser {
     margin-top: -22px;
 }
 
+/* welcome page */
+
+.confirmation input {
+    height: 1em;
+    width: 1em;
+}
+
+.confirmation label {
+    vertical-align: text-bottom;
+}
+
+.disclaimer .accept, .disclaimer .logout {
+    margin: 10px 0px;
+    width: 100%;
+}
+
+.disclaimer .accept {
+    display: none;
+}
+
 /* profile page */
 
 .options {
@@ -387,7 +408,6 @@ div.lmnopTabs>.nav-tabs>li.active>a {
 
 .grayback {
     background-color: #707070;
-    line-height: 1.5em;
     /* margin: 30px 3px;
     padding: 30px; */
 }

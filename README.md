@@ -23,6 +23,8 @@ A managed/unmanaged package may be available in the future. For now, it is possi
 3.7. Year__c (text, 4) - The year the movie was released per OMDb
 4. Refreshment__c - Child of the Movie Night object for tracking food and drinks per event
 4.1. Movie_Night__c (master-detail)
+5. User - standard user object
+5.1. lmnop_Disclaimer_Acknowledged__c - Records the date/time when the user acknowledged the lmnop community disclaimer
 
 # The folling custom settings and fields must be created:
 NOTE: in order to create new custom settings of type "List", you must enable "Manage List Custom Settings Type". This option is found under "Data", then "Schema Settings" within the Salesforce setup page.

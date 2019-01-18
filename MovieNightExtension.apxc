@@ -5,6 +5,7 @@
  * DATE			DEV		NOTES
  * 2019-01-14	TKC		Initial creation
  * 2019-01-15	TKC		Removed login controls (sticking with standard controllers)
+ * 2019-01-17	TKC		Added lmnop disclaimer acknowledgement
 *************************************************/
 
 public class MovieNightExtension {
@@ -18,6 +19,39 @@ public class MovieNightExtension {
     // get current user's contact id
     public String contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
 
+    // check disclaimer acknowledgement
+    public Boolean acknowledged {
+        get {
+            DateTime aDate = [
+                SELECT lmnop_Disclaimer_Acknowledged__c 
+                FROM User 
+                WHERE Id = :UserInfo.getUserId()
+            ].lmnop_Disclaimer_Acknowledged__c;
+            if (aDate != null) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    
+    // set disclaimer acknowledgement
+    public PageReference recordAcknowledgement() {
+        // set the custom acknowledged date/time to now
+        User currentUser = [
+            SELECT Id, lmnop_Disclaimer_Acknowledged__c
+            FROM User
+            WHERE Id = :UserInfo.getUserId()
+        ];
+        currentUser.lmnop_Disclaimer_Acknowledged__c = DateTime.now();
+        update currentUser;
+        
+        // take the user to the profile page so they can update their profile etc
+        PageReference page = System.Page.Profile;
+        page.setRedirect(true);
+        return page;
+    }
+    
     // get list of movie nights for current user
     public List<Movie_Audience__c> mns {
         get {

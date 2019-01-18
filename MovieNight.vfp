@@ -2,11 +2,53 @@
            standardController="Movie_Night__c" extensions="MovieNightExtension" action="{!searchOmdb}">
     <apex:composition template="lmnopTemplate">
         <apex:define name="header">
-            <apex:variable var="heading" value="{!IF(Movie_Night__c.Id == null, 'Calendar', 'INSERT DATE/TIME HERE')}" />
+            <apex:variable var="heading" value="{!IF(acknowledged = false, 'Welcome ' + $User.FirstName + '!', 
+                                                IF(Movie_Night__c.Id == null, 'Calendar', 'INSERT DATE/TIME HERE'))}">
+            </apex:variable>
         </apex:define>
         <apex:define name="body">
+            <!-- WELCOME/DISCLAIMER SECTION -->
+            <apex:outputPanel rendered="{!!acknowledged}">
+                <div class="col-md-12 silverback disclaimer">
+                    <p>
+                        From here, you can view all of the movie night events to which you are an audience member, 
+                        or start your own movie night and choose your own audience members.
+                    </p>
+                    <p>
+                        You can read more about this project from the "about" page if you like, but there's a couple
+                        important things to go over first:
+                    </p>
+                    <ol>
+                        <li>
+                            This site is a personal development project, and as such it may change or go down for 
+                            maintenance, or even disappear completely at some point.
+                        </li>
+                        <li>
+                            No warranties or licenses are granted for the use of this demo/trial community. All data
+                            belongs to the developer and may be altered or destroyed at the developer's will.
+                        </li>
+                    </ol>
+                    <p>
+                        I hope to keep the community up for all of 2019, and maybe turn it into a more long-term
+                        application at some point. Please enjoy and let me know if you have any feedback!
+                    </p>
+                    
+                    <apex:form>
+                        <div class="confirmation">
+                            <input type="checkbox" class="form-check-input" id="confirmation" onchange="toggleDA()" />
+                            <label class="form-check-label" for="confirmation">I accept this disclaimer</label>
+                        </div>
+                        <a href="/secur/logout.jsp" class="btn btn-primary titan logout">
+                            Log Out
+                        </a>
+                        <apex:commandButton value="Accept & Continue" action="{!recordAcknowledgement}"
+                                            styleClass="btn btn-primary titan accept" />
+                    </apex:form>
+                </div>
+            </apex:outputPanel>
+            
             <!-- CALENDAR SECTION -->
-            <apex:outputPanel rendered="{!IF(Movie_Night__c.Id == null, 'true', 'false')}">
+            <apex:outputPanel rendered="{!IF(acknowledged && Movie_Night__c.Id == null, 'true', 'false')}">
                 <div class="col-md-12 silverback">
                     <button class="btn btn-primary titan width-100p">
                         Start New Movie Night
@@ -28,7 +70,7 @@
             </apex:outputPanel>
             
             <!-- MOVIE NIGHT RECORD SECTION -->
-            <apex:outputPanel rendered="{!IF(Movie_Night__c.Id != null, 'true', 'false')}">
+            <apex:outputPanel rendered="{!IF(acknowledged && Movie_Night__c.Id != null, 'true', 'false')}">
                 <a href="{!$Site.Prefix}/MovieNight">
                     <div class="lmnopHeader">
                         <div class="lmnopIcon">
