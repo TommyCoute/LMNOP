@@ -1,5 +1,13 @@
 /* atomic */
 
+.black {
+    color: black;
+}
+
+.gold {
+    color: gold;
+}
+
 .titan {
     font-family: 'Titan One', cursive;
 }
@@ -37,17 +45,8 @@ h1 {
 }
 
 h2 {
-    /* font-size: 2em; */
-    /* margin-top: 0px; */
-}
-
-h3 {
-    color: black;
-    /* font-size: 1.5em; */
-}
-
-h4 {
-    /* font-size: 1em; */
+    font-size: 20px;
+    margin: 10px 0px 5px 0px;
 }
 
 a, a:hover {
@@ -59,6 +58,7 @@ a, a:hover {
 /* general classes */
 
 .container {
+    max-width: 1000px;
     padding-left: 10px;
     padding-right: 10px;
 }
@@ -67,24 +67,17 @@ a, a:hover {
     border: 0px;
 }
 
-h2.black {
-    color: black;
-    /* margin-top: 15px; */
-}
-
-h2.gold {
-    color: gold;
-}
-
 .btn {
+    background-image: unset !important;
     border-radius: 4px;
+    box-shadow: none;
     font-size: .8em;
     padding: 4px;
+    text-shadow: none;
 }
 
 .btn-primary, .btn-primary:hover, .btn-primary:focus {
     background-color: gold !important;
-    background-image: unset !important;
     border: 1px solid gray !important;
     color: black !important;
 }
@@ -98,6 +91,24 @@ h2.gold {
 
 .clickable {
     color: gold;
+}
+
+.form input, .form select, .form .btn-disabled {
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    min-height: 35px;
+    padding-left: 4px;
+    width: 100%;
+}
+
+.form .btn-disabled {
+    background-color: lightgray;
+    font-size: 1rem;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    text-align: left;
 }
 
 /* header/logo classes */
@@ -199,11 +210,17 @@ h2.gold {
 
 .lmnopHeader {
     height: auto;
-    /* margin: -10px 15px 45px 0px; */
+    margin: -6px 0px 15px -10px;
+}
+
+@media (min-width: 758px) {
+    .lmnopHeader {
+        margin: 20px 0px 15px 0px;;
+    }
 }
 
 .lmnopHeader h1 {
-    padding-top: 24px;
+    padding-top: 21px;
     margin: 0px;
 }
 
@@ -254,6 +271,7 @@ td img {
 }
 
 .lmnopLogin .formSubmit {
+    display: block;
     padding-top: 10px;
 }
 
@@ -265,11 +283,57 @@ td img {
 
 div.newUser {
     margin-top: 10px;
-    margin-bottom: 40px;
 }
 
 .lmnopLogin.register, .lmnopLogin.about {
     margin-top: -22px;
+}
+
+/* profile page */
+
+.options {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.formGroup select {
+    height: 35px;
+}
+
+.formSubmit {
+    display: flex;
+    margin-top: 10px;
+}
+
+.formSubmit input {
+    flex: 1;
+    margin-right: 5px;
+}
+
+.formSubmit a {
+    flex: 1;
+    height: 35px;
+    margin-left: 5px;
+}
+
+@media (min-width: 768px) {
+    .options {
+        padding-left: 10px;
+        padding-right: 10px;
+        width: unset;
+    }
+    
+    .formRow {
+        display: flex;
+    }
+    
+    .formGroup {
+        flex: 1;
+    }
+    
+    .formGroup.left {
+        margin-right: 10px;
+    }
 }
 
 /* movienight pages */
