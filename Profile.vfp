@@ -5,35 +5,41 @@
         </apex:define>
         <apex:define name="body">
             <div class="col-md-12 silverback form">
-                <a href="/" class="btn btn-primary titan width-100p options">
-                    Go To Calendar
-                </a>
-                <a href="/About" class="btn btn-primary titan width-100p options">
-                    About lmnop
-                </a>
-                <a href="/secur/logout.jsp" class="btn btn-primary titan width-100p options">
-                    Log Out
-                </a>
+                <div class="menuButtons">
+                    <a href="/" class="btn btn-primary titan options">
+                        Go To Calendar
+                    </a>
+                    <a href="/About" class="btn btn-primary titan options">
+                        About lmnop
+                    </a>
+                    <a href="/secur/logout.jsp" class="btn btn-primary titan options">
+                        Log Out
+                    </a>
+                </div>
                 
                 <apex:form id="theForm">
                     <apex:pageMessages />
-                    <div>
-                        First Name
-                        <apex:inputField id="editfirstName" value="{!user.firstName}" required="true" /> 
+                    <div class="formRow">
+                        <div class="formGroup left">
+                            First Name
+                            <apex:inputField id="editfirstName" value="{!user.firstName}" required="true" /> 
+                        </div>
+                        <div class="formGroup">
+                            Last Name
+                            <apex:inputField id="editlastName" value="{!user.lastName}" required="true" /> 
+                        </div>
                     </div>
-                    <div>
-                        Last Name
-                        <apex:inputField id="editlastName" value="{!user.lastName}" required="true" /> 
-                    </div>
-                    <div>
+                    <div class="formRow">
+                    <div class="formGroup left">
                         Email Address (username)
                         <span class="btn btn-disabled" onclick="alert('Your email address is the same as your username and cannot be changed at this time.')">
                             {!user.email}
                         </span>
-                    </div>
-                    <div>
-                        Time Zone
-                        <apex:inputField id="edittimezone" value="{!user.timezonesidkey}" required="true" /> 
+                        </div>
+                        <div class="formGroup">
+                            Time Zone
+                            <apex:inputField id="edittimezone" value="{!user.timezonesidkey}" required="true" /> 
+                        </div>
                     </div>
                     <div class="formSubmit">
                         <apex:commandButton id="save" value="Update" action="{!save}" oncomplete="location.reload();return false;" styleClass="btn btn-primary titan" />
