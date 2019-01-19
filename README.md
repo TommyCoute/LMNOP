@@ -8,8 +8,10 @@ A managed/unmanaged package may be available in the future. For now, it is possi
 
 # The following custom objects and fields must be created:
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
-1.1. Movie_Title__c (text, 255) - Displays the selected movie suggestion
-1.2. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+1.1. Location__c (text, 255) - The event location for hosting a movie night
+1.2. Movie_Title__c (text, 255) - Displays the selected movie suggestion
+1.3. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+1.4. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
 2.1. Contact__c (master-detail)
 2.2. Movie_Night__c (master-detail)
