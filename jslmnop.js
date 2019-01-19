@@ -20,3 +20,25 @@ function toggleDA() {
         $('.disclaimer a.logout').css('display', 'inline-block');
     }
 }
+
+// set date/time using custom input field
+$(document).ready(function() {
+    $('input[field="inputdate"]').prop('type', 'datetime-local');
+});
+
+function setTime() {
+    var formdate = $('input[field="formdate"]').val();
+    $('input[field="apexdate"]').val(formdate.replace('T', ' '));
+}
+
+// toggle audience contact selection
+function toggleContact(id) {
+    var cids = $('input[field="contactIds"]').val();
+    if ($('div#' + id).hasClass('selected')) {
+        $('div#' + id).removeClass('selected');
+        $('input[field="contactIds"]').val(cids.replace(id + ',', ''));
+    } else {
+        $('div#' + id).addClass('selected');
+        $('input[field="contactIds"]').val(cids + id + ',');
+    }
+}
