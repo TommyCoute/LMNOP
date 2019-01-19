@@ -94,7 +94,7 @@ a, a:hover {
     color: gold;
 }
 
-.form input, .form select, .form .btn-disabled {
+.form input, .form select, .form textarea, .form .btn-disabled {
     background-color: white;
     border: 1px solid gray;
     border-radius: 4px;
@@ -112,6 +112,10 @@ a, a:hover {
     text-align: left;
 }
 
+.formGroup {
+    margin-bottom: 5px;
+}
+
 /* header/logo classes */
 
 .lmnopLogo {
@@ -126,6 +130,7 @@ a, a:hover {
 }
 
 .lmnopIcon {
+    cursor: pointer;
     float: left;
     height: 55px;
     width: 65px;
@@ -237,6 +242,11 @@ td img {
     display: none;
 }
 
+div.messageText {
+    color: #cc0000;
+    margin-bottom: 15px;
+}
+
 /* login pages */
 
 .requestForm {
@@ -291,6 +301,10 @@ div.newUser {
 }
 
 /* welcome page */
+
+.confirmation {
+    cursor: pointer;
+}
 
 .confirmation input {
     height: 1em;
@@ -355,6 +369,36 @@ div.newUser {
     .formGroup.left {
         margin-right: 10px;
     }
+}
+
+/* new movie night page */
+
+.contact {
+    background-color: transparent;
+    border: 1px dashed gold;
+    border-radius: 4px;
+    color: gold;
+    cursor: pointer;
+    display: inline-block;
+    font-size: .8em;
+    margin-bottom: 5px;
+    padding: 0px 4px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.contact i {
+    display: none;
+}
+
+.contact.selected {
+    background-color: gold;
+    border: 1px solid black;
+    color: black;
+    text-shadow: none;
+}
+
+.contact.selected i {
+    display: inline-block;
 }
 
 /* movienight pages */
