@@ -1,0 +1,50 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false"
+           standardController="Movie_Night__c" extensions="MovieNightExtension">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="heading" value="New Movie Night">
+            </apex:variable>
+        </apex:define>
+        <apex:define name="body">
+            <div class="col-md-12 silverback form">
+                <apex:form >
+                    <apex:pageMessages />
+                    <div class="formGroup">
+                        Date/Time
+                        <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
+                        <!-- <input type="datetime-local" field="formdate" onblur="setTime()" value="{!inputDate}" />
+                        <apex:inputHidden value="{!Movie_Night__c.Showtime__c}" html-field="apexdate" /> -->
+                    </div>
+                    <div class="formGroup">
+                        Location
+                        <apex:inputField value="{!Movie_Night__c.Location__c}" required="true"
+                                         html-placeholder="Enter name of place or address" />
+                    </div>
+                    <div class="formGroup">
+                        Audience
+                        <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}"
+                                         html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
+                    </div>
+                    <div class="formGroup">
+                        <apex:repeat value="{!previousAudience}" var="contact">
+                            <div id="{!contact.Id}" class="contact" onclick="toggleContact('{!contact.Id}')">
+                                {!contact.FirstName} {!contact.LastName}
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </apex:repeat>
+                        <apex:inputHidden value="{!contactIds}" html-field="contactIds" />
+                    </div>
+                    <div class="formGroup">
+                        <apex:commandButton action="{!createMovieNight}" value="Create Movie Night" styleClass="btn btn-primary titan" />
+                    </div>
+                </apex:form>
+                <p>
+                    This movie night will be added to your calendar, and your audience will receive invitations via email.
+                </p>
+                <p>
+                    As the creator, you can manage the audience from the movie night page after it is created.
+                </p>
+            </div>
+        </apex:define>
+    </apex:composition>
+</apex:page>
