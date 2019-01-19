@@ -69,7 +69,6 @@
                         </h1>
                     </div>
                 </apex:outputPanel>        
-                
                 <apex:insert name="body" />                
             </div>
             <br/>
