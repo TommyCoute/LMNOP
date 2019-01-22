@@ -35,15 +35,17 @@
                         <apex:inputHidden value="{!contactIds}" html-field="contactIds" />
                     </div>
                     <div class="formGroup">
+                        <p>
+                            This movie night will be added to your calendar, and your audience will receive invitations via email.
+                        </p>
+                        <p>
+                            As the creator, you can manage the audience from the movie night page after it is created.
+                        </p>
+                    </div>
+                    <div class="formGroup">
                         <apex:commandButton action="{!createMovieNight}" value="Create Movie Night" styleClass="btn btn-primary titan" />
                     </div>
                 </apex:form>
-                <p>
-                    This movie night will be added to your calendar, and your audience will receive invitations via email.
-                </p>
-                <p>
-                    As the creator, you can manage the audience from the movie night page after it is created.
-                </p>
             </div>
         </apex:define>
     </apex:composition>
