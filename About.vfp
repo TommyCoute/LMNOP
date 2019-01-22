@@ -3,7 +3,7 @@
         <apex:define name="body">
             <div class="col-md-12 silverback lmnopLogin about">
                 <p>
-                    The "Little Movie Night Online Planner" lmnop is a force.com dev project meant to showcase
+                    The "Little Movie Night Online Planner" (lmnop) is a force.com dev project meant to showcase
                     what is possible using a mix of standard and custom Salesforce development features.
                 </p>
                 <p>
