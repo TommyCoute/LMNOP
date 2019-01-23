@@ -8,10 +8,20 @@ A managed/unmanaged package may be available in the future. For now, it is possi
 
 # The following custom objects and fields must be created:
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
-1.1. Location__c (text, 255) - The event location for hosting a movie night
-1.2. Movie_Title__c (text, 255) - Displays the selected movie suggestion
-1.3. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
-1.4. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
+1.1 Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula:
+    IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Showtime__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
+    IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24)) + ' hours left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
+    IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
+    ''))))))))
+1.2. Location__c (text, 255) - The event location for hosting a movie night
+1.3. Movie_Title__c (text, 255) - Displays the selected movie suggestion
+1.4. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+1.5. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
 2.1. Contact__c (master-detail)
 2.2. Movie_Night__c (master-detail)
