@@ -6,7 +6,8 @@
  * 2019-01-14	TKC		Initial creation
  * 2019-01-15	TKC		Removed login controls (sticking with standard controllers)
  * 2019-01-17	TKC		Added lmnop disclaimer acknowledgement
- * 3029-01-18	TKC		Added new movie night submission controls
+ * 2019-01-18	TKC		Added new movie night submission controls
+ * 2019-01-22	TKC		Added mnWrapped inner class and replaced "nms" movie night list with new custom list
 *************************************************/
 
 public class MovieNightExtension {
@@ -15,6 +16,26 @@ public class MovieNightExtension {
     private final Movie_Night__c mn;
     public MovieNightExtension(ApexPages.StandardController stdController) {
         this.mn = (Movie_Night__c)stdController.getRecord();
+        this.mnsUpcoming = new List<maWrapped>();
+        for (Movie_Audience__c ma : [
+            SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
+            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c
+            FROM Movie_Audience__c 
+            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c > :Datetime.now()
+            ORDER BY Movie_Night__r.Showtime__c DESC
+        ]) {
+            mnsUpcoming.add(new maWrapped(ma));
+        }
+        this.mnsPast = new List<maWrapped>();
+        for (Movie_Audience__c ma : [
+            SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
+            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c
+            FROM Movie_Audience__c 
+            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now()
+            ORDER BY Movie_Night__r.Showtime__c DESC
+        ]) {
+            mnsPast.add(new maWrapped(ma));
+        }
     }
     
     // get current user's contact id
@@ -54,14 +75,24 @@ public class MovieNightExtension {
     }
     
     // get list of movie nights for current user
-    public List<Movie_Audience__c> mns {
-        get {
-            return [
-                SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c
-                FROM Movie_Audience__c 
-                WHERE Contact__c = :contactId
-                ORDER BY Movie_Night__r.Showtime__c DESC
-            ];
+    public List<maWrapped> mnsUpcoming {get;set;}
+    public List<maWrapped> mnsPast {get;set;}
+    
+    // wrapper for modifying the showtime datetime format within the list of movie nights
+    public class maWrapped {
+        public Movie_Audience__c maRecord {get;set;}
+        public String formattedShowtime {
+            get {
+                return maRecord.Movie_Night__r.Showtime__c.format('EEEEE M/d/yyyy h:mm') 
+                    + maRecord.Movie_Night__r.Showtime__c.format('a').toLowerCase();
+            }
+        }
+        
+        // contructors for wrapper class
+        public maWrapped() {}
+        public maWrapped(Movie_Audience__c ma) {
+            this();
+            this.maRecord = ma;
         }
     }
     
