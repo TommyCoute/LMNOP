@@ -148,12 +148,15 @@ public class MovieNightExtension {
         me.Movie_Night__c = mn.Id;
         me.Contact__c = contactId;
         maList.add(me);
-        List<String> contactIdList = contactIds.split(',');
-        for (String s : contactIdList) {
-            Movie_Audience__c ma = new Movie_Audience__c();
-            ma.Movie_Night__c = mn.Id;
-            ma.Contact__c = s;
-            maList.add(ma);
+        System.debug('contactIds: ' + contactIds);
+        if (contactIds != '') {
+            List<String> contactIdList = contactIds.split(',');
+            for (String s : contactIdList) {
+                Movie_Audience__c ma = new Movie_Audience__c();
+                ma.Movie_Night__c = mn.Id;
+                ma.Contact__c = s;
+                maList.add(ma);
+            }
         }
         insert maList;
         
