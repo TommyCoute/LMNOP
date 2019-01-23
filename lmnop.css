@@ -403,6 +403,37 @@ div.newUser {
 
 /* movienight pages */
 
+.cal-location, .cal-countdown {
+    padding-left: 3px;
+}
+
+.calendar-divider {
+    margin: 12px 0px;
+    text-align: center;
+}
+
+.calendar-blank {
+    margin-top: 60px;
+    text-align: center;
+}
+
+.goldback {
+    background-color: #ffd70180;
+    border: 3px solid gold;
+    border-radius: 4px;
+    margin: 10px 0px;
+    padding: 8px 8px 0px 8px;
+    word-break: break-word;
+}
+
+.goldback.inactive {
+    background-color: #ffd70140;
+}
+
+.goldback h2, .goldback p {
+    color: black;
+}
+
 .findMovie {
     display: flex;
 }
@@ -434,28 +465,6 @@ div.lmnopTabs>.nav-tabs>li.active>a {
     background-color: silver;
     color: black;
     font-weight: bold;
-}
-
-.calendar-divider {
-    margin: 12px 0px;
-    text-align: center;
-}
-
-.goldback {
-    background-color: #ffd70180;
-    border: 3px solid gold;
-    border-radius: 4px;
-    margin: 10px 0px;
-    padding: 8px 8px 0px 8px;
-    word-break: break-word;
-}
-
-.goldback.inactive {
-    background-color: #ffd70140;
-}
-
-.goldback h2, .goldback p {
-    color: black;
 }
 
 .grayback {

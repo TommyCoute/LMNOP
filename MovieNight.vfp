@@ -33,7 +33,7 @@
                         application at some point. Please enjoy and let me know if you have any feedback!
                     </p>
                     
-                    <apex:form>
+                    <apex:form >
                         <div class="confirmation">
                             <input type="checkbox" class="form-check-input" id="confirmation" onchange="toggleDA()" />
                             <label class="form-check-label" for="confirmation">I accept this disclaimer</label>
@@ -54,73 +54,80 @@
                         Start New Movie Night
                     </a>
                     
-                    <div class="row">
-                        <div class="calendar-divider col-sm-4">
-                            Upcoming Movie Nights:
-                        </div>
-                        <apex:outputPanel rendered="{!mnsUpcoming.size = 0}">
-                            <div class="col-sm-8">
-                                No upcoming movie nights found. Ask a host to add you to the audience, 
-                                or start your movie night using the button above.
-                            </div>
-                        </apex:outputPanel>
-                        <div class="col-sm-8">
-                            <apex:repeat value="{!mnsUpcoming}" var="mn">
-                                <a href="{!$Site.Prefix}/MovieNight?id={!mn.maRecord.Movie_Night__r.Id}">
-                                    <div class="goldback">
-                                        <h2 class="titan">
-                                            <apex:outputText value="{!mn.formattedShowtime}" />
-                                        </h2>
-                                        <p>
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
-                                        </p>
-                                        <p>
-                                            <i class="fas fa-film"></i>
-                                            Top Suggestion:
-                                            <apex:outputText value=" {!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
-                                                                    '(no movies suggested yet)', mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
-                                        </p>
-                                        <p>
-                                            <i class="fas fa-hourglass-half"></i>
-                                            <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Countdown__c}" />
-                                        </p>
-                                    </div>
-                                </a>
-                            </apex:repeat>
-                        </div>
-                    </div>
+                    <apex:outputPanel rendered="{!mnsUpcoming.size = 0 && mnsPast.size = 0}"
+                                      layout="block" styleClass="calendar-blank">
+                        No movie nights found. Ask a host to add you to the audience,
+                        or start your own movie night using the button above.
+                    </apex:outputPanel>
                     
-                    <div class="row">
-                        <div class="calendar-divider col-sm-4">
-                            Past Movie Nights:
-                        </div>
-                        <apex:outputPanel rendered="{!mnsPast.size = 0}">
-                            <div class="col-sm-8">
-                                No past movie nights found.
+                    <apex:outputPanel rendered="{!!AND(mnsUpcoming.size = 0, mnsPast.size = 0)}">
+                        <div class="row">
+                            <div class="calendar-divider col-sm-4">
+                                Upcoming Movie Nights:
                             </div>
-                        </apex:outputPanel>
-                        <div class="col-sm-8">
-                            <apex:repeat value="{!mnsPast}" var="mn">
-                                <a href="{!$Site.Prefix}/MovieNight?id={!mn.maRecord.Movie_Night__r.Id}">
-                                    <div class="goldback inactive">
-                                        <h2 class="titan">
-                                            <apex:outputText value="{!mn.formattedShowtime}" />
-                                        </h2>
-                                        <p>
-                                            <i class="fas fa-map-marker-alt"></i>
-                                            <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
-                                        </p>
-                                        <p>
-                                            <i class="fas fa-film"></i>
-                                            <apex:outputText value=" {!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
-                                                                    '(no movie selected)', mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
-                                        </p>
-                                    </div>
-                                </a>
-                            </apex:repeat>
+                            <apex:outputPanel rendered="{!mnsUpcoming.size = 0}">
+                                <div class="calendar-divider col-sm-8">
+                                    No upcoming movie nights found.
+                                </div>
+                            </apex:outputPanel>
+                            <div class="col-sm-8">
+                                <apex:repeat value="{!mnsUpcoming}" var="mn">
+                                    <a href="{!$Site.Prefix}/MovieNight?id={!mn.maRecord.Movie_Night__r.Id}">
+                                        <div class="goldback">
+                                            <h2 class="titan">
+                                                <apex:outputText value="{!mn.formattedShowtime}" />
+                                            </h2>
+                                            <p>
+                                                <i class="fas fa-map-marker-alt cal-location"></i>
+                                                <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
+                                            </p>
+                                            <p>
+                                                <i class="fas fa-film"></i>
+                                                Top Suggestion:
+                                                <apex:outputText value=" {!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
+                                                                        '(no movies suggested yet)', mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
+                                            </p>
+                                            <p>
+                                                <i class="fas fa-hourglass-half cal-countdown"></i>
+                                                <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Countdown__c}" />
+                                            </p>
+                                        </div>
+                                    </a>
+                                </apex:repeat>
+                            </div>
                         </div>
-                    </div>
+                        
+                        <div class="row">
+                            <div class="calendar-divider col-sm-4">
+                                Past Movie Nights:
+                            </div>
+                            <apex:outputPanel rendered="{!mnsPast.size = 0}">
+                                <div class="calendar-divider col-sm-8">
+                                    No past movie nights found.
+                                </div>
+                            </apex:outputPanel>
+                            <div class="col-sm-8">
+                                <apex:repeat value="{!mnsPast}" var="mn">
+                                    <a href="{!$Site.Prefix}/MovieNight?id={!mn.maRecord.Movie_Night__r.Id}">
+                                        <div class="goldback inactive">
+                                            <h2 class="titan">
+                                                <apex:outputText value="{!mn.formattedShowtime}" />
+                                            </h2>
+                                            <p>
+                                                <i class="fas fa-map-marker-alt cal-location"></i>
+                                                <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
+                                            </p>
+                                            <p>
+                                                <i class="fas fa-film"></i>
+                                                <apex:outputText value=" {!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
+                                                                        '(no movie selected)', mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
+                                            </p>
+                                        </div>
+                                    </a>
+                                </apex:repeat>
+                            </div>
+                        </div>
+                    </apex:outputPanel>
                 </div>
             </apex:outputPanel>
                         
