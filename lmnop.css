@@ -47,7 +47,7 @@ h1 {
 
 h2 {
     font-size: 20px;
-    margin: 10px 0px 5px 0px;
+    margin: 0px 0px 10px 0px;
 }
 
 a, a:hover {
@@ -436,14 +436,22 @@ div.lmnopTabs>.nav-tabs>li.active>a {
     font-weight: bold;
 }
 
-.goldback {
-    background-color: #ffd70180;
-    /* border: 15px solid gold;
-    margin: 30px 0px; */
+.calendar-divider {
+    margin: 12px 0px;
+    text-align: center;
 }
 
-.goldback.lmnopPlanned {
-    background-color: gold;
+.goldback {
+    background-color: #ffd70180;
+    border: 3px solid gold;
+    border-radius: 4px;
+    margin: 10px 0px;
+    padding: 8px 8px 0px 8px;
+    word-break: break-word;
+}
+
+.goldback.inactive {
+    background-color: #ffd70140;
 }
 
 .goldback h2, .goldback p {
