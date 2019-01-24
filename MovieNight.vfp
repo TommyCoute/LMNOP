@@ -3,7 +3,7 @@
     <apex:composition template="lmnopTemplate">
         <apex:define name="header">
             <apex:variable var="heading" value="{!IF(acknowledged = false, 'Welcome ' + $User.FirstName + '!', 
-                                                IF(Movie_Night__c.Id == null, 'Calendar', Movie_Night__c.Showtime__c))}">
+                                                IF(Movie_Night__c.Id == null, 'Calendar', showtime))}">
             </apex:variable>
         </apex:define>
         <apex:define name="body">
@@ -48,9 +48,9 @@
             </apex:outputPanel>
             
             <!-- CALENDAR SECTION -->
-            <apex:outputPanel rendered="{!IF(acknowledged && Movie_Night__c.Id == null, 'true', 'false')}">
+            <apex:outputPanel rendered="{!acknowledged && Movie_Night__c.Id = null}">
                 <div class="col-md-12 silverback">
-                    <a href="{!$Site.Prefix}/NewMovieNight" class="btn btn-primary titan width-100p">
+                    <a href="{!$Site.Prefix}/ManageMovieNight" class="btn btn-primary titan width-100p">
                         Start New Movie Night
                     </a>
                     
@@ -90,6 +90,20 @@
                                             <p>
                                                 <i class="fas fa-hourglass-half cal-countdown"></i>
                                                 <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Countdown__c}" />
+                                            </p>
+                                            <p>
+                                                <apex:outputPanel rendered="{!mn.maRecord.Movie_Night__r.CreatedBy.Id = $User.Id}">
+                                                    <i class="fas fa-user-tie cal-organizer"></i>
+                                                    You are organizing this movie night
+                                                </apex:outputPanel>
+                                                <apex:outputPanel rendered="{!!mn.maRecord.Attending__c && mn.maRecord.Movie_Night__r.CreatedBy.Id != $User.Id}">
+                                                    <i class="fas fa-user-slash cal-not-attending"></i>
+                                                    You are not attending this movie night (click to edit)
+                                                </apex:outputPanel>
+                                                <apex:outputPanel rendered="{!mn.maRecord.Attending__c && mn.maRecord.Movie_Night__r.CreatedBy.Id != $User.Id}">
+                                                    <i class="fas fa-user-check cal-attending"></i>
+                                                    You are attending this movie night
+                                                </apex:outputPanel>
                                             </p>
                                         </div>
                                     </a>
@@ -132,94 +146,103 @@
             </apex:outputPanel>
                         
             <!-- MOVIE NIGHT RECORD SECTION -->
-            <apex:outputPanel rendered="{!IF(acknowledged && Movie_Night__c.Id != null, 'true', 'false')}">
-                <a href="{!$Site.Prefix}/MovieNight">
-                    <div class="lmnopHeader">
-                        <div class="lmnopIcon">
-                            <span>lmnop</span>
+            <apex:outputPanel rendered="{!acknowledged && Movie_Night__c.Id != null}">
+                <div class="location">
+                    Movie Night at {!Movie_Night__c.Location__c}!
+                </div>
+                <apex:outputPanel rendered="{!Movie_Night__c.CreatedBy.Id = $User.Id}">
+                    <a href="{!$Site.Prefix}/ManageMovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan width-100p">
+                        Manage Movie Night
+                    </a>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!Movie_Night__c.CreatedBy.Id != $User.Id}">
+                    <apex:form>
+                        <div class="attending">
+                            <apex:commandLink action="{!toggleAttending}" styleClass="btn btn-primary titan{!IF(isAttending, '', ' notAttending')}">
+                                <i class="far fa-{!IF(isAttending, 'check-square', 'square')}"></i> Attending
+                            </apex:commandLink>
+                            <a href="mailto:{!Movie_Night__c.CreatedBy.Email}?subject=Movie Night {!SUBSTITUTE(showtime, '/', '-')}" class="btn btn-primary titan">
+                                <i class="fas fa-envelope"></i> Email Organizer
+                            </a>
                         </div>
-                        <h1 class="marker">
-                            <apex:outputField value="{!Movie_Night__c.Showtime__c}" />
-                        </h1>
-                    </div>
-                </a>
-                
-                <div class="silverback"> 
+                    </apex:form>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!isAttending || Movie_Night__c.CreatedBy.Id = $User.Id}">
                     <div class="lmnopTabs">
-                        <ul class="nav nav-tabs" id="lmnopTab" role="tablist">
+                        <ul class="nav nav-tabs nav-fill" id="lmnopTab" role="tablist">
                             <li class="nav-item active">
-                                <a class="marker nav-link active" id="moviesTab" data-toggle="tab" href="#movies">Suggested Movies</a>
+                                <a class="titan nav-link active" id="moviesTab" data-toggle="tab" href="#movies">Suggested Movies</a>
                             </li>
                             <li class="nav-item">
-                                <a class="marker nav-link" id="refreshmentsTab" data-toggle="tab" href="#refreshments">Refreshments</a>
+                                <a class="titan nav-link" id="refreshmentsTab" data-toggle="tab" href="#refreshments">Refreshments</a>
                             </li>
                         </ul>
                     </div>
-                    
-                    <div class="tab-content" id="lmnopTabs">
-                        <!-- SUGGESTED MOVIES CONTENT -->
-                        <div class="tab-pane fade show active in" id="movies" role="tabpanel">
-                            <h2>
-                                "X" days left to select movie
-                            </h2>
-                            <h3 class="marker">
-                                Current Suggestions
-                            </h3>
-                            <div class="grayback">
-                                <apex:repeat value="{!suggestedMovies}" var="movie">
-                                    <div>
-                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                            {!movie.Name}
-                                        </a>
-                                    </div>
-                                </apex:repeat>
-                            </div>
-                            
-                            <div class="lmnopForm findMovie">
-                                <input id="suggestQuery" type="text" placeholder="Find new movie" />
-                                <button id="buttonQuery" class="btn btn-primary" type="button">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                            </div>
-                            <div id="blankSearch">
-                                Please enter at least 3 characters to perform search.
-                            </div>
-                            <div id="searchResults" style="display:{!IF(userQuery = null , 'none', 'block')}">
-                                <apex:outputPanel rendered="{!IF(userQuery != null && omdbList.size = 0, 'true', 'false')}">
-                                    <div>
-                                        No results found for "{!userQuery}"
-                                    </div>
-                                </apex:outputPanel>
-                                <apex:outputPanel rendered="{!omdbList.size > 0}">
-                                    <apex:form >
-                                        <apex:messages />
+                    <div class="silverback tabs">
+                        <div class="tab-content" id="lmnopTabs">
+                            <!-- SUGGESTED MOVIES CONTENT -->
+                            <div class="tab-pane fade show active in" id="movies" role="tabpanel">
+                                <h2>
+                                    {!Movie_Night__c.Countdown__c}
+                                </h2>
+                                <h3 class="marker">
+                                    Current Suggestions
+                                </h3>
+                                <div class="grayback">
+                                    <apex:repeat value="{!suggestedMovies}" var="movie">
                                         <div>
-                                            Search results (select movie to add to list)
-                                            <apex:repeat value="{!omdbList}" var="movie">
-                                                <div class="searchResult" onclick="selectMovie('{!movie.ImdbId}')">
-                                                    <img src="{!IF(movie.Poster = 'N/A', $Resource.PosterNotFound, movie.Poster)}" />
-                                                    <div>
-                                                        {!movie.Title} ({!movie.Year})
-                                                    </div>
-                                                </div>
-                                            </apex:repeat>
+                                            <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                {!movie.Name}
+                                            </a>
                                         </div>
-                                        <apex:actionFunction action="{!suggestMovie}" name="submitMovieSuggestion" reRender=""
-                                                             oncomplete="reloadNight()">
-                                            <apex:param name="imdb" value="" />
-                                        </apex:actionFunction>
-                                    </apex:form>
-                                </apex:outputPanel>
+                                    </apex:repeat>
+                                </div>
+                                
+                                <div class="lmnopForm findMovie">
+                                    <input id="suggestQuery" type="text" placeholder="Find new movie" />
+                                    <button id="buttonQuery" class="btn btn-primary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                                <div id="blankSearch">
+                                    Please enter at least 3 characters to perform search.
+                                </div>
+                                <div id="searchResults" style="display:{!IF(userQuery = null , 'none', 'block')}">
+                                    <apex:outputPanel rendered="{!IF(userQuery != null && omdbList.size = 0, 'true', 'false')}">
+                                        <div>
+                                            No results found for "{!userQuery}"
+                                        </div>
+                                    </apex:outputPanel>
+                                    <apex:outputPanel rendered="{!omdbList.size > 0}">
+                                        <apex:form >
+                                            <apex:messages />
+                                            <div>
+                                                Search results (select movie to add to list)
+                                                <apex:repeat value="{!omdbList}" var="movie">
+                                                    <div class="searchResult" onclick="selectMovie('{!movie.ImdbId}')">
+                                                        <img src="{!IF(movie.Poster = 'N/A', $Resource.PosterNotFound, movie.Poster)}" />
+                                                        <div>
+                                                            {!movie.Title} ({!movie.Year})
+                                                        </div>
+                                                    </div>
+                                                </apex:repeat>
+                                            </div>
+                                            <apex:actionFunction action="{!suggestMovie}" name="submitMovieSuggestion" reRender=""
+                                                                 oncomplete="reloadNight()">
+                                                <apex:param name="imdb" value="" />
+                                            </apex:actionFunction>
+                                        </apex:form>
+                                    </apex:outputPanel>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <!-- REFRESHMENTS CONTENT -->
-                        <div class="tab-pane fade" id="refreshments" role="tabpanel">
                             
+                            <!-- REFRESHMENTS CONTENT -->
+                            <div class="tab-pane fade" id="refreshments" role="tabpanel">
+                                
+                            </div>
                         </div>
                     </div>
-                </div>
-                
+                </apex:outputPanel>
             </apex:outputPanel>
             <script type="text/javascript">
             /* request form */
