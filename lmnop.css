@@ -404,7 +404,15 @@ div.newUser {
 /* movienight pages */
 
 .cal-location, .cal-countdown {
-    padding-left: 3px;
+    margin-left: 3px;
+}
+
+.cal-organizer, .cal-attending {
+    margin-left: 2px;
+}
+
+.cal-not-attending {
+    margin-left: -2px;
 }
 
 .calendar-divider {
@@ -434,6 +442,64 @@ div.newUser {
     color: black;
 }
 
+.location {
+    color: white;
+    font-size: .8em;
+    margin: -10px 0px 10px -55px;
+    text-align: center;
+    width: 100%;
+}
+
+.attending {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.attending a {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.attending a.notAttending {
+    background-color: transparent !important;
+    border: 2px solid gold !important;
+    border-style: dashed !important;
+    color: gold !important;
+}
+
+.lmnopTabs {
+    font-size: .8em;
+    margin-top: 20px;
+    margin-bottom: -9px;
+}
+
+ul#lmnopTab {
+    display: flex;
+}
+
+ul#lmnopTab li {
+    flex-grow: 1;
+    text-align: center;
+}
+
+a#moviesTab, a#refreshmentsTab {
+    border: 0px;
+    padding: 4px;
+}
+
+li.nav-item.active>a.nav-link {
+    background-color: #ffffff7f;
+    color: black;
+}
+
+.nav-tabs>li>a {
+    margin-right: 0px;
+}
+
+.silverback.tabs {
+    border-radius: 0px 0px 4px 4px;
+}
+
 .findMovie {
     display: flex;
 }
@@ -445,26 +511,6 @@ div.newUser {
 
 .findMovie button {
     /* padding: 10px 25px; */
-}
-
-div.lmnopTabs>ul {
-    /* margin: -30px -30px 15px -30px; */
-    text-align: center;
-}
-
-div.lmnopTabs>.nav-tabs>li {
-    width: 50%;
-}
-
-div.lmnopTabs>.nav-tabs>li>a {
-    background-color: black;
-    font-weight: bold;
-}
-
-div.lmnopTabs>.nav-tabs>li.active>a {
-    background-color: silver;
-    color: black;
-    font-weight: bold;
 }
 
 .grayback {
