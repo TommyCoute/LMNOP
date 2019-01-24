@@ -64,9 +64,11 @@
                             <div class="lmnopIcon-b1" />
                             <div class="lmnopIcon-b2" />
                         </div>
-                        <h1 class="titan">
-                            {!heading}
-                        </h1>
+                        <a href="{!$Site.Prefix}/MovieNight">
+                            <h1 class="titan">
+                                {!heading}
+                            </h1>
+                        </a>
                     </div>
                 </apex:outputPanel>        
                 <apex:insert name="body" />                
