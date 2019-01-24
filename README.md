@@ -23,8 +23,9 @@ A managed/unmanaged package may be available in the future. For now, it is possi
 1.4. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
 1.5. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
-2.1. Contact__c (master-detail)
-2.2. Movie_Night__c (master-detail)
+2.1. Attending__c (checkbox) - Indicates if the invited audience contact will be attending the movie night
+2.2. Contact__c (master-detail)
+2.3. Movie_Night__c (master-detail)
 3. Movie_Suggestion__c - Child of the Movie Night object for tracking movies suggested per event
 3.1. IMDB_Id__c (text, 255) - The ID of the movie defined by IMDB, used to check for duplicate suggestions and to link to IMDB page
 3.2. Movie_Night__c (master-detail)
