@@ -7,6 +7,10 @@
             </apex:variable>
         </apex:define>
         <apex:define name="body">
+            <!-- STANDARD OBJECT FIELD REFERENCES FOR CONTROLLER -->
+            <apex:outputField value="{!Movie_Night__c.CreatedBy.Email}" rendered="false" />
+            <apex:outputField value="{!Movie_Night__c.Showtime__c}" rendered="false" />            
+            
             <!-- WELCOME/DISCLAIMER SECTION -->
             <apex:outputPanel rendered="{!!acknowledged}">
                 <div class="col-md-12 silverback disclaimer">
@@ -156,12 +160,12 @@
                     </a>
                 </apex:outputPanel>
                 <apex:outputPanel layout="block" rendered="{!Movie_Night__c.CreatedBy.Id != $User.Id}">
-                    <apex:form>
+                    <apex:form >
                         <div class="attending">
                             <apex:commandLink action="{!toggleAttending}" styleClass="btn btn-primary titan{!IF(isAttending, '', ' notAttending')}">
-                                <i class="far fa-{!IF(isAttending, 'check-square', 'square')}"></i> Attending
+                                <i class="far fa-{!IF(isAttending, 'check-circle', 'circle')}"></i> Attending
                             </apex:commandLink>
-                            <a href="mailto:{!Movie_Night__c.CreatedBy.Email}?subject=Movie Night {!SUBSTITUTE(showtime, '/', '-')}" class="btn btn-primary titan">
+                            <a href="mailto:{!organizerEmail}?subject=Movie Night {!SUBSTITUTE(showtime, '/', '-')}" class="btn btn-primary titan">
                                 <i class="fas fa-envelope"></i> Email Organizer
                             </a>
                         </div>
