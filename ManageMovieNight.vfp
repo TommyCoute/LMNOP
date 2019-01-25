@@ -6,9 +6,13 @@
             </apex:variable>
         </apex:define>
         <apex:define name="body">
+            <!-- STANDARD OBJECT FIELD REFERENCES FOR CONTROLLER -->
+            <apex:outputField value="{!Movie_Night__c.Showtime__c}" rendered="false" />
+
             <div class="col-md-12 silverback form">
+                <!-- NEW MOVIE NIGHT PAGE -->
                 <apex:outputPanel rendered="{!Movie_Night__c.Id = null}">
-                    <apex:form>
+                    <apex:form >
                         <apex:pageMessages />
                         <div class="formGroup">
                             Date/Time
@@ -19,7 +23,7 @@
                             <apex:inputField value="{!Movie_Night__c.Location__c}" required="true"
                                              html-placeholder="Enter name of place or address" />
                         </div>
-                        <div class="formGroup">
+                        <div class="formGroup audience">
                             Audience
                             <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
@@ -27,8 +31,8 @@
                         <div class="formGroup">
                             <apex:repeat value="{!previousAudience}" var="contact">
                                 <div id="{!contact.Id}" class="contact" onclick="toggleContact('{!contact.Id}')">
+                                    <i class="far fa-circle"></i>
                                     {!contact.FirstName} {!contact.LastName}
-                                    <i class="fas fa-check"></i>
                                 </div>
                             </apex:repeat>
                             <apex:inputHidden value="{!contactIds}" html-field="contactIds" />
@@ -46,12 +50,15 @@
                         </div>
                     </apex:form>
                 </apex:outputPanel>
-                <apex:outputPanel rendered="{!Movie_Night__c.Id != null}">
-                    <apex:form>
+                
+                <!-- MANAGE CURRENT MOVIE NIGHT PAGE -->
+                <apex:outputPanel rendered="{!Movie_Night__c.Id != null && $CurrentPage.parameters.delete != '1'}">
+                    <apex:form >
                         <apex:pageMessages />
                         <div class="formGroup">
                             Date/Time
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
+                            <apex:inputHidden value="{!displayInputDate}" html-field="displaydate" />
                         </div>
                         <div class="formGroup">
                             Location
@@ -59,32 +66,87 @@
                                              html-placeholder="Enter name of place or address" />
                         </div>
                         <div class="formGroup">
-                            Current Audience, Confirmed
+                            <apex:outputPanel layout="block" rendered="{!confirmedAudience.size > 0}">
+                                Current Audience, Confirmed
+                                <div>
+                                    <apex:repeat value="{!confirmedAudience}" var="contact">
+                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!contact.FirstName}')">
+                                            <i class="far fa-check-circle"></i>
+                                            <span>{!contact.FirstName} {!contact.LastName}</span>
+                                        </div>
+                                    </apex:repeat>
+                                </div>
+                            </apex:outputPanel>
                         </div>
                         <div class="formGroup">
-                            Current Audience, Confirmed
+                            <apex:outputPanel layout="block" rendered="{!unconfirmedAudience.size + unregisteredAudience.size > 0}">
+                                Current Audience, Unconfirmed
+                                <div>
+                                    <apex:repeat value="{!unconfirmedAudience}" var="contact">
+                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!contact.FirstName}')">
+                                            <i class="far fa-check-circle"></i>
+                                            <span>{!contact.FirstName} {!contact.LastName}</span>
+                                        </div>
+                                    </apex:repeat>
+                                    <apex:repeat value="{!unregisteredAudience}" var="contact">
+                                        <apex:variable value="{!SUBSTITUTE(SUBSTITUTE(contact, '@', ''), '.', '')}" var="cid" />
+                                        <div id="{!cid}" class="contact unregistered audience" onclick="toggleContact('{!cid}', '{!contact}')">
+                                            <i class="far fa-check-circle"></i>
+                                            <span>{!contact}</span>
+                                        </div>
+                                    </apex:repeat>
+                                </div>
+                            </apex:outputPanel>
                         </div>                        
-                        <div class="formGroup">
-                            Invite More People
-                            <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}"
+                        <div class="formGroup audience">
+                            Invite <apex:outputText value="{!IF(confirmedAudience.size + unconfirmedAudience.size 
+                                                           + unregisteredAudience.size = 0, ' Some', ' More')}" /> People
+                            <apex:inputTextarea rows="3" value="{!newEmailAudience}"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
                         </div>
                         <div class="formGroup">
                             <apex:repeat value="{!previousAudience}" var="contact">
                                 <div id="{!contact.Id}" class="contact" onclick="toggleContact('{!contact.Id}')">
+                                    <i class="far fa-circle"></i>
                                     {!contact.FirstName} {!contact.LastName}
-                                    <i class="fas fa-check"></i>
                                 </div>
                             </apex:repeat>
                             <apex:inputHidden value="{!contactIds}" html-field="contactIds" />
+                            <apex:inputHidden value="{!removeContactIds}" html-field="removeContactIds" />
+                            <apex:inputHidden value="{!removeEmails}" html-field="removeEmails" />
                         </div>
-                        <div class="formGroup">
-                            <apex:commandButton action="{!updateMovieNight}" value="Update Movie Night" styleClass="btn btn-primary titan" />
-                            <a href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan width-100p">
+                        <div class="manage-buttons">
+                            <apex:commandButton action="{!updateMovieNight}" value="Update Movie Night" styleClass="btn btn-primary titan update" />
+                            <a href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan cancel width-100p">
                                 Cancel Update
                             </a>
-                            <apex:commandButton action="{!deleteMovieNight}" value="Delete Movie Night" styleClass="btn btn-primary titan" />
+                            <a href="{!$Site.Prefix}/ManageMovieNight?id={!Movie_Night__c.Id}&delete=1" class="btn btn-primary titan cancel width-100p">
+                                Delete Movie Night
+                            </a>
                         </div>
+                    </apex:form>
+                </apex:outputPanel>
+                
+                <!-- DELETE CURRENT MOVIE NIGHT PAGE -->
+                <apex:outputPanel layout="block" styleClass="disclaimer" rendered="{!Movie_Night__c.Id != null && $CurrentPage.parameters.delete = '1'}">
+                    <h2 class="titan center">
+                        WARNING!
+                    </h2>
+                    <p>
+                        You are about to delete your movie night, scheduled for {!showtime}.
+                        This will send a cancellation email to all invited audience members, 
+                        and all data related to this movie night will be gone forever.
+                    </p>
+                    <apex:form >
+                        <div class="confirmation">
+                            <input type="checkbox" class="form-check-input" id="confirmation" onchange="toggleDA()" />
+                            <label id="confirmDelete" class="form-check-label" for="confirmation">I confirm, delete away</label>
+                        </div>
+                        <a href="#" onclick="window.history.back()" class="btn btn-primary titan logout">
+                            Cancel
+                        </a>
+                        <apex:commandButton value="Delete Movie Night" action="{!deleteMovieNight}"
+                                            styleClass="btn btn-primary titan accept" />
                     </apex:form>
                 </apex:outputPanel>
             </div>
