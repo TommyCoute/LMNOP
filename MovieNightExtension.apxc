@@ -11,9 +11,13 @@
  * 2019-01-23	TKC		Added showtime getter to return reformetted showtime
  * 2019-01-23	TKC		Added isAttending getter and toggleAttending() method
  * 2019-01-23	TKC		Added placeholder updateMovieNight() and deleteMovieNight() methods
+ * 2019-01-24	TKC		Added getters for managing existing movie night audiences
+ * 2019-01-24	TKC		Refactored to use "mn" movie night record instead of querying again througout class 
+ * 						NOTE: requires adding input fields on each VF page for each field used in class
+ * 2019-01-24	TKC		Completed updateMovieNight() and deleteMovieNight() methods
 *************************************************/
 
-public class MovieNightExtension {
+public without sharing class MovieNightExtension {
     
     // extend movie night standard controller
     private final Movie_Night__c mn;
@@ -25,7 +29,7 @@ public class MovieNightExtension {
             Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, Attending__c
             FROM Movie_Audience__c 
             WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c > :Datetime.now()
-            ORDER BY Movie_Night__r.Showtime__c DESC
+            ORDER BY Movie_Night__r.Showtime__c ASC
         ]) {
             mnsUpcoming.add(new maWrapped(ma));
         }
@@ -115,11 +119,21 @@ public class MovieNightExtension {
                 movieNightIds.add(ma.Movie_Night__c);
             }
             
+            // build list of contactIds already invited to exclude (for managing existing movie nights)
+            List<String> excludeContactIds = new List<String>();
+            for (Contact c : confirmedAudience) {
+                excludeContactIds.add(c.Id);
+            }
+            for (Contact c : unconfirmedAudience) {
+                excludeContactIds.add(c.Id);
+            }
+            
             // build list of contacts from the user's previous movie nights
             List<Movie_Audience__c> myContacts = [
                 SELECT Id, Contact__r.Id, Contact__r.FirstName, Contact__r.LastName, Movie_Night__c
                 FROM Movie_Audience__c
-                WHERE Movie_Night__c IN :movieNightIds AND Contact__r.Id != :contactId
+                WHERE Movie_Night__c IN :movieNightIds AND Contact__r.Id != :contactId 
+                AND Contact__r.Id NOT IN :excludeContactIds
                 ORDER BY Contact__r.FirstName ASC
             ];
             for (Movie_Audience__c ma : myContacts) {
@@ -134,16 +148,67 @@ public class MovieNightExtension {
         }
     }
     
-    // create new movie night event
-    public String inputDate {
+    // return list of audience members attending the current movie night
+    public List<Contact> confirmedAudience {
         get {
-            if (mn.Id != null) {
-                return '2019-01-24T17:30';
+            List<Contact> contacts = new List<Contact>();
+            
+            // get list of contacts from current movie night audience where attending = true
+            List<Movie_Audience__c> maContacts = [
+                SELECT Id, Contact__r.Id, Contact__r.FirstName, Contact__r.LastName, Movie_Night__c, 
+                Attending__c
+                FROM Movie_Audience__c
+                WHERE Movie_Night__c = :mn.Id AND Attending__c = true AND Contact__r.Id != :contactId
+                ORDER BY Contact__r.FirstName ASC
+            ];
+            for (Movie_Audience__c ma : maContacts) {
+                contacts.add(ma.Contact__r);
             }
-            return null;
+            return contacts;
         }
-        set;
     }
+    
+    // return list of audience members NOT attending the current movie night
+    public List<Contact> unconfirmedAudience {
+        get {
+            List<Contact> contacts = new List<Contact>();
+            
+            // get list of contacts from current movie night audience where attending = false
+            List<Movie_Audience__c> maContacts = [
+                SELECT Id, Contact__r.Id, Contact__r.FirstName, Contact__r.LastName, Movie_Night__c, 
+                Attending__c
+                FROM Movie_Audience__c
+                WHERE Movie_Night__c = :mn.Id AND Attending__c = false AND Contact__r.Id != :contactId
+                ORDER BY Contact__r.FirstName ASC
+            ];
+            for (Movie_Audience__c ma : maContacts) {
+                contacts.add(ma.Contact__r);
+            }
+            return contacts;
+        }
+    }
+    
+    // return list of unregistered audience members for the current movie night
+    public List<String> unregisteredAudience {
+        get {
+            // create list of email addresses from current "unregistered audience" field
+            if (mn.Unregistered_Audience__c != null) {
+                List<String> ua = String.escapeSingleQuotes(mn.Unregistered_Audience__c).replace(' ', '').split(',');
+                List<String> emailList = new List<String>();
+                for (String s : ua) {
+                    if (s.length() > 0) {
+                        emailList.add(s);
+                    }
+                }
+                return emailList;
+            } else {
+                return null;
+            }
+        }
+    }
+    
+    // create new movie night event
+    public String inputDate {get;set;}
     public String contactIds {get;set;}
     public PageReference createMovieNight() {
         // convert form datetime into showtime
@@ -152,6 +217,7 @@ public class MovieNightExtension {
         
         // create new movie night
         insert mn;
+        System.debug('mn.ua: ' + mn.Unregistered_Audience__c);
         
         // add creator and selected contacts to audience
         List<Movie_Audience__c> maList = new List<Movie_Audience__c>();
@@ -174,7 +240,7 @@ public class MovieNightExtension {
         // create list of email addresses from current "unregistered audience" field
         String ua = '';
         if (mn.Unregistered_Audience__c != null) {
-            String.escapeSingleQuotes(mn.Unregistered_Audience__c).replace(' ', '');
+            ua = String.escapeSingleQuotes(mn.Unregistered_Audience__c).replace(' ', '');
         }
         List<String> emailAddressList = ua.split(',');
         for (String s : emailAddressList) {
@@ -229,8 +295,116 @@ public class MovieNightExtension {
         return page;
     }
     
-    // create new movie night event
+    // update current movie night event
+    public String displayInputDate {
+        get {
+            if (mn.Id != null) {
+                Datetime dt = mn.Showtime__c;
+                String st = dt.format('yyyy-MM-dd') + 'T' + dt.format('HH:mm');
+                return st;
+            }
+            return null;
+        }
+        set;
+    }
+    public String newEmailAudience {get;set;}
+    public String removeContactIds {get;set;}
+    public String removeEmails {get;set;}
     public PageReference updateMovieNight() {
+        
+        // convert form datetime into showtime
+        inputDate = inputDate.replace('T', ' ');
+        mn.Showtime__c = Datetime.valueOf(inputDate + ':00');
+        
+        // update movie night
+        update mn;
+        
+        // add selected contacts to audience
+        List<Movie_Audience__c> maList = new List<Movie_Audience__c>();
+        System.debug('contactIds: ' + contactIds);
+        if (contactIds != '') {
+            List<String> contactIdList = contactIds.split(',');
+            for (String s : contactIdList) {
+                Movie_Audience__c ma = new Movie_Audience__c();
+                ma.Movie_Night__c = mn.Id;
+                ma.Contact__c = s;
+                maList.add(ma);
+            }
+        }
+        insert maList;
+        
+        // create list of email addresses from new "unregistered audience" field
+        String ua = '';
+        if (newEmailAudience != null) {
+            ua = String.escapeSingleQuotes(newEmailAudience).replace(' ', '');
+        }
+        List<String> emailAddressList = ua.split(',');
+        for (String s : emailAddressList) {
+            System.debug('emailAddressList: ' + s);
+        }
+        
+        // lookup email addresses to determine existing users/contacts
+        List<User> audienceList = [
+            SELECT Id, Email, Contact.Id, IsActive
+            FROM User
+            WHERE Email IN :emailAddressList AND Contact.Id != null AND IsActive = true
+        ];
+        System.debug('audienceList.size(): ' + audienceList.size());
+        
+        // add registered memebers to audience
+        List<Movie_Audience__c> newAudience = new List<Movie_Audience__c>();
+        for (User u : audienceList) {
+            Movie_Audience__c registered = new Movie_Audience__c();
+            registered.Movie_Night__c = mn.Id;
+            registered.Contact__c = u.Contact.Id;
+            newAudience.add(registered);
+        }
+        System.debug('newAudience.size(): ' + newAudience.size());
+        insert newAudience;
+        
+        // update list of unregistered audience members
+        String newUnregisteredAudience = '';
+        Set<String> audienceSet = new Set<String>();
+        for (User u : audienceList) {
+            audienceSet.add(u.Email);
+            System.debug('registered: ' + u.Email);
+        }
+        // check each email from the unregistered list
+        // if it does not exist in the audience set, re-add it to the unregistered CSV
+        for (String s : emailAddressList) {
+            System.debug('full list: ' + s);
+            if (!audienceSet.contains(s)) {
+                newUnregisteredAudience += s + ',';
+            }
+        }
+        System.debug('unregistered: ' + newUnregisteredAudience);
+        mn.Unregistered_Audience__c += newUnregisteredAudience;
+        update mn;
+        
+        // remove selected contacts from audience
+        List<Movie_Audience__c> maRemoveList = new List<Movie_Audience__c>();
+        System.debug('removeContactIds: ' + removeContactIds);
+        if (removeContactIds != '') {
+            removeContactIds = String.escapeSingleQuotes(removeContactIds);
+            List<String> contactIdList = removeContactIds.split(',');
+            maList = [
+                SELECT Id, Contact__c, Movie_Night__c
+                FROM Movie_Audience__c
+                WHERE Contact__c IN :contactIdList AND Movie_Night__c = :mn.Id
+            ];
+            delete maList;
+        }
+        
+        // remove selected emails from unregistered audience
+        if (removeEmails != '') {
+            List<String> uninvitedList = removeEmails.split(',');
+            String currentEmails = mn.Unregistered_Audience__c;
+            for (String s : uninvitedList) {
+                currentEmails = currentEmails.remove(s);
+            }
+            mn.Unregistered_Audience__c = currentEmails;
+            update mn;
+        }
         
         // TODO: send email invitations
         
@@ -244,6 +418,7 @@ public class MovieNightExtension {
     
     // delete movie night event
     public PageReference deleteMovieNight() {
+        delete mn;
         
         // return movie night page
         PageReference page = System.Page.MovieNight;
@@ -255,11 +430,7 @@ public class MovieNightExtension {
     public String showtime {
         get {
             if (mn.Id != null) {
-                Datetime dt = [
-                    SELECT Id, Showtime__c
-                    FROM Movie_Night__c
-                    WHERE Id = :mn.Id
-                ].Showtime__c;
+                Datetime dt = mn.Showtime__c;
                 String st = dt.format('E M/d/yyyy h:mm') + dt.format('a').toLowerCase();
                 return st;
             }
@@ -291,6 +462,13 @@ public class MovieNightExtension {
             ma.Attending__c = true;
         }
         update ma;
+    }
+    
+    // return movie night organizer's email address
+    public String organizerEmail {
+        get {
+            return mn.CreatedBy.Email;
+        }
     }
     
     // get list of movie suggestions for current movie night
