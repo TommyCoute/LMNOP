@@ -4,6 +4,10 @@
     color: black;
 }
 
+.center {
+    text-align: center;
+}
+
 .gold {
     color: gold;
 }
@@ -371,7 +375,11 @@ div.newUser {
     }
 }
 
-/* new movie night page */
+/* manage movie night page */
+
+.formGroup.audience {
+    margin-bottom: 0px;
+}
 
 .contact {
     background-color: transparent;
@@ -386,10 +394,6 @@ div.newUser {
     text-shadow: 1px 1px 2px black;
 }
 
-.contact i {
-    display: none;
-}
-
 .contact.selected {
     background-color: gold;
     border: 1px solid black;
@@ -397,8 +401,47 @@ div.newUser {
     text-shadow: none;
 }
 
-.contact.selected i {
+.contact.selected i:before {
+    content: '\f058';
+}
+
+.contact.audience {
+    background-color: dimgray;
+    border: 1px solid black;
+    color: white;
+}
+
+.contact.audience.selected span {
+    text-decoration: line-through;
+    text-shadow: 1px 1px 2px black;
+}
+
+.contact.audience i {
+    color: gold;
     display: inline-block;
+    text-shadow: 1px 1px 2px black;
+}
+
+.contact.audience.selected i:before {
+    content: '\f111';
+}
+
+.manage-buttons .cancel {
+    margin-bottom: 5px;
+}
+
+.manage-buttons .delete {
+    margin-bottom: 0px;
+}
+
+label#confirmDelete {
+    margin-bottom: 10px;
+}
+
+@media (min-width: 768px) {
+    .manage-buttons input, .manage-buttons a {
+        width: unset;
+    }
 }
 
 /* movienight pages */
