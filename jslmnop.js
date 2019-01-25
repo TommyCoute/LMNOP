@@ -24,21 +24,38 @@ function toggleDA() {
 // set date/time using custom input field
 $(document).ready(function() {
     $('input[field="inputdate"]').prop('type', 'datetime-local');
+    $('input[field="inputdate"]').val($('input[field="displaydate"]').val());
 });
 
-function setTime() {
-    var formdate = $('input[field="formdate"]').val();
-    $('input[field="apexdate"]').val(formdate.replace('T', ' '));
-}
-
 // toggle audience contact selection
-function toggleContact(id) {
+function toggleContact(id, name) {
     var cids = $('input[field="contactIds"]').val();
+    var rids = $('input[field="removeContactIds"]').val();
+    var eids = $('input[field="removeEmails"]').val();
     if ($('div#' + id).hasClass('selected')) {
         $('div#' + id).removeClass('selected');
-        $('input[field="contactIds"]').val(cids.replace(id + ',', ''));
+        // separate contact lists for managing existing movie night audiences
+        if ($('div#' + id).hasClass('unregistered')) {
+            $('input[field="removeEmails"]').val(eids.replace(name + ',', ''));
+        } else if ($('div#' + id).hasClass('audience')) {
+            $('input[field="removeContactIds"]').val(rids.replace(id + ',', ''));
+        } else {
+            $('input[field="contactIds"]').val(cids.replace(id + ',', ''));
+        }
     } else {
-        $('div#' + id).addClass('selected');
-        $('input[field="contactIds"]').val(cids + id + ',');
+        // prompt before uninviting audience contact
+        if ($('div#' + id).hasClass('audience')) {
+            if (confirm('Do you want to uninvite ' + name + '?')) {
+                $('div#' + id).addClass('selected');
+                if ($('div#' + id).hasClass('unregistered')) {
+                    $('input[field="removeEmails"]').val(eids + name + ',');
+                } else {
+                    $('input[field="removeContactIds"]').val(rids + id + ',');
+                }
+            }
+        } else {
+            $('div#' + id).addClass('selected');
+            $('input[field="contactIds"]').val(cids + id + ',');
+        }
     }
 }
