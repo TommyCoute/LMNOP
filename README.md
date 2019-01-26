@@ -20,8 +20,10 @@ A managed/unmanaged package may be available in the future. For now, it is possi
     ''))))))))
 1.2. Location__c (text, 255) - The event location for hosting a movie night
 1.3. Movie_Title__c (text, 255) - Displays the selected movie suggestion
-1.4. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
-1.5. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
+1.4. Organizer_Email__c (formula text) - Contains the email address of the movie night organizer using the following formula:
+     CreatedBy.Email
+1.5. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+1.6. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
 2.1. Attending__c (checkbox) - Indicates if the invited audience contact will be attending the movie night
 2.2. Contact__c (master-detail)
@@ -49,5 +51,11 @@ Record: create an API token with the name "OMDb", and put your API token in the 
 NOTE: all static resources listed below should be set to "Public"
 1. jslmnop - JS 
 2. lmnop - CSS
-3. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
-4. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
+3. Countdown - Background image for countdown timer
+4. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
+5. MovieBorderBottom - Bottom border grid for lmnop movie frames
+6. MovieBorderTop - Top border grid for lmnop movie frames
+7. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
+
+# MISC SETUP
+1. Remote Site Settings: add http://omdbapi.com
