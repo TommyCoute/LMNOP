@@ -22,6 +22,9 @@
                 html {
                 background-image: url('{!$Resource.MovieTheater}');
                 }
+                .cdNumber {
+                background-image: url('{!$Resource.Countdown}');
+                }
             </style>
         </head>
         <body>
