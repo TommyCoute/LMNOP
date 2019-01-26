@@ -7,6 +7,10 @@ function fixFooter() {
 window.addEventListener('resize', fixFooter);
 $(document).ready(function() {
     fixFooter();
+    // again after a few seconds
+    setTimeout(function() {
+        fixFooter();
+    }, 3000);
 });
 
 // toggle disclaimer acknowledgement
@@ -59,3 +63,10 @@ function toggleContact(id, name) {
         }
     }
 }
+
+// shift countdown text
+$(document).ready(function() {
+    var cd = $('div.cdText:first').text().split(' ');
+    $('div.cdNumber').text(cd.shift());
+    $('div.cdText').text(cd.join(' '));
+})
