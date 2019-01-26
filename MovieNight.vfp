@@ -87,9 +87,8 @@
                                             </p>
                                             <p>
                                                 <i class="fas fa-film"></i>
-                                                Top Suggestion:
-                                                <apex:outputText value=" {!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
-                                                                        '(no movies suggested yet)', mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
+                                                <apex:outputText value="{!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, 
+                                                                        ' (no movies suggested yet)', ' Top Suggestion: ' + mn.maRecord.Movie_Night__r.Movie_Title__c)}" />
                                             </p>
                                             <p>
                                                 <i class="fas fa-hourglass-half cal-countdown"></i>
@@ -165,7 +164,7 @@
                             <apex:commandLink action="{!toggleAttending}" styleClass="btn btn-primary titan{!IF(isAttending, '', ' notAttending')}">
                                 <i class="far fa-{!IF(isAttending, 'check-circle', 'circle')}"></i> Attending
                             </apex:commandLink>
-                            <a href="mailto:{!organizerEmail}?subject=Movie Night {!SUBSTITUTE(showtime, '/', '-')}" class="btn btn-primary titan">
+                            <a href="mailto:{!Movie_Night__c.Organizer_Email__c}?subject=Movie Night {!SUBSTITUTE(showtime, '/', '-')}" class="btn btn-primary titan">
                                 <i class="fas fa-envelope"></i> Email Organizer
                             </a>
                         </div>
@@ -186,89 +185,114 @@
                         <div class="tab-content" id="lmnopTabs">
                             <!-- SUGGESTED MOVIES CONTENT -->
                             <div class="tab-pane fade show active in" id="movies" role="tabpanel">
-                                <h2>
-                                    {!Movie_Night__c.Countdown__c}
-                                </h2>
-                                <h3 class="marker">
-                                    Current Suggestions
-                                </h3>
-                                <div class="grayback">
-                                    <apex:repeat value="{!suggestedMovies}" var="movie">
-                                        <div>
-                                            <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                {!movie.Name}
-                                            </a>
-                                        </div>
-                                    </apex:repeat>
-                                </div>
-                                
-                                <div class="lmnopForm findMovie">
-                                    <input id="suggestQuery" type="text" placeholder="Find new movie" />
-                                    <button id="buttonQuery" class="btn btn-primary" type="button">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
-                                <div id="blankSearch">
-                                    Please enter at least 3 characters to perform search.
-                                </div>
-                                <div id="searchResults" style="display:{!IF(userQuery = null , 'none', 'block')}">
-                                    <apex:outputPanel rendered="{!IF(userQuery != null && omdbList.size = 0, 'true', 'false')}">
-                                        <div>
-                                            No results found for "{!userQuery}"
-                                        </div>
-                                    </apex:outputPanel>
-                                    <apex:outputPanel rendered="{!omdbList.size > 0}">
-                                        <apex:form >
-                                            <apex:messages />
-                                            <div>
-                                                Search results (select movie to add to list)
-                                                <apex:repeat value="{!omdbList}" var="movie">
-                                                    <div class="searchResult" onclick="selectMovie('{!movie.ImdbId}')">
-                                                        <img src="{!IF(movie.Poster = 'N/A', $Resource.PosterNotFound, movie.Poster)}" />
-                                                        <div>
-                                                            {!movie.Title} ({!movie.Year})
-                                                        </div>
-                                                    </div>
-                                                </apex:repeat>
+                                <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
+                                <!-- BEFORE SHOWTIME -->
+                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
+                                    <div class="countdown">
+                                        <div class="cdNumber titan"></div>
+                                        <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                    </div>
+                                    <h3 class="titan">
+                                        Current Suggestions
+                                    </h3>
+                                    <div class="grayback">
+                                        <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
+                                            <div class="white">
+                                                No movies have been suggested yet
                                             </div>
-                                            <apex:actionFunction action="{!suggestMovie}" name="submitMovieSuggestion" reRender=""
-                                                                 oncomplete="reloadNight()">
-                                                <apex:param name="imdb" value="" />
-                                            </apex:actionFunction>
-                                        </apex:form>
-                                    </apex:outputPanel>
-                                </div>
+                                        </apex:outputPanel>
+                                        <apex:repeat value="{!suggestedMovies}" var="movie">
+                                            <div>
+                                                <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                    {!movie.Name}
+                                                </a>
+                                            </div>
+                                        </apex:repeat>
+                                    </div>
+                                    
+                                    <div class="lmnopForm findMovie">
+                                        <input id="suggestQuery" type="text" placeholder="Find new movie" />
+                                        <button id="buttonQuery" class="btn btn-primary" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <div id="blankSearch">
+                                        Please enter at least 3 characters to perform search.
+                                    </div>
+                                    <div id="searchResults" style="display:{!IF(userQuery = null , 'none', 'block')}">
+                                        <apex:outputPanel rendered="{!IF(userQuery != null && omdbList.size = 0, 'true', 'false')}">
+                                            <div>
+                                                No results found for "{!userQuery}"
+                                            </div>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!omdbList.size > 0}">
+                                            <apex:form >
+                                                <apex:messages />
+                                                <div>
+                                                    <span id="searchResults">
+                                                        Search results (select movie to add to list)
+                                                    </span>
+                                                    <apex:repeat value="{!omdbList}" var="movie">
+                                                        <div class="searchResult" onclick="selectMovie('{!movie.Title}', '{!movie.ImdbId}')">
+                                                            <div class="poster" style="border-image-source:url({!$Resource.MovieBorderTop})">
+                                                                <a href="javascript:void(null);">
+                                                                    <img src="{!IF(movie.Poster = 'N/A', $Resource.PosterNotFound, movie.Poster)}" />
+                                                                </a>
+                                                            </div>
+                                                            <div class="title" style="border-image-source:url({!$Resource.MovieBorderBottom})">
+                                                                <div>
+                                                                    {!movie.Title} ({!movie.Year})
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </apex:repeat>
+                                                </div>
+                                                <apex:actionFunction action="{!suggestMovie}" name="submitMovieSuggestion" reRender=""
+                                                                     oncomplete="reloadNight()">
+                                                    <apex:param name="imdb" value="" />
+                                                </apex:actionFunction>
+                                            </apex:form>
+                                        </apex:outputPanel>
+                                    </div>
+                                </apex:outputPanel>
+                                <!-- AFTER SHOWTIME -->
+                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
+                                    <div class="countdown">
+                                        Voting has ended!
+                                    </div>
+                                    <p>
+                                        <i class="fas fa-film"></i>
+                                        Selected Movie: {!Movie_Night__c.Movie_Title__c}
+                                    </p>
+                                    <div class="grayback">
+                                        <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
+                                            <div class="white">
+                                                No movies have been suggested yet
+                                            </div>
+                                        </apex:outputPanel>
+                                        <apex:repeat value="{!suggestedMovies}" var="movie">
+                                            <div>
+                                                <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                    {!movie.Name}
+                                                </a>
+                                            </div>
+                                        </apex:repeat>
+                                    </div>
+                                </apex:outputPanel>
                             </div>
                             
                             <!-- REFRESHMENTS CONTENT -->
                             <div class="tab-pane fade" id="refreshments" role="tabpanel">
-                                
+                                <div class="countdown">
+                                    <div class="cdNumber titan"></div>
+                                    <div class="cdText"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </apex:outputPanel>
             </apex:outputPanel>
             <script type="text/javascript">
-            /* request form */
-            function toggleRequest() {
-                if ($('#requestCircle').hasClass('fa-plus-circle')) {
-                    $('#requestCircle').removeClass('fa-plus-circle').addClass('fa-minus-circle');
-                } else {
-                    $('#requestCircle').removeClass('fa-minus-circle').addClass('fa-plus-circle');
-                }
-                $('.requestForm').toggle(200);
-            }
-            
-            function submitRequest() {
-                var datetime = document.getElementById("requestShowtime").value;
-                var comments = document.getElementById("requestComments").value;
-                requestMovieNightName(datetime, comments);
-            }
-            
-            function reloadCalendar() {
-                location.href = "{!$Site.Prefix}/MovieNight";
-            }
-            
             /* search bar */
             document.getElementById("suggestQuery").addEventListener("keyup", function(event) {
                 if (event.keyCode === 13) {
@@ -287,14 +311,16 @@
                     document.getElementById("searchResults").style.display = "none";
                 } else {
                     location.href = "{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}&titlesearch=" + q;
+                    fixFooter();
                 }
             }
             
             /* movie suggestion */
-            function selectMovie(imdbid) {
-                submitMovieSuggestion(imdbid);
+            function selectMovie(title, imdbid) {
+                if (confirm('Do you want to add "' + title + '" to the list?')) {
+                    submitMovieSuggestion(imdbid);
+                }
             }
-            
             function reloadNight() {
                 location.href = "{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}";
             }
