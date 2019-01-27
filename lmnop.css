@@ -596,6 +596,64 @@ li.nav-item.active>a.nav-link {
     width: 60px;
 }
 
+.suggestions-container {
+    margin: 15px 0px;
+    padding: 0px;
+}
+
+.suggestions-container div {
+    margin: 0px;
+    padding: 0px;
+}
+
+.suggestions-container a {
+    text-shadow: 1px 1px 2px black;
+    word-break: break-word;
+}
+
+div.suggestions-blank {
+    background-color: #666666;
+    border 1px solid gray;
+    border-radius: 4px;
+    color: white;
+    padding: 10px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.suggestions-header .col-xs-11 {
+    padding-left: 10px;
+}
+
+.suggestions-header .col-xs-1 {
+    padding-right: 10px;
+    text-align: right;
+}
+
+div.suggestion {
+    background-color: #666666;
+    border 1px solid gray;
+    border-radius: 0px;
+    margin: 2px 0px;
+    padding: 5px 10px;
+}
+
+div.suggestion.past {
+    opacity: .5;
+}
+
+div.suggestion:first-of-type {
+    border-radius: 4px 4px 0px 0px;
+    opacity: 1;
+}
+
+div.suggestion:last-of-type {
+    border-radius: 0px 0px 4px 4px;
+}
+
+div.suggestion .col-xs-1 {
+    text-align: right;
+}
+
 .findMovie {
     display: flex;
 }
@@ -615,36 +673,15 @@ li.nav-item.active>a.nav-link {
     padding: 5px 10px;
 }
 
-.grayback {
-    background-color: #707070;
-    border: 1px solid gray;
-    border-radius: 4px;
-    margin: -5px 0px 10px 0px;
-    padding: 10px;
-}
-
-.grayback a {
-    word-break: break-word;
-}
-
 div#blankSearch {
     display: none;
-}
-
-div#blankSearch {
     margin: 10px 10px 5px 10px;
 }
 
 div#searchResults {
-    color: white;
-}
-
-div#searchResults {
-    color: white;
-}
-
-div#searchResults {
     background-color: black;
+    border-radius: 4px;
+    color: white;
     margin-top: 10px;
     padding: 10px;
     text-align: center;
@@ -703,26 +740,38 @@ span#searchResults {
     padding: 5px;
 }
 
-/* .searchResult {
-    display: table;
-    margin-top: 10px;
+#refreshments .lmnopForm {
+    display: flex;
 }
 
-.searchResult img {
-    border: 2px solid gold;
-    margin-right: 5px;
+#refreshments .lmnopForm input {
+    border: 1px solid gray;
+    border-right: 0px;
+    border-radius: 4px 0px 0px 0px;
+    flex: 1;
+    padding-left: 5px;
 }
 
-.searchResult div {
-    color: gold;
-    display: table-cell;
+#refreshments .lmnopForm button {
+    border: 1px solid gray;
+    border-left: 0px;
+    border-radius: 0px 4px 0px 0px;
+    padding: 5px 10px;
+}
+
+.refreshments {
+    background-color: #666666;
+    border: 1px solid gray;
+    border-radius: 0px 0px 4px 4px;
+    color: white;
+    padding: 10px;
+    text-shadow: 1px 1px 2px black;
+}
+
+.refreshment .createdby {
     vertical-align: middle;
 }
 
-
-
-div#searchResults {
-    background-color: black;
-    margin-top: 10px;
-    padding: 10px;
-} */
+.refreshment .titan {
+    font-size: .8em;
+}
