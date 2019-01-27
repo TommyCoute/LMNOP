@@ -184,7 +184,7 @@
                     <div class="silverback tabs">
                         <div class="tab-content" id="lmnopTabs">
                             <!-- SUGGESTED MOVIES CONTENT -->
-                            <div class="tab-pane fade show active in" id="movies" role="tabpanel">
+                            <div class="tab-pane active in" id="movies" role="tabpanel">
                                 <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
                                 <!-- BEFORE SHOWTIME -->
                                 <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
@@ -192,22 +192,37 @@
                                         <div class="cdNumber titan"></div>
                                         <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
                                     </div>
-                                    <h3 class="titan">
-                                        Current Suggestions
-                                    </h3>
-                                    <div class="grayback">
+                                    
+                                    <div class="container-fluid suggestions-container">
+                                        <div class="row suggestions-header">
+                                            <div class="col-xs-11">
+                                                <i class="fas fa-film"></i>
+                                            </div>
+                                            <div class="col-xs-1">
+                                                <i class="fas fa-clipboard-check"></i>
+                                            </div>
+                                        </div>
                                         <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
-                                            <div class="white">
+                                            <div class="row suggestions-blank">
                                                 No movies have been suggested yet
                                             </div>
                                         </apex:outputPanel>
-                                        <apex:repeat value="{!suggestedMovies}" var="movie">
-                                            <div>
-                                                <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                    {!movie.Name}
-                                                </a>
-                                            </div>
-                                        </apex:repeat>
+                                        <div class="suggestions">
+                                            <apex:repeat value="{!suggestedMovies}" var="movie">
+                                                <div class="row suggestion">
+                                                    <div class="col-xs-11">
+                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                            {!movie.Name} ({!movie.Year__c})
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-xs-1">
+                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                            5
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </apex:repeat>
+                                        </div>
                                     </div>
                                     
                                     <div class="lmnopForm findMovie">
@@ -258,34 +273,61 @@
                                 <!-- AFTER SHOWTIME -->
                                 <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
                                     <div class="countdown">
-                                        Voting has ended!
+                                        Voting has ended
                                     </div>
-                                    <p>
-                                        <i class="fas fa-film"></i>
-                                        Selected Movie: {!Movie_Night__c.Movie_Title__c}
-                                    </p>
-                                    <div class="grayback">
+                                    
+                                    <div class="container-fluid suggestions-container">
+                                        <div class="row suggestions-header">
+                                            <div class="col-xs-11">
+                                                <i class="fas fa-film"></i>
+                                            </div>
+                                            <div class="col-xs-1">
+                                                <i class="fas fa-clipboard-check"></i>
+                                            </div>
+                                        </div>
                                         <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
-                                            <div class="white">
+                                            <div class="row suggestions-blank">
                                                 No movies have been suggested yet
                                             </div>
                                         </apex:outputPanel>
-                                        <apex:repeat value="{!suggestedMovies}" var="movie">
-                                            <div>
-                                                <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                    {!movie.Name}
-                                                </a>
-                                            </div>
-                                        </apex:repeat>
+                                        <div class="suggestions">
+                                            <apex:repeat value="{!suggestedMovies}" var="movie">
+                                                <div class="row suggestion past">
+                                                    <div class="col-xs-11">
+                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                            {!movie.Name} ({!movie.Year__c})
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-xs-1">
+                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
+                                                            5
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </apex:repeat>
+                                        </div>
                                     </div>
                                 </apex:outputPanel>
                             </div>
                             
                             <!-- REFRESHMENTS CONTENT -->
-                            <div class="tab-pane fade" id="refreshments" role="tabpanel">
-                                <div class="countdown">
-                                    <div class="cdNumber titan"></div>
-                                    <div class="cdText"></div>
+                            <div class="tab-pane" id="refreshments" role="tabpanel">
+                                <div class="lmnopForm">
+                                    <input id="suggestQuery" type="text" placeholder="Add a refreshment..." />
+                                    <button id="buttonQuery" class="btn btn-primary titan" type="button">
+                                        Submit
+                                    </button>
+                                </div>
+                                <div id="blankSearch">
+                                    Please enter at least 3 characters to perform search.
+                                </div>
+                                <div class="refreshments">
+                                    <apex:repeat value="{!refreshments}" var="r">
+                                        <div class="refreshment">
+                                            <span class="createdby">{!r.CreatedBy.Name}: </span>
+                                            <span class="titan">{!r.name}</span>
+                                        </div>
+                                    </apex:repeat>
                                 </div>
                             </div>
                         </div>
