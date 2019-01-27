@@ -15,6 +15,7 @@
  * 2019-01-24	TKC		Refactored to use "mn" movie night record instead of querying again througout class 
  * 						NOTE: requires adding input fields on each VF page for each field used in class
  * 2019-01-24	TKC		Completed updateMovieNight() and deleteMovieNight() methods
+ * 2019-01-27	TKC		Updated unregisteredAudience getter to never return null value
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -191,19 +192,17 @@ public without sharing class MovieNightExtension {
     // return list of unregistered audience members for the current movie night
     public List<String> unregisteredAudience {
         get {
+            List<String> emailList = new List<String>();
             // create list of email addresses from current "unregistered audience" field
             if (mn.Unregistered_Audience__c != null) {
                 List<String> ua = String.escapeSingleQuotes(mn.Unregistered_Audience__c).replace(' ', '').split(',');
-                List<String> emailList = new List<String>();
                 for (String s : ua) {
                     if (s.length() > 0) {
                         emailList.add(s);
                     }
                 }
-                return emailList;
-            } else {
-                return null;
             }
+            return emailList;
         }
     }
     
@@ -462,13 +461,6 @@ public without sharing class MovieNightExtension {
             ma.Attending__c = true;
         }
         update ma;
-    }
-    
-    // return movie night organizer's email address
-    public String organizerEmail {
-        get {
-            return mn.CreatedBy.Email;
-        }
     }
     
     // get list of movie suggestions for current movie night
