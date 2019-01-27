@@ -6,7 +6,7 @@
                     <apex:pageMessages id="error" />
                     <div>
                         Email
-                        <apex:inputText id="email" value="{!username}" />
+                        <apex:inputText id="email" value="{!username}" html-field="email" />
                     </div>
                     <div>
                         Password

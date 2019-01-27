@@ -13,6 +13,11 @@ $(document).ready(function() {
     }, 3000);
 });
 
+// fix login page email fields
+$(document).ready(function () {
+    $('input[field="email"]').prop('type', 'email');
+});
+
 // toggle disclaimer acknowledgement
 function toggleDA() {
     var accepted = $('input#confirmation').prop('checked');
