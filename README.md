@@ -40,12 +40,27 @@ A managed/unmanaged package may be available in the future. For now, it is possi
 4.1. Movie_Night__c (master-detail)
 5. User - standard user object
 5.1. lmnop_Disclaimer_Acknowledged__c - Records the date/time when the user acknowledged the lmnop community disclaimer
+6. Activity__c - Used to track site activity
+6.1. Contact__c (lookup)
+6.2. IP_Address__c (text, 16) - The IP address of the site user
+6.3. Query__c (text, 255) - The query used when searching for movie titles
+6.4. Referer__c (long text area) - The contents of the "referer" page header (tracks link clicks)
+6.5. URI__c (long text area) - The universal resource indicator (URI) contents from the page header (the full site path after the host name)
+6.6. User__c (lookup)
+6.7. User_Agent__c (long text area) - The contents of the "user agent" page header (browser/navigator information)
 
 # The folling custom settings and fields must be created:
 NOTE: in order to create new custom settings of type "List", you must enable "Manage List Custom Settings Type". This option is found under "Data", then "Schema Settings" within the Salesforce setup page.
 1. API_Tokens__c (list) - Stores API tokens for use within apex code
 1.1. Token__c (text, 255) - The API key/token to be used
-Record: create an API token with the name "OMDb", and put your API token in the new Token__c field. You can obtain an OMDb API key from http://www.omdbapi.com/
+Records: 
+1. Create an API token with the name "OMDb", and put your API token in the new Token__c field. You can obtain an OMDb API key from http://www.omdbapi.com/
+2. Create an API token with the name "Google_Analytics", and put your tracking ID in the Token__c field. While not exactly an API, lmnop will look here to integrate with your Google Analytics account, if used. 
+
+NOTE: if using Google Analytics, you can configure custom "dimensions" to collect additional information from lmnop. The following dimensions can be collected (in this order:)
+1. User ID - gets the user ID using the Visualforce global variable $User.Id
+2. IP Address - gets the IP address using the lmnopActivity.gaIP getter
+3. Title Search - gets the user query when searching for movies using the Visualforce global variable $CurrentPage.parameters.titlesearch
 
 # The follwing static resources must be created:
 NOTE: all static resources listed below should be set to "Public"

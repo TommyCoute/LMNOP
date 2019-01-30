@@ -1,0 +1,80 @@
+/*************************************************
+ * lmnop activity controller
+ * Test code provided by lmnopTest
+ * 
+ * DATE			DEV		NOTES
+ * 2019-01-29	TKC		Initial creation
+*************************************************/
+
+public class lmnopActivity {
+    // get Google Analytics tracking ID and custom dimensions
+    public String gaId {
+        get {
+            String gaIdCheck = [
+                SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'Google_Analytics' LIMIT 1
+            ].Token__c;
+            if (gaIdCheck != null) {
+                return gaIdCheck;
+            } else {
+                return '';
+            }
+        }
+    }
+    String ip1 = ApexPages.currentPage().getHeaders().get('True-Client-IP');
+    String ip2 = ApexPages.currentPage().getHeaders().get('X-Salesforce-SIP');
+    String ip3 = ApexPages.currentPage().getHeaders().get('X-Forwarded-For');
+    public String gaIP {
+        get {
+            // check each of the IP addresses available to Salesforce and return the first one found
+            if (ip1 != null) {
+                return ip1;
+            } else if (ip2 != null) {
+                return ip2;
+            } else if (ip3 != null) {
+                return ip3;
+            } else {
+                return '';
+            }
+        }
+    }
+    
+    // log new activity record
+    public PageReference logActivity() {
+        // prepare variables that could be blank
+        String contactId = '';
+        if ([SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId != null) {
+            contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
+        }
+        String ipAddress = '';
+        if (ip1 != null) {
+            ipAddress = ip1;
+        } else if (ip2 != null) {
+            ipAddress = ip2;
+        } else if (ip3 != null) {
+            ipAddress = ip3;
+        }
+        String titleSearch = '';
+        if (ApexPages.currentPage().getParameters().get('titlesearch') != null) {
+            titleSearch = ApexPages.currentPage().getParameters().get('titlesearch');
+        }
+        
+        // create new activity record
+        try {
+            Activity__c a = new Activity__c();
+            a.User__c = UserInfo.getUserId();
+            if (contactId != '') {
+                a.Contact__c = contactId;
+            }
+            a.IP_Address__c = ipAddress;
+            a.Query__c = titleSearch;
+            a.URI__c = ApexPages.currentPage().getUrl();
+            a.User_Agent__c = ApexPages.currentPage().getHeaders().get('User-Agent');
+            a.Referer__c = ApexPages.currentPage().getHeaders().get('Referer');
+            
+            insert a;
+        } Catch (Exception ex) {
+            System.debug(ex);
+        }
+        return null;
+    }
+}
