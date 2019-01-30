@@ -43,7 +43,7 @@
                     </div>
                     <div class="formSubmit">
                         <apex:commandButton id="save" value="Update" action="{!save}" oncomplete="location.reload();return false;" styleClass="btn btn-primary titan" />
-                        <a href="{!$Site.Prefix}/secur/forgotpassword.jsp" class="btn btn-primary titan">
+                        <a href="{!$Site.Prefix}/secur/forgotpassword.jsp?un={!$User.Username}" class="btn btn-primary titan">
                             Reset Password
                         </a>
                     </div>
