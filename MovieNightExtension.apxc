@@ -19,7 +19,7 @@
  * 2019-01-27	TKC		Added initial refreshments getter for movie night detail page
 *************************************************/
 
-public without sharing class MovieNightExtension {
+public class MovieNightExtension {
     
     // extend movie night standard controller
     private final Movie_Night__c mn;
@@ -49,7 +49,7 @@ public without sharing class MovieNightExtension {
     
     // get current user's contact id
     public String contactId = [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
-
+    
     // check disclaimer acknowledgement
     public Boolean acknowledged {
         get {
