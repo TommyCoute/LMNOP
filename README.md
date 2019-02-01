@@ -1,7 +1,7 @@
 Copyright (c) 2019 Tommy Coute
 
 # Overview
-The Little Movie Night Online Planner (LMNOP) is a force.com dev project intended to showcase my work and abilities, while developing something that I find fun and personally interesting. No licenses or rights are granted, however all source code and related objects/settings are documented here for reference.
+The Little Movie Night Online Planner (LMNOP) is a force.com dev project intended to showcase my Salesforce work and abilities, while developing something that I find fun and personally interesting. No licenses or rights are granted, however all source code and related objects/settings are documented here for reference.
 
 # Features
 1. Custom community activity logging: includes a custom "activity" object to record user activity such as the pages viewed, search terms used, browser/OS info, IP address, and also prepares some of this data to pass to Google Analytics. Reports can be created directly in Salesforce and related lists appear under contacts as well.
@@ -32,7 +32,7 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 
 # Custom Objects & Fields
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
-    1. Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula:
+    1. Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula: 
     IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Showtime__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
     IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
     IF(FLOOR((Showtime__c - NOW()) * 24) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24)) + ' hours left to choose a movie', 
