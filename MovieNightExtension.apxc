@@ -17,9 +17,10 @@
  * 2019-01-24	TKC		Completed updateMovieNight() and deleteMovieNight() methods
  * 2019-01-27	TKC		Updated unregisteredAudience getter to never return null value
  * 2019-01-27	TKC		Added initial refreshments getter for movie night detail page
+ * 2019-02-01	TKC		Added access modifier "without sharing" to compensate for more strict OWD
 *************************************************/
 
-public class MovieNightExtension {
+public without sharing class MovieNightExtension {
     
     // extend movie night standard controller
     private final Movie_Night__c mn;
@@ -218,7 +219,7 @@ public class MovieNightExtension {
         // create new movie night
         insert mn;
         System.debug('mn.ua: ' + mn.Unregistered_Audience__c);
-        
+                
         // add creator and selected contacts to audience
         List<Movie_Audience__c> maList = new List<Movie_Audience__c>();
         Movie_Audience__c me = new Movie_Audience__c();
