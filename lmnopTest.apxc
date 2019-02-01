@@ -1,0 +1,202 @@
+/*************************************************
+* Code coverage for lmnop apex
+* 
+* DATE			DEV		NOTES
+* 2019-02-01	TKC		Initial creation
+*************************************************/
+@isTest
+private class lmnopTest {
+    
+    // test data for other methods - new user    
+    private static User testUser() {
+        // create test account
+        Account acc = new Account();
+        acc.Name = 'test account';
+        acc.BillingState = 'CA';
+        acc.BillingStreet = '123 Main St';
+        acc.BillingCity = 'Beverly Hills';
+        acc.BillingPostalCode = '90210';
+        acc.Phone = '999-555-1234';
+        insert acc;
+        
+        // set profile id
+        // NOTE: MUST UPDATE PROFILE NAME TO MATCH COMMUNITY PROFILE
+        String pId = [SELECT Name FROM Profile WHERE Name = 'Movie Night User'].Id;
+        
+        // create test contact
+        Contact ct = new Contact();
+        ct.FirstName = 'test';
+        ct.LastName = 'user';
+        ct.Email = 'testuser@example.com';
+        ct.accountid = acc.id;
+        insert ct;
+        
+        // create test user
+        User u = new User();
+        u.ContactID = ct.Id;
+        u.Username = ct.Email;
+        u.FirstName = ct.FirstName;
+        u.LastName = ct.LastName;
+        u.Email = ct.Email;
+        u.Alias = 'test';
+        u.CommunityNickname = 'test';
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey = 'ISO-8859-1';
+        u.ProfileId = pId;
+        u.LanguageLocaleKey='en_US';
+        insert u;
+        return u;
+    }
+    
+    // test data for other methods - acknowledged user    
+    private static User testUserAcknowledged() {
+        // create test account
+        Account acc = new Account();
+        acc.Name = 'test account';
+        acc.BillingState = 'CA';
+        acc.BillingStreet = '123 Main St';
+        acc.BillingCity = 'Beverly Hills';
+        acc.BillingPostalCode = '90210';
+        acc.Phone = '999-555-1234';
+        insert acc;
+        
+        // set profile id
+        // NOTE: MUST UPDATE PROFILE NAME TO MATCH COMMUNITY PROFILE
+        String pId = [SELECT Name FROM Profile WHERE Name = 'Movie Night User'].Id;
+        
+        // create test contact
+        Contact ct = new Contact();
+        ct.FirstName = 'test';
+        ct.LastName = 'user';
+        ct.Email = 'testuser@example.com';
+        ct.accountid = acc.id;
+        insert ct;
+        
+        // create test user
+        User u = new User();
+        u.ContactID = ct.Id;
+        u.Username = ct.Email;
+        u.FirstName = ct.FirstName;
+        u.LastName = ct.LastName;
+        u.Email = ct.Email;
+        u.Alias = 'test';
+        u.CommunityNickname = 'test';
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.LocaleSidKey = 'en_US';
+        u.EmailEncodingKey = 'ISO-8859-1';
+        u.ProfileId = pId;
+        u.LanguageLocaleKey='en_US';
+        u.lmnop_Disclaimer_Acknowledged__c = DateTime.now();
+        insert u;
+        return u;
+    }
+    
+    // copied from CommunitiesSelfRegControllerTest
+    private static testMethod void testRegistration() {
+        lmnopRegistrationController con = new lmnopRegistrationController();
+        con.firstName = 'FirstName';
+        con.lastName = 'LastName';
+        con.email = 'test@force.com';
+        con.communityNickname = 'test';
+        
+        // registerUser will always return null when the page isn't accessed as a guest user
+        System.assert(con.registerUser() == null);    
+        
+        con.password = 'abcd1234';
+        con.confirmPassword = 'abcd123';
+        System.assert(con.registerUser() == null);
+    }
+    
+    private static testMethod void testWelcome() { 
+        System.runAs(lmnopTest.testUser()) {
+            Movie_Night__c mnTest = new Movie_Night__c();
+            PageReference pageRef = Page.MovieNight;
+            Test.setCurrentPage(pageRef);
+            ApexPages.StandardController sc = new ApexPages.StandardController(mnTest);
+            MovieNightExtension con = new MovieNightExtension(sc);
+            
+            // should return false before disclaimer is acknowledged
+            System.assertEquals(false, con.acknowledged);
+            
+            // should return true after disclaimer is acknowledged
+            con.recordAcknowledgement();
+            System.assertEquals(true, con.acknowledged);
+        }
+    }
+    
+    private static testMethod void testMovieNight() {
+        System.runAs(lmnopTest.testUserAcknowledged()) {            
+            // prepare new movie night page
+            Movie_Night__c nmn = new Movie_Night__c();
+            PageReference pageRef = Page.ManageMovieNight;
+            Test.setCurrentPage(pageRef);
+            ApexPages.StandardController sc = new ApexPages.StandardController(nmn);
+            MovieNightExtension con = new MovieNightExtension(sc);
+            
+            // user input
+            con.contactIds = '';
+            DateTime dt = DateTime.now() + 1;
+            con.inputDate = String.valueOf(dt).replace(' ', 'T').left(16);
+            nmn.Location__c = 'testing123';
+            nmn.Unregistered_Audience__c = 'test1@example.com, test2@example.com';
+            con.createMovieNight();
+            
+            // make sure new record was created
+            List<Movie_Night__c> mnTest = [
+                SELECT Id, Location__c
+                FROM Movie_Night__c
+                WHERE Location__c = 'testing123'
+            ];
+            System.assertEquals(1, mnTest.size());
+            
+            // prepare second new movie night page
+            Movie_Night__c nmn2 = new Movie_Night__c();
+            sc = new ApexPages.StandardController(nmn2);
+            con = new MovieNightExtension(sc);
+            
+            // user input with date in past
+            con.contactIds = '';
+            dt = DateTime.now() - 1;
+            con.inputDate = String.valueOf(dt).replace(' ', 'T').left(16);
+            nmn2.Location__c = 'testing123';
+            nmn2.Unregistered_Audience__c = 'test1@example.com, test2@example.com';
+            con.createMovieNight();
+            
+            // make sure new record was created
+            mnTest = [
+                SELECT Id, Location__c, Showtime__c
+                FROM Movie_Night__c
+                WHERE Location__c = 'testing123'
+                ORDER BY CreatedDate ASC
+            ];
+            System.assertEquals(2, mnTest.size());
+            
+            // load calendar page
+            pageRef = Page.MovieNight;
+            Test.setCurrentPage(pageRef);
+            sc = new ApexPages.StandardController(new Movie_Night__c());
+            con = new MovieNightExtension(sc);
+            String showTime = con.showTime;
+            List<Movie_Suggestion__c> suggestedMovies = con.suggestedMovies;
+            
+            // make sure the upcoming and past movie nights are loading
+            System.assertEquals(1, con.mnsUpcoming.size());
+            System.assertEquals(1, con.mnsPast.size());
+            
+            // load movie night record page
+            // NOTE: PLACEHOLDER, NEED TO GET URL PARAMETER TO LOAD
+            PageReference pageRef2 = Page.MovieNight;
+            pageRef2.getParameters().put('id', mnTest[0].Id);
+            pageRef2.getParameters().put('titlesearch', 'test');
+            Test.setCurrentPage(pageRef2);
+            sc = new ApexPages.StandardController(mnTest[0]);
+            con = new MovieNightExtension(sc);
+            showTime = con.showTime;
+            suggestedMovies = con.suggestedMovies;
+            Boolean isAttending = con.isAttending;
+            con.toggleAttending();
+            con.toggleAttending();
+        }
+    }    
+}

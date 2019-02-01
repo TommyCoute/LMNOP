@@ -1,6 +1,6 @@
 /*************************************************
  * lmnop Movie Night Registration Controller
- * Test code provided by lmnopRegistrationTest
+ * Test code provided by lmnopTest
  * 
  * DATE			DEV		NOTES
  * 2019-01-15	TKC		Copied from CommunitiesSelfRegController, changed page redirect
