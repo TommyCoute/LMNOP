@@ -18,6 +18,11 @@
  * 2019-01-27	TKC		Updated unregisteredAudience getter to never return null value
  * 2019-01-27	TKC		Added initial refreshments getter for movie night detail page
  * 2019-02-01	TKC		Added access modifier "without sharing" to compensate for more strict OWD
+ * 2019-02-02	TKC		Added getters for movie night refreshments tab (grouping by attending audience)
+ * 2019-02-04	TKC		Updated mnsPast to only return attending audience
+ * 2019-02-04	TKC		Updated createMovieNight() to set Attending__c to true for creator
+ * 2019-02-04	TKC		Created new longShowtime getter for improved formatting
+ * 2019-02-04	TKC		Created updateContactWithUser method to be called from UserTrigger
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -41,7 +46,7 @@ public without sharing class MovieNightExtension {
             SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
             Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, Attending__c
             FROM Movie_Audience__c 
-            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now()
+            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now() AND Attending__c = true
             ORDER BY Movie_Night__r.Showtime__c DESC
         ]) {
             mnsPast.add(new maWrapped(ma));
@@ -82,6 +87,28 @@ public without sharing class MovieNightExtension {
         PageReference page = System.Page.Profile;
         page.setRedirect(true);
         return page;
+    }
+    
+    // update contact name to match user name changes
+    public static void updateContactWithUser(List<User> updatedUsers) {
+        List<User> usersWithContacts = new List<User>();
+        List<String> contactIds = new List<String>();
+        for (User u : updatedUsers) {
+            if (u.ContactId != null) {
+                usersWithContacts.add(u);
+                contactIds.add(u.ContactId);
+            }
+        }
+        List<Contact> contactsWithUpdatedUsers = [
+            SELECT Id, FirstName, LastName
+            FROM Contact
+            WHERE Id IN :contactIds
+        ];
+        for (Integer i = 0; i < usersWithContacts.size(); i++) {
+            contactsWithUpdatedUsers[i].FirstName = usersWithContacts[i].FirstName;
+            contactsWithUpdatedUsers[i].LastName = usersWithContacts[i].LastName;
+        }
+        update contactsWithUpdatedUsers;
     }
     
     // get list of movie nights for current user
@@ -225,6 +252,7 @@ public without sharing class MovieNightExtension {
         Movie_Audience__c me = new Movie_Audience__c();
         me.Movie_Night__c = mn.Id;
         me.Contact__c = contactId;
+        me.Attending__c = true;
         maList.add(me);
         System.debug('contactIds: ' + contactIds);
         if (contactIds != '') {
@@ -438,6 +466,18 @@ public without sharing class MovieNightExtension {
             return null;
         }
     }
+
+    // reformat showtime for current movie night, longer version
+    public String longShowtime {
+        get {
+            if (mn.Id != null) {
+                Datetime dt = mn.Showtime__c;
+                String st = dt.format('EEEE M/d/yyyy h:mm') + dt.format('a').toLowerCase() + ' ' + dt.format('z');
+                return st;
+            }
+            return null;
+        }
+    }
     
     // determine if current user is attending current movie night
     public Boolean isAttending {
@@ -574,7 +614,11 @@ public without sharing class MovieNightExtension {
                         // copy data to new movie selection object
                         Movie_Suggestion__c newSuggestion = new Movie_Suggestion__c();
                         newSuggestion.Movie_Night__c = mn.Id;
-                        newSuggestion.Name = movie.Title;
+                        if (movie.Title.length() > 80) {
+                            newSuggestion.Name = movie.Title.left(77) + '...';
+                        } else {
+                            newSuggestion.Name = movie.Title;
+                        }
                         newSuggestion.Year__c = movie.Year;
                         newSuggestion.Rated__c = movie.Rated;
                         newSuggestion.Runtime__c = movie.Runtime;
@@ -636,19 +680,76 @@ public without sharing class MovieNightExtension {
         public String Value {get;set;}
     }
     
+    // get list of attendees bringing refreshments for current movie night
+    public List<Movie_Audience__c> rContributors {
+        get {
+            if (mn.Id != null) {
+                // get list of contacts attending the current movie night
+                List<Movie_Audience__c> maList = [
+                    SELECT Id, Attending__c, Movie_Night__c, Contact__r.Id, Contact__r.Name
+                    FROM Movie_Audience__c
+                    WHERE Movie_Night__c = :mn.Id AND Attending__c = true
+                    ORDER BY Contact__r.Name ASC
+                ];
+                
+                // get set of contact IDs brining refreshments to current movie night
+                Set<String> rcSet = new Set<String>();
+                for (Refreshment__c r : refreshments) {
+                    rcSet.add(r.CreatedBy.ContactId);
+                }
+                
+                // add contacts in set to filtered list
+                List<Movie_Audience__c> maListFiltered = new List<Movie_Audience__c>();
+                for (Movie_Audience__c ma : maList) {
+                    if (rcSet.contains(ma.Contact__r.Id)) {
+                        maListFiltered.add(ma);
+                    }
+                }
+                
+                return maListFiltered;
+            } else {
+                return null;
+            }
+        }
+    }
+    
     // get list of refreshments for current movie night
     public List<Refreshment__c> refreshments {
         get {
             if (mn.Id != null) {
                 return [
-                    SELECT Id, Name, Movie_Night__c, CreatedBy.Name
+                    SELECT Id, Name, Movie_Night__c, CreatedBy.Id, CreatedBy.ContactId
                     FROM Refreshment__c 
                     WHERE Movie_Night__c = :mn.Id
-                    ORDER BY CreatedDate DESC
+                    ORDER BY CreatedDate ASC
                 ];
             } else {
                 return null;
             }
         }
+    }
+    
+    // add new refreshment to current movie night
+    public String newRefreshment {get;set;}
+    public void submitRefreshment() {
+        Refreshment__c nr = new Refreshment__c();
+        nr.Name = newRefreshment;
+        nr.Movie_Night__c = mn.Id;
+        insert nr;
+    }
+    
+    // remove refreshment from movie night
+    public void removeItem() {
+        
+        // get item id from user selection
+        String item = ApexPages.currentPage().getParameters().get('ritem');
+        
+        Refreshment__c rItem = [
+            SELECT Id
+            FROM Refreshment__c
+            WHERE Id = :item
+        ];
+        delete rItem;
+        
     }
 }
