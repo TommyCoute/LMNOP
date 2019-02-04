@@ -32,11 +32,15 @@ html {
     background-repeat: no-repeat;
     background-size: auto 750px;
     font-size: 22px;
+    min-height: 100%;
+    position: relative;
 }
 
 @media (min-width: 768px) {
     html {
         background-size: auto 1080px;
+        background-position-x: calc(50% + 15px);
+        background-position-y: -135px;
     }
 }
 
@@ -72,7 +76,7 @@ h3 {
 a, a:hover {
     color: gold;
     text-decoration: none;
-    word-break: break-all;
+    word-break: break-word;
 }
 
 /* general classes */
@@ -217,6 +221,7 @@ a, a:hover {
 }
 
 .lmnopLogo h1 {
+    cursor: pointer;
     font-size: 28px;
     margin: 0px;
 }
@@ -238,9 +243,15 @@ a, a:hover {
     margin: -6px 0px 15px -10px;
 }
 
-@media (min-width: 758px) {
+@media (min-width: 768px) {
     .lmnopHeader {
-        margin: 20px 0px 15px 0px;;
+        margin-bottom: 25px;
+    }
+}
+
+@media (min-width: 992px) {
+    .lmnopHeader {
+        margin-bottom: 15px;
     }
 }
 
@@ -324,12 +335,12 @@ div.messageText {
     text-shadow: 1px 1px 2px black;
 }
 
-div.newUser {
-    margin-top: 10px;
+.lmnopLogin.about a {
+    word-break: break-all;
 }
 
-.lmnopLogin.register, .lmnopLogin.about {
-    margin-top: -22px;
+div.newUser {
+    margin-top: 10px;
 }
 
 /* welcome page */
@@ -522,14 +533,24 @@ label#confirmDelete {
     width: 100%;
 }
 
+@media (min-width: 768px) {
+    .location {
+        text-align: left;
+    }
+}
+
 .attending {
     display: flex;
-    justify-content: space-evenly;
 }
 
 .attending a {
+    flex: 1;
     padding-left: 10px;
     padding-right: 10px;
+}
+
+.attending a + a {
+    margin-left: 10px;
 }
 
 .attending a.notAttending {
@@ -552,6 +573,12 @@ ul#lmnopTab {
 ul#lmnopTab li {
     flex-grow: 1;
     text-align: center;
+}
+
+@media(min-width: 410px) {
+    ul#lmnopTab li {
+        flex: 1;
+    }
 }
 
 a#moviesTab, a#refreshmentsTab {
@@ -606,7 +633,7 @@ li.nav-item.active>a.nav-link {
     padding: 0px;
 }
 
-.suggestions-container a {
+.suggestions {
     text-shadow: 1px 1px 2px black;
     word-break: break-word;
 }
@@ -642,12 +669,14 @@ div.suggestion.past {
 }
 
 div.suggestion:first-of-type {
-    border-radius: 4px 4px 0px 0px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
     opacity: 1;
 }
 
 div.suggestion:last-of-type {
-    border-radius: 0px 0px 4px 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
 div.suggestion .col-xs-1 {
@@ -658,7 +687,7 @@ div.suggestion .col-xs-1 {
     display: flex;
 }
 
-.findMovie input {
+.findMovie .input {
     border: 1px solid gray;
     border-right: 0px;
     border-radius: 4px 0px 0px 4px;
@@ -666,11 +695,12 @@ div.suggestion .col-xs-1 {
     padding-left: 5px;
 }
 
-.findMovie button {
+.findMovie .btn {
     border: 1px solid gray;
     border-left: 0px;
     border-radius: 0px 4px 4px 0px;
     padding: 5px 10px;
+    width: 2.5em;
 }
 
 div#blankSearch {
@@ -687,7 +717,7 @@ div#searchResults {
     text-align: center;
 }
 
-span#searchResults {
+p#searchResults {
     font-size: .9em;
     margin-bottom: 5px;
 }
@@ -696,8 +726,23 @@ span#searchResults {
     border: 2px solid darkgoldenrod;
     border-radius: 4px;
     box-shadow: 0 0 10px 2px goldenrod;
+    cursor: pointer;
     display: inline-block;
-    margin: 10px 0px;;
+    margin: 10px 0px;
+    vertical-align: middle;
+}
+
+@media(min-width: 768px) {
+    .searchResult {
+        margin: 10px;
+        width: 320px;
+    }
+}
+
+@media(min-width: 992px) {
+    .searchResult {
+        width: 278px;
+    }
 }
 
 .searchResult .poster {
@@ -740,38 +785,37 @@ span#searchResults {
     padding: 5px;
 }
 
-#refreshments .lmnopForm {
-    display: flex;
+#refreshments .cdText {
+    padding-right: 4px;
 }
 
-#refreshments .lmnopForm input {
-    border: 1px solid gray;
-    border-right: 0px;
-    border-radius: 4px 0px 0px 0px;
-    flex: 1;
-    padding-left: 5px;
+#refreshments img.popcorn {
+    height: .9em;
+    padding-bottom: 1px;
+    width: .9em;
 }
 
-#refreshments .lmnopForm button {
-    border: 1px solid gray;
-    border-left: 0px;
-    border-radius: 0px 4px 0px 0px;
-    padding: 5px 10px;
-}
-
-.refreshments {
-    background-color: #666666;
-    border: 1px solid gray;
-    border-radius: 0px 0px 4px 4px;
+#refreshments .suggestion {
     color: white;
-    padding: 10px;
-    text-shadow: 1px 1px 2px black;
 }
 
-.refreshment .createdby {
-    vertical-align: middle;
+#refreshments .col-xs-4 {
+    text-align: right;
 }
 
-.refreshment .titan {
-    font-size: .8em;
+span.nowrap {
+    white-space: nowrap;
+}
+
+span.nowrap:before {
+    content: " ";
+}
+
+.refreshment {
+    text-shadow: none;
+}
+
+.refreshment .undo {
+    font-size: .75em;
+    vertical-align: top;
 }
