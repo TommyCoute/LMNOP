@@ -1,18 +1,3 @@
-// fix footer height
-function fixFooter() {
-    $('div#lmnopFooter').css('bottom', 0);
-    var ff = $(window).height() - $(document).height();
-    $('div#lmnopFooter').css('bottom', ff);
-}
-window.addEventListener('resize', fixFooter);
-$(document).ready(function() {
-    fixFooter();
-    // again after a few seconds
-    setTimeout(function() {
-        fixFooter();
-    }, 3000);
-});
-
 // fix login page email fields
 $(document).ready(function () {
     $('input[field="email"]').prop('type', 'email');
@@ -71,7 +56,24 @@ function toggleContact(id, name) {
 
 // shift countdown text
 $(document).ready(function() {
-    var cd = $('div.cdText:first').text().split(' ');
-    $('div.cdNumber').text(cd.shift());
-    $('div.cdText').text(cd.join(' '));
-})
+    var cd = $('div.cdText:eq(0)').text().split(' ');
+    $('div.cdNumber:eq(0)').text(cd.shift());
+    $('div.cdText:eq(0)').text(cd.join(' '));
+    var cd = $('div.cdText:eq(1)').text().split(' ');
+    $('div.cdNumber:eq(1)').text(cd.shift());
+    $('div.cdText:eq(1)').text(cd.join(' '));
+});
+
+// enable bootstrap 3 tab deep links
+$(document).ready(function() {
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+    } 
+    
+    // change hash for page-reload
+    $('.nav-tabs a').on('shown.bs.tab', function (e) {
+        window.location.hash = e.target.hash;
+        window.scrollTo(0, 0);
+    });
+});
