@@ -1,0 +1,6 @@
+trigger UserTrigger on User (after update) {
+    if (Trigger.isAfter && Trigger.isUpdate) {
+        // update contact name to match user name changes
+        MovieNightExtension.updateContactWithUser(Trigger.new);
+    }
+}

@@ -21,6 +21,9 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 3. lmnopRegistrationController - a modified version of the Salesforce-provided "CommunitiesSelfRegController", handles new user registration
 4. lmnopTest - code coverage for the above
 
+# Apex Triggers
+1. UserTrigger - generic trigger on User object, calls MovieNightExtension.updateContactWithUser(Trigger.new) after update to keep contact names synced with user names since both are referenced within LMNOP
+
 # Visualforce Pages
 1. lmnopTemplate - community composition template, used by all pages listed below
 2. Login - community login page, configured as the "authorization required (401)" page when any private pages are accessed without authentication, includes links to register and reset forgotten passwords
@@ -91,10 +94,11 @@ NOTE: all static resources listed below should be set to "Public"
 1. jslmnop - JS 
 2. lmnop - CSS
 3. Countdown - Background image for countdown timer
-4. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
-5. MovieBorderBottom - Bottom border grid for LMNOP movie frames
-6. MovieBorderTop - Top border grid for LMNOP movie frames
-7. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
+4. Popcorn - PNG image for refreshments icon since FontAwesome free doesn't provide one (found on pixabay)
+5. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
+6. MovieBorderBottom - Bottom border grid for LMNOP movie frames
+7. MovieBorderTop - Top border grid for LMNOP movie frames
+8. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
 
 # Other Setup
 1. Remote Site Settings: add http://omdbapi.com
