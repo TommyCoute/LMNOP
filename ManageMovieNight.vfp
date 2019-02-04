@@ -99,8 +99,8 @@
                             </apex:outputPanel>
                         </div>                        
                         <div class="formGroup audience">
-                            Invite <apex:outputText value="{!IF(confirmedAudience.size + unconfirmedAudience.size 
-                                                           + unregisteredAudience.size = 0, ' Some', ' More')}" /> People
+                            Invite <apex:outputText value="{!IF(confirmedAudience.size + unconfirmedAudience.size + unregisteredAudience.size > 0, 
+                                                           ' More', ' Some')}" /> People
                             <apex:inputTextarea rows="3" value="{!newEmailAudience}"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
                         </div>
@@ -133,7 +133,7 @@
                         WARNING!
                     </h2>
                     <p>
-                        You are about to delete your movie night, scheduled for {!showtime}.
+                        You are about to delete your movie night, scheduled for {!longShowtime}.
                         This will send a cancellation email to all invited audience members, 
                         and all data related to this movie night will be gone forever.
                     </p>
