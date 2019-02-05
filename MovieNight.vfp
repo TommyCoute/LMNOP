@@ -174,10 +174,10 @@
                     <div class="lmnopTabs">
                         <ul class="nav nav-tabs nav-fill" id="lmnopTab" role="tablist">
                             <li class="nav-item active">
-                                <a class="titan nav-link active" id="moviesTab" data-toggle="tab" href="#movies">Suggested Movies</a>
+                                <a class="titan nav-link active" id="moviesTab" href="">Suggested Movies</a>
                             </li>
                             <li class="nav-item">
-                                <a class="titan nav-link" id="refreshmentsTab" data-toggle="tab" href="#refreshments">Refreshments</a>
+                                <a class="titan nav-link" id="refreshmentsTab" href="{!$Site.Prefix}/Refreshments?id={!Movie_Night__c.Id}">Refreshments</a>
                             </li>
                         </ul>
                     </div>
@@ -307,73 +307,7 @@
                                         </div>
                                     </div>
                                 </apex:outputPanel>
-                            </div>
-                            
-                            <!-- REFRESHMENTS CONTENT -->
-                            <div class="tab-pane" id="refreshments" role="tabpanel">
-                                <!-- BEFORE SHOWTIME -->
-                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
-                                    <div class="countdown">
-                                        <div class="cdNumber titan"></div>
-                                        <div class="cdText">{!SUBSTITUTE(Movie_Night__c.Countdown__c,
-                                            "choose a movie", "add good stuff")}</div>
-                                    </div>
-                                    
-                                    <div class="container-fluid suggestions-container">
-                                        <div class="row suggestions-header">
-                                            <div class="col-xs-11">
-                                                <i class="fas fa-user-circle"></i>
-                                            </div>
-                                            <div class="col-xs-1">
-                                                <img class="popcorn" src="{!URLFOR($Resource.Popcorn)}" />
-                                            </div>
-                                        </div>
-                                        <div class="suggestions">
-                                            <apex:outputPanel rendered="{!rContributors.size = 0}">
-                                                <div class="row suggestions-blank">
-                                                    No refreshments have been added yet
-                                                </div>
-                                            </apex:outputPanel>
-                                            <apex:repeat value="{!rContributors}" var="rc">
-                                                <div class="row suggestion">
-                                                    <span class="attendee">
-                                                        {!rc.Contact__r.Name}{!IF(rc.Contact__r.Id = $User.ContactId, ' (me)', '')}: 
-                                                    </span>
-                                                    <apex:variable value="{!0}" var="items" />
-                                                    <apex:repeat value="{!refreshments}" var="r">
-                                                        <apex:outputPanel rendered="{!rc.Contact__r.Id = r.CreatedBy.ContactId}">
-                                                            <apex:variable value="{!items+1}" var="items" />
-                                                            <apex:outputPanel styleClass="refreshment" rendered="{!r.CreatedBy.ContactId != $User.ContactId}">
-                                                                <apex:outputText value="{!IF(items > 1, ', ' + r.Name, r.Name)}" />
-                                                            </apex:outputPanel>
-                                                            <apex:outputPanel styleClass="refreshment" rendered="{!r.CreatedBy.ContactId = $User.ContactId}">
-                                                                <apex:outputText value="{!IF(items > 1, ', ' + r.Name, r.Name)}" /><span class="nowrap"><a href="javascript:selectRefreshment('{!r.Id}')"><i class="fas fa-times-circle undo"></i></a></span>
-                                                            </apex:outputPanel>
-                                                        </apex:outputPanel>
-                                                    </apex:repeat>
-                                                </div>
-                                            </apex:repeat>
-                                        </div>
-                                    </div>
-                                    <apex:form >
-                                        <div class="lmnopForm findMovie">
-                                            <apex:actionFunction action="{!removeItem}" name="removeRefreshment" reRender="" oncomplete="location.reload();return false;">
-                                                <apex:param name="ritem" value="" />
-                                            </apex:actionFunction>
-                                            <apex:inputText value="{!newRefreshment}" html-placeholder="Add new refreshment" styleClass="input" />
-                                            <apex:commandButton action="{!submitRefreshment}" value=">>" styleClass="btn btn-primary titan" oncomplete="location.reload();return false;" />
-                                        </div>
-                                    </apex:form>
-                                </apex:outputPanel>
-                                <!-- AFTER SHOWTIME -->
-                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
-                                    <div class="countdown">
-                                        Voting has ended
-                                    </div>
-
-                                </apex:outputPanel>
-
-                            </div>
+                            </div>                                                              
                         </div>
                     </div>
                 </apex:outputPanel>

@@ -63,17 +63,3 @@ $(document).ready(function() {
     $('div.cdNumber:eq(1)').text(cd.shift());
     $('div.cdText:eq(1)').text(cd.join(' '));
 });
-
-// enable bootstrap 3 tab deep links
-$(document).ready(function() {
-    var url = document.location.toString();
-    if (url.match('#')) {
-        $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
-    } 
-    
-    // change hash for page-reload
-    $('.nav-tabs a').on('shown.bs.tab', function (e) {
-        window.location.hash = e.target.hash;
-        window.scrollTo(0, 0);
-    });
-});

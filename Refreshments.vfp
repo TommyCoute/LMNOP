@@ -1,0 +1,121 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false"
+           standardController="Movie_Night__c" extensions="MovieNightExtension">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="header">
+            <apex:variable var="heading" value="{!showtime}">
+            </apex:variable>
+        </apex:define>
+        <apex:define name="body">
+            <!-- STANDARD OBJECT FIELD REFERENCES FOR CONTROLLER -->
+            <apex:outputField value="{!Movie_Night__c.CreatedBy.Email}" rendered="false" />
+            <apex:outputField value="{!Movie_Night__c.Showtime__c}" rendered="false" />            
+            
+            <apex:outputPanel>
+                <div class="location">
+                    Movie Night at {!Movie_Night__c.Location__c}!
+                </div>
+                <apex:outputPanel rendered="{!Movie_Night__c.CreatedBy.Id = $User.Id}">
+                    <a href="{!$Site.Prefix}/ManageMovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan width-100p">
+                        Manage Movie Night
+                    </a>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" rendered="{!Movie_Night__c.CreatedBy.Id != $User.Id}">
+                    <apex:form >
+                        <div class="attending">
+                            <apex:commandLink action="{!toggleAttending}" styleClass="btn btn-primary titan{!IF(isAttending, '', ' notAttending')}">
+                                <i class="far fa-{!IF(isAttending, 'check-circle', 'circle')}"></i> Attending
+                            </apex:commandLink>
+                            <a href="mailto:{!Movie_Night__c.Organizer_Email__c}?subject=Movie Night {!SUBSTITUTE(longShowtime, '/', '-')}" class="btn btn-primary titan">
+                                <i class="fas fa-envelope"></i> Email Organizer
+                            </a>
+                        </div>
+                    </apex:form>
+                </apex:outputPanel>
+                <div class="lmnopTabs">
+                    <ul class="nav nav-tabs nav-fill" id="lmnopTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="titan nav-link" id="moviesTab" href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}">Suggested Movies</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="titan nav-link active" id="refreshmentsTab" href="">Refreshments</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="silverback tabs">
+                    <div class="tab-content" id="lmnopTabs">
+                        <div class="tab-pane active in" id="refreshments" role="tabpanel">
+                            <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
+                            <!-- BEFORE SHOWTIME -->
+                            <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
+                                <div class="countdown">
+                                    <div class="cdNumber titan"></div>
+                                    <div class="cdText">{!SUBSTITUTE(Movie_Night__c.Countdown__c,
+                                        "choose a movie", "add good stuff")}</div>
+                                </div>
+                                
+                                <div class="container-fluid suggestions-container">
+                                    <div class="row suggestions-header">
+                                        <div class="col-xs-11">
+                                            <i class="fas fa-user-circle"></i>
+                                        </div>
+                                        <div class="col-xs-1">
+                                            <img class="popcorn" src="{!URLFOR($Resource.Popcorn)}" />
+                                        </div>
+                                    </div>
+                                    <div class="suggestions">
+                                        <apex:outputPanel rendered="{!rContributors.size = 0}">
+                                            <div class="row suggestions-blank">
+                                                No refreshments have been added yet
+                                            </div>
+                                        </apex:outputPanel>
+                                        <apex:repeat value="{!rContributors}" var="rc">
+                                            <div class="row suggestion">
+                                                <span class="attendee">
+                                                    {!rc.Contact__r.Name}: 
+                                                </span>
+                                                <apex:variable value="{!0}" var="items" />
+                                                <apex:repeat value="{!refreshments}" var="r">
+                                                    <apex:outputPanel rendered="{!rc.Contact__r.Id = r.CreatedBy.ContactId}">
+                                                        <apex:variable value="{!items+1}" var="items" />
+                                                        <apex:outputPanel styleClass="refreshment" rendered="{!r.CreatedBy.ContactId != $User.ContactId}">
+                                                            <apex:outputText value="{!IF(items > 1, ', ' + r.Name, r.Name)}" />
+                                                        </apex:outputPanel>
+                                                        <apex:outputPanel styleClass="refreshment" rendered="{!r.CreatedBy.ContactId = $User.ContactId}">
+                                                            <apex:outputText value="{!IF(items > 1, ', ' + r.Name, r.Name)}" /><span class="nowrap"><a href="javascript:selectRefreshment('{!r.Id}')"><i class="fas fa-times-circle undo"></i></a></span>
+                                                        </apex:outputPanel>
+                                                    </apex:outputPanel>
+                                                </apex:repeat>
+                                            </div>
+                                        </apex:repeat>
+                                    </div>
+                                </div>
+                                <apex:form >
+                                    <div class="lmnopForm findMovie">
+                                        <apex:actionFunction action="{!removeItem}" name="removeRefreshment" reRender="" oncomplete="location.reload();">
+                                            <apex:param name="ritem" value="" />
+                                        </apex:actionFunction>
+                                        <apex:inputText value="{!newRefreshment}" html-placeholder="Add new refreshment" styleClass="input" />
+                                        <apex:commandButton action="{!submitRefreshment}" value=">>" styleClass="btn btn-primary titan" oncomplete="location.reload();" />
+                                    </div>
+                                </apex:form>
+                            </apex:outputPanel>
+                            <!-- AFTER SHOWTIME -->
+                            <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
+                                <div class="countdown">
+                                    Voting has ended
+                                </div>
+                                
+                            </apex:outputPanel>                                    
+                        </div>
+                    </div>
+                </div>
+            </apex:outputPanel>
+            <script type="text/javascript">
+            /* refreshment removal */
+            function selectRefreshment(ritem) {
+                removeRefreshment(ritem);
+            }
+            </script>
+        </apex:define>
+    </apex:composition>
+</apex:page>

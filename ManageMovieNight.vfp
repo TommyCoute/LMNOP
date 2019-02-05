@@ -117,7 +117,7 @@
                         </div>
                         <div class="manage-buttons">
                             <apex:commandButton action="{!updateMovieNight}" value="Update Movie Night" styleClass="btn btn-primary titan update" />
-                            <a href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan cancel width-100p">
+                            <a href="javascript:window.history.back()" class="btn btn-primary titan cancel width-100p">
                                 Cancel Update
                             </a>
                             <a href="{!$Site.Prefix}/ManageMovieNight?id={!Movie_Night__c.Id}&delete=1" class="btn btn-primary titan cancel width-100p">
@@ -142,7 +142,7 @@
                             <input type="checkbox" class="form-check-input" id="confirmation" onchange="toggleDA()" />
                             <label id="confirmDelete" class="form-check-label" for="confirmation">I confirm, delete away</label>
                         </div>
-                        <a href="#" onclick="window.history.back()" class="btn btn-primary titan logout">
+                        <a href="javascript:window.history.back()" class="btn btn-primary titan logout">
                             Cancel
                         </a>
                         <apex:commandButton value="Delete Movie Night" action="{!deleteMovieNight}"
