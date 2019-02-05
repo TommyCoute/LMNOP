@@ -115,6 +115,7 @@ a, a:hover {
 
 .clickable {
     color: gold;
+    cursor: pointer;
 }
 
 .form input, .form select, .form textarea, .form .btn-disabled {
@@ -623,6 +624,72 @@ li.nav-item.active>a.nav-link {
     width: 60px;
 }
 
+.selection {
+    background-color: #666666;
+    display: none;
+    width: 100%
+}
+
+.selection p {
+    color: white;
+    font-size: .8em;
+    margin-bottom: 5px;
+    text-shadow: none;
+}
+
+.selection .poster {
+    background-size: 100%;
+    display: inline-block;
+    float: right;
+    margin: 5px 0px 5px 5px;
+    height: 200px;
+    width: 140px;
+}
+
+.selection .poster-top {
+    background-color: #fadd52a0;
+    height: 100px;
+    width: 100%
+}
+
+.selection .upvote {
+    background-color: black;
+    border-radius: 50%;
+    height: 50px;
+    margin: auto;
+    position: relative;
+    text-align: center;
+    top: 22px;
+    width: 50px;
+}
+
+.selection .upvote i {
+    color: gold;
+    margin-top: 12px;
+}
+
+.selection .poster-bottom {
+    background-color: #000000a0;
+    height: 100px;
+    width: 100%
+}
+
+.selection .downvote {
+    background-color: gold;
+    border-radius: 50%;
+    margin: auto;
+    position: relative;
+    text-align: center;
+    top: 22px;
+    height: 50px;
+    width: 50px;
+}
+
+.selection .downvote i {
+    color: black;
+    margin-top: 15px;
+}
+
 .suggestions-container {
     margin: 15px 0px;
     padding: 0px;
@@ -665,6 +732,7 @@ div.suggestion {
 }
 
 div.suggestion.past {
+    color: white;
     opacity: .5;
 }
 

@@ -63,3 +63,8 @@ $(document).ready(function() {
     $('div.cdNumber:eq(1)').text(cd.shift());
     $('div.cdText:eq(1)').text(cd.join(' '));
 });
+
+// toggle suggested movie selection
+function toggleSelection(id) {
+    $('div#' + id).toggle(200);
+}

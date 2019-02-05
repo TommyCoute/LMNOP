@@ -209,16 +209,53 @@
                                         </apex:outputPanel>
                                         <div class="suggestions">
                                             <apex:repeat value="{!suggestedMovies}" var="movie">
-                                                <div class="row suggestion">
-                                                    <div class="col-xs-11">
-                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                            {!movie.Name} ({!movie.Year__c})
-                                                        </a>
+                                                <div class="row suggestion" onclick="toggleSelection('{!movie.IMDB_Id__c}')">
+                                                    <div class="col-xs-11 clickable">
+                                                        {!movie.Name} ({!movie.Year__c})
                                                     </div>
-                                                    <div class="col-xs-1">
-                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                            5
-                                                        </a>
+                                                    <div class="col-xs-1 clickable titan">
+                                                        5
+                                                    </div>
+                                                    <div id="{!movie.IMDB_Id__c}" class="selection">
+                                                        <div class="poster" style="background-image:url('{!IF(movie.Poster__c = 'N/A', $Resource.PosterNotFound, movie.Poster__c)}')">
+                                                            <div class="poster-top">
+                                                                <div class="upvote">
+                                                                    <i class="fas fa-thumbs-up"></i>
+                                                                </div>
+                                                            </div>
+                                                            <div class="poster-bottom">
+                                                                <div class="downvote">
+                                                                    <i class="fas fa-thumbs-down"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p>
+                                                            Runtime: {!movie.Runtime__c}
+                                                        </p>
+                                                        <p>
+                                                            Rated: {!movie.Rated__c}
+                                                        </p>
+                                                        <p>
+                                                            Trailer: 
+                                                            <a href="https://www.youtube.com/results?search_query={!movie.Name} trailer" target="_blank">
+                                                                YouTube
+                                                            </a>
+                                                        </p>
+                                                        <p>
+                                                            Availability: 
+                                                            <a href="https://www.justwatch.com/us/search?q={!movie.Name}" target="_blank">
+                                                                JustWatch
+                                                            </a>
+                                                        </p>
+                                                        <p>
+                                                            IMDB: 
+                                                            <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}" target="_blank">
+                                                                <i class="fab fa-imdb"></i>
+                                                            </a>
+                                                        </p>
+                                                        <p>
+                                                            Plot: {!movie.Plot__c}
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </apex:repeat>
@@ -272,7 +309,7 @@
                                 <!-- AFTER SHOWTIME -->
                                 <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
                                     <div class="countdown">
-                                        Voting has ended
+                                        Editing has ended
                                     </div>
                                     
                                     <div class="container-fluid suggestions-container">
@@ -293,14 +330,10 @@
                                             <apex:repeat value="{!suggestedMovies}" var="movie">
                                                 <div class="row suggestion past">
                                                     <div class="col-xs-11">
-                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                            {!movie.Name} ({!movie.Year__c})
-                                                        </a>
+                                                        {!movie.Name} ({!movie.Year__c})
                                                     </div>
-                                                    <div class="col-xs-1">
-                                                        <a href="https://www.imdb.com/title/{!movie.IMDB_Id__c}">
-                                                            5
-                                                        </a>
+                                                    <div class="col-xs-1 titan">
+                                                        5
                                                     </div>
                                                 </div>
                                             </apex:repeat>
@@ -331,7 +364,6 @@
                     document.getElementById("searchResults").style.display = "none";
                 } else {
                     location.href = "{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}&titlesearch=" + q;
-                    fixFooter();
                 }
             }
             
@@ -343,11 +375,6 @@
             }
             function reloadNight() {
                 location.href = "{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}";
-            }
-            
-            /* refreshment removal */
-            function selectRefreshment(ritem) {
-                removeRefreshment(ritem);
             }
             </script>
         </apex:define>

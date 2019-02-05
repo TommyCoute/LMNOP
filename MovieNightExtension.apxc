@@ -19,7 +19,6 @@
  * 2019-01-27	TKC		Added initial refreshments getter for movie night detail page
  * 2019-02-01	TKC		Added access modifier "without sharing" to compensate for more strict OWD
  * 2019-02-02	TKC		Added getters for movie night refreshments tab (grouping by attending audience)
- * 2019-02-04	TKC		Updated mnsPast to only return attending audience
  * 2019-02-04	TKC		Updated createMovieNight() to set Attending__c to true for creator
  * 2019-02-04	TKC		Created new longShowtime getter for improved formatting
  * 2019-02-04	TKC		Created updateContactWithUser method to be called from UserTrigger
@@ -46,7 +45,7 @@ public without sharing class MovieNightExtension {
             SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
             Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, Attending__c
             FROM Movie_Audience__c 
-            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now() AND Attending__c = true
+            WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now()
             ORDER BY Movie_Night__r.Showtime__c DESC
         ]) {
             mnsPast.add(new maWrapped(ma));
@@ -510,7 +509,8 @@ public without sharing class MovieNightExtension {
         get {
             if (mn.Id != null) {
                 return [
-                    SELECT Id, Name, IMDB_Id__c, Movie_Night__c, CreatedDate, Year__c
+                    SELECT Id, Name, IMDB_Id__c, Movie_Night__c, CreatedDate, Year__c, Poster__c, Rated__c,
+                    Runtime__c, Plot__c
                     FROM Movie_Suggestion__c 
                     WHERE Movie_Night__c = :mn.Id
                     ORDER BY CreatedDate ASC
