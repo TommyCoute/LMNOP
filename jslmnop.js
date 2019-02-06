@@ -68,3 +68,8 @@ $(document).ready(function() {
 function toggleSelection(id) {
     $('div#' + id).toggle(200);
 }
+
+// refreshment removal
+function selectRefreshment(ritem) {
+    removeRefreshment(ritem);
+}
