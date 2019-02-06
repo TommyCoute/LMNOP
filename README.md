@@ -64,6 +64,9 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     5. Rated__c (text, 32) - The MPAA rating of the movie per OMDb
     6. Runtime__c (text, 16) - The length of the movie in minutes per OMDb
     7. Year__c (text, 4) - The year the movie was released per OMDb
+    8. Upvotes__c (rollup summary) - Sums all upvotes from Movie_Vote__c, where Type__c = "Upvote", "Tiebreaker", or "Final"
+    9. Downvotes__c (rollup summary) - Sums all downvotes from Movie_Vote__c
+    10. Vote_Score__c (formula, number) - Subtracts all downvotes from all upvotes
 4. Refreshment__c - Child of the Movie Night object for tracking food and drinks per event
     1. Movie_Night__c (master-detail)
 5. User - standard user object
@@ -76,6 +79,10 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     5. URI__c (long text area) - The universal resource indicator (URI) contents from the page header (the full site path after the host name)
     6. User__c (lookup)
     7. User_Agent__c (long text area) - The contents of the "user agent" page header (browser/navigator information)
+7. Movie_Vote__c - Junction object between Movie Suggestions and Contacts
+    1. Contact__c (master-detail)
+    2. Movie_Suggestion__c (master-detail)
+    3. Type (picklist) - Includes the following values: "Upvote", "Downvote", "Tiebreaker", "Final"
 
 # Custom Settings & Fields
 NOTE: in order to create new custom settings of type "List", you must enable "Manage List Custom Settings Type". This option is found under "Data", then "Schema Settings" within the Salesforce setup page.

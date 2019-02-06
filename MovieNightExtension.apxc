@@ -22,6 +22,7 @@
  * 2019-02-04	TKC		Updated createMovieNight() to set Attending__c to true for creator
  * 2019-02-04	TKC		Created new longShowtime getter for improved formatting
  * 2019-02-04	TKC		Created updateContactWithUser method to be called from UserTrigger
+ * 2019-02-05	TKC		Added support for voting on suggested movies
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -508,12 +509,28 @@ public without sharing class MovieNightExtension {
     public List<Movie_Suggestion__c> suggestedMovies {
         get {
             if (mn.Id != null) {
+                // filter by list of attending contacts
+                List<Movie_Audience__c> maAttending = [
+                    SELECT Contact__c
+                    FROM Movie_Audience__c
+                    WHERE Movie_Night__c = :mn.Id AND Attending__c = true
+                ];
+                List<String> maAttendingIds = new List<String>();
+                for (Movie_Audience__c ma : maAttending) {
+                    maAttendingIds.add(ma.Contact__c);
+                }
+                
                 return [
                     SELECT Id, Name, IMDB_Id__c, Movie_Night__c, CreatedDate, Year__c, Poster__c, Rated__c,
-                    Runtime__c, Plot__c
+                    Runtime__c, Plot__c, Vote_Score__c, CreatedBy.ContactId, 
+                    (
+                        SELECT Contact__c, Type__c 
+                        FROM Movie_Votes__r
+                        WHERE Contact__c IN :maAttendingIds AND Type__c IN ('Upvote', 'Downvote')
+                    )
                     FROM Movie_Suggestion__c 
-                    WHERE Movie_Night__c = :mn.Id
-                    ORDER BY CreatedDate ASC
+                    WHERE Movie_Night__c = :mn.Id AND CreatedBy.ContactId IN :maAttendingIds
+                    ORDER BY Vote_Score__c DESC, CreatedDate ASC
                 ];
             } else {
                 return null;
@@ -630,8 +647,15 @@ public without sharing class MovieNightExtension {
                         }
                         newSuggestion.Poster__c = movie.Poster;
                         newSuggestion.IMDB_Id__c = movie.ImdbId;
-                        insert NewSuggestion;
+                        insert newSuggestion;
                         parser.skipChildren();
+                        
+                        // insert upvote for new suggestion
+                        Movie_Vote__c mv = new Movie_Vote__c();
+                        mv.Contact__c = contactId;
+                        mv.Movie_Suggestion__c = newSuggestion.Id;
+                        mv.Type__c = 'Upvote';
+                        insert mv;
                     }
                 }
             }
@@ -678,6 +702,76 @@ public without sharing class MovieNightExtension {
     public class Review {
         public String Source {get;set;}
         public String Value {get;set;}
+    }
+    
+    // find top movie suggestion
+    public List<Movie_Suggestion__c> topSuggestion {
+        get {
+            // get list of all suggestions for current movie night, sorted by score
+            List<Movie_Suggestion__c> msList = [
+                SELECT Id, CreatedDate, Name, Movie_Night__c, Vote_Score__c, Year__c
+                FROM Movie_Suggestion__c
+                WHERE Movie_Night__c = :mn.Id
+                ORDER BY Vote_Score__c DESC, CreatedDate ASC
+            ];
+            
+            // get top score from list, compare each suggestion with top score
+            List<Movie_Suggestion__c> winners = new List<Movie_Suggestion__c>();
+            Integer topScore = Integer.valueOf(msList[0].Vote_Score__c);
+            for (Movie_Suggestion__c ms : msList) {
+                if (ms.Vote_Score__c == topScore) {
+                    winners.add(ms);
+                }
+            }
+            
+            return winners;
+        }
+    }
+    
+    // insert movie vote
+    private void voteMovie(String vType) {
+        String msId = ApexPages.currentPage().getParameters().get('selectedMovieSuggestionId');
+        
+        // check existing votes to prevent duplicates
+        List<Movie_Vote__c> existingVotes = [
+            SELECT Id, Contact__c, Movie_Suggestion__c, Type__c
+            FROM Movie_Vote__c
+            WHERE Contact__c = :contactId AND Movie_Suggestion__c = :msId AND Type__c IN ('Upvote', 'Downvote')
+        ];
+        
+        // insert new vote if no duplicates found
+        if (existingVotes.size() == 0) {
+            Movie_Vote__c movieVote = new Movie_Vote__c();
+            movieVote.Contact__c = contactId;
+            movieVote.Movie_Suggestion__c = msId;
+            movieVote.Type__c = vType;
+            insert movieVote;
+        }
+        
+        // update movie title on movie night
+        if (topSuggestion.size() == 1) {
+            mn.Movie_Title__c = topSuggestion[0].Name + ' (' + topSuggestion[0].Year__c + ')';
+            update mn;
+        } else if (topSuggestion.size() > 1) {
+            String topSuggestions = 'Tied between the following... ';
+            for (Movie_Suggestion__c ms : topSuggestion) {
+                topSuggestions += ms.Name + ' (' + topSuggestion[0].Year__c + ')' + ', ';
+            }
+            topSuggestions = topSuggestions.left(topSuggestions.length() - 2);
+            mn.Movie_Title__c = topSuggestions;
+            update mn;
+        }
+        
+    }
+    
+    // submit movie upvote
+    public void upvoteMovie() {
+        this.voteMovie('Upvote');
+    }
+    
+    // submit movie downvote
+    public void downvoteMovie() {
+        this.voteMovie('Downvote');
     }
     
     // get list of attendees bringing refreshments for current movie night
