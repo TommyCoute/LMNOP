@@ -561,6 +561,13 @@ label#confirmDelete {
     color: gold !important;
 }
 
+.attending a.attended {
+    background-color: transparent !important;
+    border: 2px solid white !important;
+    color: white !important;
+    cursor: default;
+}
+
 .lmnopTabs {
     font-size: .8em;
     margin-top: 20px;
@@ -633,15 +640,19 @@ li.nav-item.active>a.nav-link {
 .selection p {
     color: white;
     font-size: .8em;
+    line-height: .99em;
     margin-bottom: 5px;
     text-shadow: none;
+}
+
+.selection p:first-of-type {
+    margin-top: 25px;
 }
 
 .selection .poster {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    display: inline-block;
     float: right;
     margin: 5px 0px 5px 5px;
     height: 200px;
@@ -691,6 +702,26 @@ li.nav-item.active>a.nav-link {
 .selection .downvote i {
     color: black;
     margin-top: 15px;
+}
+
+@media(min-width: 768px) {
+    .selection p {
+        font-size: 1em;
+        margin-bottom: 10px;
+    }
+    
+    .selection .poster {
+        height: 300px;
+        width: 210px;
+    }
+    
+    .selection .poster-top, .selection .poster-bottom {
+        height: 150px;
+    }
+    
+    .selection .upvote, .selection .downvote {
+        top: 47px;
+    }
 }
 
 .suggestions-container {
@@ -750,7 +781,9 @@ div.suggestion:last-of-type {
 }
 
 div.suggestion .col-xs-1 {
+    font-weight: bold;
     text-align: right;
+    text-shadow: none;
 }
 
 .findMovie {
@@ -803,6 +836,13 @@ p#searchResults {
     vertical-align: middle;
 }
 
+.searchResult.selectedMovie {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
 @media(min-width: 768px) {
     .searchResult {
         margin: 10px;
@@ -848,6 +888,13 @@ p#searchResults {
     color: gold;
     font-size: 1.2em;
     text-shadow: 0px 0px 20px gold;
+}
+
+.searchResult.selectedMovie .title {
+    background-color: whitesmoke;
+    color: black;
+    font-weight: bold;
+    text-shadow: none;
 }
 
 .searchResult .title div {
