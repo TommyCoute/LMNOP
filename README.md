@@ -37,25 +37,45 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 # Custom Objects & Fields
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
     1. Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula: 
-    IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Showtime__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
-    IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24)) + ' hours left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
-    IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
-    ''))))))))
+        IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Showtime__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
+        IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24)) + ' hours left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
+        IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
+        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR((Showtime__c - NOW()) * 24 * 60 + 5) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 + 5)) + ' minutes left to choose a movie', 
+        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR((Showtime__c - NOW()) * 24 * 60 + 5) = 1, '1 minute left to choose a movie', 
+        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60) > 1, TEXT(FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60)) + ' seconds left to choose a movie', 
+        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60) = 1, '1 second left to choose a movie', 
+        ''))))))))))
     2. Location__c (text, 255) - The event location for hosting a movie night
     3. Movie_Title__c (text, 255) - Displays the selected movie suggestion
     4. Organizer_Email__c (formula text) - Contains the email address of the movie night organizer using the following formula:
      CreatedBy.Email
     5. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
-    6. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
+    6. Tie__c (picklist) - Includes the following values: "False" (default), "True" (if there is a tie), "Final" (if there is a second tie)
+    7. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
     1. Attending__c (checkbox) - Indicates if the invited audience contact will be attending the movie night
     2. Contact__c (master-detail)
     3. Movie_Night__c (master-detail)
+    4. Random_Number__c (formula, number) - Assigns a random number to each audience member for final tiebreaker vote assignment using the following formula:
+        VALUE(RIGHT(TEXT(SQRT((VALUE((LEFT(RIGHT(
+        TEXT(CreatedDate),6),2)) & 
+        TEXT(DAY(DATEVALUE(CreatedDate))) & 
+        TEXT(MONTH(DATEVALUE(CreatedDate))) & 
+        TEXT(YEAR(DATEVALUE(CreatedDate))) & 
+        (LEFT(RIGHT(TEXT(CreatedDate),9),2)))) * 
+        (VALUE((LEFT(RIGHT(
+        TEXT(Contact__r.CreatedDate),6),2)) & 
+        TEXT(DAY(DATEVALUE(Contact__r.CreatedDate))) & 
+        TEXT(MONTH(DATEVALUE(Contact__r.CreatedDate))) & 
+        TEXT(YEAR(DATEVALUE(Contact__r.CreatedDate))) & 
+        (LEFT(RIGHT(
+        TEXT(Contact__r.CreatedDate),9),2))))
+        /10000)),3))
 3. Movie_Suggestion__c - Child of the Movie Night object for tracking movies suggested per event
     1. IMDB_Id__c (text, 255) - The ID of the movie defined by IMDB, used to check for duplicate suggestions and to link to IMDB page
     2. Movie_Night__c (master-detail)
@@ -64,9 +84,11 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     5. Rated__c (text, 32) - The MPAA rating of the movie per OMDb
     6. Runtime__c (text, 16) - The length of the movie in minutes per OMDb
     7. Year__c (text, 4) - The year the movie was released per OMDb
-    8. Upvotes__c (rollup summary) - Sums all upvotes from Movie_Vote__c, where Type__c = "Upvote", "Tiebreaker", or "Final"
+    8. Upvotes__c (rollup summary) - Sums all upvotes from Movie_Vote__c
     9. Downvotes__c (rollup summary) - Sums all downvotes from Movie_Vote__c
     10. Vote_Score__c (formula, number) - Subtracts all downvotes from all upvotes
+    11. Tiebreaker_Votes__c (rollup summary) - Sums all tiebreaker votes from Movie_Vote__c
+    12. Final_Votes__c (rollup summary) - Sums all final votes from Movie_Vote__c
 4. Refreshment__c - Child of the Movie Night object for tracking food and drinks per event
     1. Movie_Night__c (master-detail)
 5. User - standard user object

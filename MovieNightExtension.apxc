@@ -23,6 +23,10 @@
  * 2019-02-04	TKC		Created new longShowtime getter for improved formatting
  * 2019-02-04	TKC		Created updateContactWithUser method to be called from UserTrigger
  * 2019-02-05	TKC		Added support for voting on suggested movies
+ * 2019-02-06	TKC		Added updateTopSuggestion() method to recalculate when submitting or voting on movies
+ * 2019-02-06	TKC		Added (mn.Showtime__c > DateTime.now()) check to methods to prevent late submissions
+ * 2019-02-06	TKC		Added tiebreaker/final vote controls
+
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -34,7 +38,8 @@ public without sharing class MovieNightExtension {
         this.mnsUpcoming = new List<maWrapped>();
         for (Movie_Audience__c ma : [
             SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
-            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, Attending__c
+            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, 
+            Movie_Night__r.Tie__c, Attending__c
             FROM Movie_Audience__c 
             WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c > :Datetime.now()
             ORDER BY Movie_Night__r.Showtime__c ASC
@@ -44,7 +49,8 @@ public without sharing class MovieNightExtension {
         this.mnsPast = new List<maWrapped>();
         for (Movie_Audience__c ma : [
             SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
-            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, Attending__c
+            Movie_Night__r.Location__c, Movie_Night__r.Countdown__c, Movie_Night__r.CreatedBy.Id, 
+            Movie_Night__r.Tie__c, Attending__c
             FROM Movie_Audience__c 
             WHERE Contact__c = :contactId AND Movie_Night__r.Showtime__c <= :Datetime.now()
             ORDER BY Movie_Night__r.Showtime__c DESC
@@ -492,17 +498,19 @@ public without sharing class MovieNightExtension {
     
     // toggle whether or not the user is attending current movie night
     public void toggleAttending() {
-        Movie_Audience__c ma = [
-            SELECT Id, Attending__c, Contact__c, Movie_Night__c
-            FROM Movie_Audience__c
-            WHERE Contact__c = :contactId AND Movie_Night__c = :mn.Id
-        ];
-        if (isAttending) {
-            ma.Attending__c = false;
-        } else {
-            ma.Attending__c = true;
+        if (mn.Showtime__c > DateTime.now()) {
+            Movie_Audience__c ma = [
+                SELECT Id, Attending__c, Contact__c, Movie_Night__c
+                FROM Movie_Audience__c
+                WHERE Contact__c = :contactId AND Movie_Night__c = :mn.Id
+            ];
+            if (isAttending) {
+                ma.Attending__c = false;
+            } else {
+                ma.Attending__c = true;
+            }
+            update ma;
         }
-        update ma;
     }
     
     // get list of movie suggestions for current movie night
@@ -522,11 +530,12 @@ public without sharing class MovieNightExtension {
                 
                 return [
                     SELECT Id, Name, IMDB_Id__c, Movie_Night__c, CreatedDate, Year__c, Poster__c, Rated__c,
-                    Runtime__c, Plot__c, Vote_Score__c, CreatedBy.ContactId, 
+                    Runtime__c, Plot__c, Vote_Score__c, Tiebreaker_Votes__c, Final_Votes__c, 
+                    CreatedBy.ContactId, 
                     (
                         SELECT Contact__c, Type__c 
                         FROM Movie_Votes__r
-                        WHERE Contact__c IN :maAttendingIds AND Type__c IN ('Upvote', 'Downvote')
+                        WHERE Contact__c = :contactId AND Type__c IN ('Upvote', 'Downvote')
                     )
                     FROM Movie_Suggestion__c 
                     WHERE Movie_Night__c = :mn.Id AND CreatedBy.ContactId IN :maAttendingIds
@@ -595,67 +604,72 @@ public without sharing class MovieNightExtension {
     
     // use IMDB id to add to list of suggestions for movie night
     public void suggestMovie() {
-        
-        // get IMDB id from user selection
+        if (mn.Showtime__c > DateTime.now()) {
+            
+            // get IMDB id from user selection
             String imdb = ApexPages.currentPage().getParameters().get('imdb');
-        
-        // create set of IMDB ids from currently suggested movies and check for duplicates
-        Set<String> currentImdbIds = new Set<String>();
-        for (Movie_Suggestion__c ms : suggestedMovies) {
-            currentImdbIds.add(ms.IMDB_Id__c);
-        }
-        if (!currentImdbIds.contains(imdb)) {
-                        
-            // get API token from custom settings
-            String token = [
-                SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'OMDb' LIMIT 1
-            ].Token__c;
             
-            // web callout to OMDb
-            Http http = new Http();
-            HttpRequest request = new HttpRequest();
-            request.setEndpoint('http://www.omdbapi.com/?apikey=' + token + '&i=' + imdb);
-            request.setMethod('GET');
-            HttpResponse response = http.send(request);
-            String responseBody = response.getBody();
-            
-            // check for successful JSON data
-            if (response.getStatusCode() == 200) {
-                // parse data from JSON
-                JSONParser parser = JSON.createParser(responseBody);
-                while (parser.nextToken() != null) {
-                    // start at the array of results
-                    if (parser.getCurrentToken() == JSONToken.START_OBJECT) {
-                        // read entire result object, including its array of reviews
-                        OMDbMovie movie = (OMDbMovie)parser.readValueAs(OMDbMovie.class);
-                        // copy data to new movie selection object
-                        Movie_Suggestion__c newSuggestion = new Movie_Suggestion__c();
-                        newSuggestion.Movie_Night__c = mn.Id;
-                        if (movie.Title.length() > 80) {
-                            newSuggestion.Name = movie.Title.left(77) + '...';
-                        } else {
-                            newSuggestion.Name = movie.Title;
+            // create set of IMDB ids from currently suggested movies and check for duplicates
+            Set<String> currentImdbIds = new Set<String>();
+            for (Movie_Suggestion__c ms : suggestedMovies) {
+                currentImdbIds.add(ms.IMDB_Id__c);
+            }
+            if (!currentImdbIds.contains(imdb)) {
+                
+                // get API token from custom settings
+                String token = [
+                    SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'OMDb' LIMIT 1
+                ].Token__c;
+                
+                // web callout to OMDb
+                Http http = new Http();
+                HttpRequest request = new HttpRequest();
+                request.setEndpoint('http://www.omdbapi.com/?apikey=' + token + '&i=' + imdb);
+                request.setMethod('GET');
+                HttpResponse response = http.send(request);
+                String responseBody = response.getBody();
+                
+                // check for successful JSON data
+                if (response.getStatusCode() == 200) {
+                    // parse data from JSON
+                    JSONParser parser = JSON.createParser(responseBody);
+                    while (parser.nextToken() != null) {
+                        // start at the array of results
+                        if (parser.getCurrentToken() == JSONToken.START_OBJECT) {
+                            // read entire result object, including its array of reviews
+                            OMDbMovie movie = (OMDbMovie)parser.readValueAs(OMDbMovie.class);
+                            // copy data to new movie selection object
+                            Movie_Suggestion__c newSuggestion = new Movie_Suggestion__c();
+                            newSuggestion.Movie_Night__c = mn.Id;
+                            if (movie.Title.length() > 80) {
+                                newSuggestion.Name = movie.Title.left(77) + '...';
+                            } else {
+                                newSuggestion.Name = movie.Title;
+                            }
+                            newSuggestion.Year__c = movie.Year;
+                            newSuggestion.Rated__c = movie.Rated;
+                            newSuggestion.Runtime__c = movie.Runtime;
+                            // trim plot text if larger than 255 characters
+                            if (movie.Plot.length() > 255) {
+                                newSuggestion.Plot__c = movie.Plot.left(252) + '...';
+                            } else {
+                                newSuggestion.Plot__c = movie.Plot;
+                            }
+                            newSuggestion.Poster__c = movie.Poster;
+                            newSuggestion.IMDB_Id__c = movie.ImdbId;
+                            insert newSuggestion;
+                            parser.skipChildren();
+                            
+                            // insert upvote for new suggestion
+                            Movie_Vote__c mv = new Movie_Vote__c();
+                            mv.Contact__c = contactId;
+                            mv.Movie_Suggestion__c = newSuggestion.Id;
+                            mv.Type__c = 'Upvote';
+                            insert mv;
+                            
+                            // update movie title on movie night
+                            updateTopSuggestion();
                         }
-                        newSuggestion.Year__c = movie.Year;
-                        newSuggestion.Rated__c = movie.Rated;
-                        newSuggestion.Runtime__c = movie.Runtime;
-                        // trim plot text if larger than 255 characters
-                        if (movie.Plot.length() > 255) {
-                            newSuggestion.Plot__c = movie.Plot.left(252) + '...';
-                        } else {
-                            newSuggestion.Plot__c = movie.Plot;
-                        }
-                        newSuggestion.Poster__c = movie.Poster;
-                        newSuggestion.IMDB_Id__c = movie.ImdbId;
-                        insert newSuggestion;
-                        parser.skipChildren();
-                        
-                        // insert upvote for new suggestion
-                        Movie_Vote__c mv = new Movie_Vote__c();
-                        mv.Contact__c = contactId;
-                        mv.Movie_Suggestion__c = newSuggestion.Id;
-                        mv.Type__c = 'Upvote';
-                        insert mv;
                     }
                 }
             }
@@ -709,7 +723,32 @@ public without sharing class MovieNightExtension {
         get {
             // get list of all suggestions for current movie night, sorted by score
             List<Movie_Suggestion__c> msList = [
-                SELECT Id, CreatedDate, Name, Movie_Night__c, Vote_Score__c, Year__c
+                SELECT Id, CreatedDate, Name, Movie_Night__c, Vote_Score__c, Year__c, Poster__c, 
+                Tiebreaker_Votes__c, Final_Votes__c
+                FROM Movie_Suggestion__c
+                WHERE Movie_Night__c = :mn.Id
+                ORDER BY Vote_Score__c DESC, CreatedDate ASC
+            ];
+            
+            // get top score from list, compare each suggestion with top score
+            List<Movie_Suggestion__c> winners = new List<Movie_Suggestion__c>();
+            Integer topScore = Integer.valueOf(msList[0].Vote_Score__c - msList[0].Tiebreaker_Votes__c - msList[0].Final_Votes__c);
+            for (Movie_Suggestion__c ms : msList) {
+                if (ms.Vote_Score__c - ms.Tiebreaker_Votes__c - ms.Final_Votes__c == topScore) {
+                    winners.add(ms);
+                }
+            }
+            
+            return winners;
+        }
+    }
+    
+    // find top movie suggestion when voting is tied
+    public List<Movie_Suggestion__c> topTiebreaker {
+        get {
+            // get list of all suggestions for current movie night, sorted by score
+            List<Movie_Suggestion__c> msList = [
+                SELECT Id, CreatedDate, Name, Movie_Night__c, Vote_Score__c, Year__c, Poster__c
                 FROM Movie_Suggestion__c
                 WHERE Movie_Night__c = :mn.Id
                 ORDER BY Vote_Score__c DESC, CreatedDate ASC
@@ -728,19 +767,75 @@ public without sharing class MovieNightExtension {
         }
     }
     
+    // find top movie suggestion when voting is tied twice
+    public List<Movie_Suggestion__c> topFinal {
+        get {
+            // get list of all suggestions for current movie night, sorted by score
+            List<Movie_Suggestion__c> msList = [
+                SELECT Id, CreatedDate, Name, Movie_Night__c, Tiebreaker_Votes__c, Year__c, Poster__c
+                FROM Movie_Suggestion__c
+                WHERE Movie_Night__c = :mn.Id
+                ORDER BY Vote_Score__c DESC, CreatedDate ASC
+            ];
+            
+            // get top score from list, compare each suggestion with top score
+            List<Movie_Suggestion__c> winners = new List<Movie_Suggestion__c>();
+            Integer topScore = Integer.valueOf(msList[0].Tiebreaker_Votes__c);
+            for (Movie_Suggestion__c ms : msList) {
+                if (ms.Tiebreaker_Votes__c == topScore) {
+                    winners.add(ms);
+                }
+            }
+            
+            return winners;
+        }
+    }
+    
     // insert movie vote
     private void voteMovie(String vType) {
         String msId = ApexPages.currentPage().getParameters().get('selectedMovieSuggestionId');
         
-        // check existing votes to prevent duplicates
-        List<Movie_Vote__c> existingVotes = [
-            SELECT Id, Contact__c, Movie_Suggestion__c, Type__c
-            FROM Movie_Vote__c
-            WHERE Contact__c = :contactId AND Movie_Suggestion__c = :msId AND Type__c IN ('Upvote', 'Downvote')
-        ];
-        
-        // insert new vote if no duplicates found
-        if (existingVotes.size() == 0) {
+        // for regular votes
+        if ((vType == 'Upvote' || vType == 'Downvote') && mn.Showtime__c > DateTime.now()) {
+            
+            // check existing votes to prevent duplicates
+            List<Movie_Vote__c> existingVotes = [
+                SELECT Id, Contact__c, Movie_Suggestion__c, Type__c
+                FROM Movie_Vote__c
+                WHERE Contact__c = :contactId AND Movie_Suggestion__c = :msId AND Type__c IN ('Upvote', 'Downvote')
+            ];
+            
+            // insert new vote if no duplicates found
+            if (existingVotes.size() == 0) {
+                Movie_Vote__c movieVote = new Movie_Vote__c();
+                movieVote.Contact__c = contactId;
+                movieVote.Movie_Suggestion__c = msId;
+                movieVote.Type__c = vType;
+                insert movieVote;
+            }
+            
+            // for tiebreaker votes
+        } else if (vType == 'Tiebreaker' && mn.Showtime__c < DateTime.now() && mn.Showtime__c.addMinutes(5) > DateTime.now()) {
+            
+            // check existing votes to prevent duplicates
+            List<Movie_Vote__c> existingVotes = [
+                SELECT Id, Contact__c, Movie_Suggestion__c, Type__c
+                FROM Movie_Vote__c
+                WHERE Contact__c = :contactId AND Movie_Suggestion__c = :msId AND Type__c IN ('Tiebreaker')
+            ];
+            
+            // insert new vote if no duplicates found
+            if (existingVotes.size() == 0) {
+                Movie_Vote__c movieVote = new Movie_Vote__c();
+                movieVote.Contact__c = contactId;
+                movieVote.Movie_Suggestion__c = msId;
+                movieVote.Type__c = vType;
+                insert movieVote;
+            }
+            
+            // for final votes
+            // NOTE: ADD CHECK FOR SELECTED VOTER
+        } else if (vType == 'Final') {
             Movie_Vote__c movieVote = new Movie_Vote__c();
             movieVote.Contact__c = contactId;
             movieVote.Movie_Suggestion__c = msId;
@@ -749,21 +844,33 @@ public without sharing class MovieNightExtension {
         }
         
         // update movie title on movie night
-        if (topSuggestion.size() == 1) {
-            mn.Movie_Title__c = topSuggestion[0].Name + ' (' + topSuggestion[0].Year__c + ')';
-            update mn;
-        } else if (topSuggestion.size() > 1) {
-            String topSuggestions = 'Tied between the following... ';
-            for (Movie_Suggestion__c ms : topSuggestion) {
-                topSuggestions += ms.Name + ' (' + topSuggestion[0].Year__c + ')' + ', ';
-            }
-            topSuggestions = topSuggestions.left(topSuggestions.length() - 2);
-            mn.Movie_Title__c = topSuggestions;
-            update mn;
-        }
-        
+        updateTopSuggestion();
     }
     
+    // update movie title on movie night
+    public void updateTopSuggestion() {
+        if (topSuggestion.size() == 1) {
+            mn.Movie_Title__c = topTiebreaker[0].Name + ' (' + topSuggestion[0].Year__c + ')';
+            // only change the "tie" state during regular voting
+            if (mn.Showtime__c > DateTime.now()) {
+                mn.Tie__c = 'False';
+            }
+            update mn;
+        } else if (topSuggestion.size() > 1) {
+            String topPicks = '';
+            for (Movie_Suggestion__c ms : topTiebreaker) {
+                topPicks += ms.Name + ' (' + topTiebreaker[0].Year__c + ')' + ', ';
+            }
+            topPicks = topPicks.left(topPicks.length() - 2);
+            mn.Movie_Title__c = topPicks;
+            // only change the "tie" state during regular voting
+            if (mn.Showtime__c > DateTime.now()) {
+                mn.Tie__c = 'True';
+            }
+            update mn;
+        }
+    }
+        
     // submit movie upvote
     public void upvoteMovie() {
         this.voteMovie('Upvote');
@@ -772,6 +879,42 @@ public without sharing class MovieNightExtension {
     // submit movie downvote
     public void downvoteMovie() {
         this.voteMovie('Downvote');
+    }
+    
+    // submit movie tiebreaker vote
+    public void tbVoteMovie() {
+        this.voteMovie('Tiebreaker');
+    }
+
+    // submit movie final vote
+    public void finalVoteMovie() {
+        this.voteMovie('Final');
+    }
+    
+    // get tiebreaker vote info for current user and movie night
+    public List<Movie_Vote__c> tbVote {
+        get {
+            return [
+                SELECT Id, Contact__c, Type__c, Movie_Suggestion__r.Movie_Night__c, Movie_Suggestion__r.Name,
+                Movie_Suggestion__r.Year__c
+                FROM Movie_Vote__c
+                WHERE Contact__c = :contactId AND Movie_Suggestion__r.Movie_Night__c = :mn.Id 
+                AND Type__c = 'Tiebreaker'
+            ];           
+        }
+    }
+    
+    // get randomly-assigned audience numbers
+    public Movie_Audience__c randomAttendee {
+        get {
+            return [
+                SELECT Id, Contact__r.Id, Random_Number__c, Movie_Night__c, Attending__c
+                FROM Movie_Audience__c
+                WHERE Movie_Night__c = :mn.Id AND Attending__c = true
+                ORDER BY Random_Number__c
+                LIMIT 1
+            ];
+        }
     }
     
     // get list of attendees bringing refreshments for current movie night
@@ -826,24 +969,27 @@ public without sharing class MovieNightExtension {
     // add new refreshment to current movie night
     public String newRefreshment {get;set;}
     public void submitRefreshment() {
-        Refreshment__c nr = new Refreshment__c();
-        nr.Name = newRefreshment;
-        nr.Movie_Night__c = mn.Id;
-        insert nr;
+        if (mn.Showtime__c > DateTime.now()) {
+            Refreshment__c nr = new Refreshment__c();
+            nr.Name = newRefreshment;
+            nr.Movie_Night__c = mn.Id;
+            insert nr;
+        }
     }
     
     // remove refreshment from movie night
     public void removeItem() {
-        
-        // get item id from user selection
-        String item = ApexPages.currentPage().getParameters().get('ritem');
-        
-        Refreshment__c rItem = [
-            SELECT Id
-            FROM Refreshment__c
-            WHERE Id = :item
-        ];
-        delete rItem;
-        
+        if (mn.Showtime__c > DateTime.now()) {
+            
+            // get item id from user selection
+            String item = ApexPages.currentPage().getParameters().get('ritem');
+            
+            Refreshment__c rItem = [
+                SELECT Id
+                FROM Refreshment__c
+                WHERE Id = :item
+            ];
+            delete rItem;
+        }
     }
 }
