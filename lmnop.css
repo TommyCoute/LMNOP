@@ -903,6 +903,18 @@ p#searchResults {
     padding: 5px;
 }
 
+.tiedMovie {
+    background-position: center;
+    background-size: cover;
+    padding: 0px;
+}
+
+.tiedMovie .tieBreaker {
+    background-color: #00000080;
+    font-weight: bold;
+    padding: 10px;
+}
+
 #refreshments .cdText {
     padding-right: 4px;
 }

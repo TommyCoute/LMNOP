@@ -248,12 +248,12 @@
                                                         <div class="poster" style="background-image:url('{!IF(movie.Poster__c = 'N/A', $Resource.PosterNotFound, movie.Poster__c)}')">
                                                             <apex:outputPanel rendered="{!movie.Movie_Votes__r.size = 0}">
                                                                 <div class="poster-top">
-                                                                    <div class="upvote clickable" onclick="submitMovieVote('{!movie.Name}', '{!movie.Id}', 'Upvote')">
+                                                                    <div class="upvote clickable" onclick="submitMovieVote('{!JSENCODE(movie.Name)}', '{!movie.Id}', 'Upvote')">
                                                                         <i class="fas fa-thumbs-up"></i>
                                                                     </div>
                                                                 </div>
                                                                 <div class="poster-bottom">
-                                                                    <div class="downvote clickable" onclick="submitMovieVote('{!movie.Name}', '{!movie.Id}', 'Downvote')">
+                                                                    <div class="downvote clickable" onclick="submitMovieVote('{!JSENCODE(movie.Name)}', '{!movie.Id}', 'Downvote')">
                                                                         <i class="fas fa-thumbs-down"></i>
                                                                     </div>
                                                                 </div>
@@ -386,22 +386,24 @@
                                             <apex:outputText rendered="{!tbVote.size = 0}">
                                                 Make your choice below.
                                             </apex:outputText>
-                                            <apex:outputText rendered="{!tbVote.size > 0}">
-                                                Your vote for {!tbVote[0].Movie_Suggestion__r.Name} 
-                                                ({!tbVote[0].Movie_Suggestion__r.Year__c}) has been submitted.
-                                            </apex:outputText>
                                         </p>
-                                        <div class="tiebreaker">
-                                            <apex:outputPanel rendered="{!tbVote.size = 0}">
-                                                <apex:repeat value="{!topSuggestion}" var="tiedMovie">
-                                                    <div class="tiedMovie">
-                                                        <a href="javascript:submitMovieVote('{!tiedMovie.Name}', '{!tiedMovie.Id}', 'Tiebreaker')">
+                                        <apex:outputPanel rendered="{!tbVote.size > 0}">
+                                            <p>
+                                                Your vote for <b>{!tbVote[0].Movie_Suggestion__r.Name} 
+                                                ({!tbVote[0].Movie_Suggestion__r.Year__c})</b> has been submitted.
+                                            </p>
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!tbVote.size = 0}">
+                                            <apex:repeat value="{!topSuggestion}" var="tiedMovie">
+                                                <div class="tiedMovie goldback" style="background-image:url('{!IF(tiedMovie.Poster__c = 'N/A', $Resource.PosterNotFound, tiedMovie.Poster__c)}')">
+                                                    <div class="tieBreaker clickable" onclick="submitMovieVote('{!JSENCODE(tiedMovie.Name)}', '{!tiedMovie.Id}', 'Tiebreaker')">
+                                                        <a href="javascript:null(void)">
                                                             {!tiedMovie.Name} ({!tiedMovie.Year__c})
                                                         </a>
                                                     </div>
-                                                </apex:repeat>
-                                            </apex:outputPanel>
-                                        </div>
+                                                </div>
+                                            </apex:repeat>
+                                        </apex:outputPanel>
                                         <apex:form >
                                             <apex:actionFunction action="{!tbVoteMovie}" name="submitTiebreaker" reRender="" oncomplete="reloadNight()">
                                                 <apex:param name="selectedMovieSuggestionId" value="" />
@@ -416,25 +418,24 @@
                                         </div>
                                         <br/>
                                         <h2 class="titan">
-                                            It's a tie! AGAIN!
+                                            <i>It's still a tie!</i>
                                         </h2>
                                         <p>
                                             One audience member has been selected at random to cast the final vote.
+                                            If no final vote is cast after 5 minutes, another audience member will be selected.
                                         </p>
-                                        <div class="tiebreaker">
-                                            <apex:outputPanel rendered="{!randomAttendee.Contact__r.Id = $User.ContactId}">
-                                                <p>
-                                                    You have been selected!
-                                                </p>
-                                                <apex:repeat value="{!topFinal}" var="tiedMovie">
-                                                    <div class="tiedMovie">
-                                                        <a href="javascript:submitMovieVote('{!tiedMovie.Name}', '{!tiedMovie.Id}', 'Final')">
-                                                            {!tiedMovie.Name} ({!tiedMovie.Year__c})
-                                                        </a>
+                                        <apex:outputPanel rendered="{!randomAttendee.Contact__r.Id = $User.ContactId}">
+                                            <p>
+                                                <b>You have been selected!</b> Make your choice below.
+                                            </p>
+                                            <apex:repeat value="{!topFinal}" var="tiedMovie">
+                                                <div class="tiedMovie goldback" style="background-image:url('{!IF(tiedMovie.Poster__c = 'N/A', $Resource.PosterNotFound, tiedMovie.Poster__c)}')">
+                                                    <div class="tieBreaker clickable" onclick="submitMovieVote('{!JSENCODE(tiedMovie.Name)}', '{!tiedMovie.Id}', 'Final')">
+                                                        {!tiedMovie.Name} ({!tiedMovie.Year__c})
                                                     </div>
-                                                </apex:repeat>
-                                            </apex:outputPanel>
-                                        </div>
+                                                </div>
+                                            </apex:repeat>
+                                        </apex:outputPanel>
                                         <apex:form >
                                             <apex:actionFunction action="{!finalVoteMovie}" name="submitFinal" reRender="" oncomplete="reloadNight()">
                                                 <apex:param name="selectedMovieSuggestionId" value="" />
@@ -477,15 +478,19 @@
             </apex:outputPanel>
             <script type="text/javascript">
             /* search bar */
-            document.getElementById("suggestQuery").addEventListener("keyup", function(event) {
-                if (event.keyCode === 13) {
-                    movieSearch();
-                }
-            });
+            if (document.getElementById("suggestQuery") != null) {
+                document.getElementById("suggestQuery").addEventListener("keyup", function(event) {
+                    if (event.keyCode === 13) {
+                        movieSearch();
+                    }
+                });
+            }
             
-            document.getElementById("buttonQuery").addEventListener("click", function(event) {
-                movieSearch();
-            });
+            if (document.getElementById("buttonQuery") != null) {
+                document.getElementById("buttonQuery").addEventListener("click", function(event) {
+                    movieSearch();
+                });
+            }
             
             function movieSearch() {        
                 var q = document.getElementById("suggestQuery").value;
