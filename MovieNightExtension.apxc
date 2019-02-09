@@ -26,7 +26,8 @@
  * 2019-02-06	TKC		Added updateTopSuggestion() method to recalculate when submitting or voting on movies
  * 2019-02-06	TKC		Added (mn.Showtime__c > DateTime.now()) check to methods to prevent late submissions
  * 2019-02-06	TKC		Added tiebreaker/final vote controls
-
+ * 2019-02-08	TKC		Added randomAttendee() query offset to cycle through attendees every 5 minutes
+ * 2019-02-08	TKC		Updated MovieNight page functions to query new record instead of updating existing record (unintentionally)
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -834,40 +835,49 @@ public without sharing class MovieNightExtension {
             }
             
             // for final votes
-            // NOTE: ADD CHECK FOR SELECTED VOTER
         } else if (vType == 'Final') {
-            Movie_Vote__c movieVote = new Movie_Vote__c();
-            movieVote.Contact__c = contactId;
-            movieVote.Movie_Suggestion__c = msId;
-            movieVote.Type__c = vType;
-            insert movieVote;
+            // check to make sure submitter is the selected final voter
+            if (contactId == randomAttendee.Contact__r.Id) {
+                Movie_Vote__c movieVote = new Movie_Vote__c();
+                movieVote.Contact__c = contactId;
+                movieVote.Movie_Suggestion__c = msId;
+                movieVote.Type__c = vType;
+                insert movieVote;
+            }
         }
-        
+                
         // update movie title on movie night
         updateTopSuggestion();
     }
     
     // update movie title on movie night
     public void updateTopSuggestion() {
+        
+        // don't use mn from standard controller or else other values could get reset from viewstate
+        Movie_Night__c mnCurrent = [
+            SELECT Id, Movie_Title__c, Showtime__c, Tie__c
+            FROM Movie_Night__c
+            WHERE Id = :mn.Id
+        ];
         if (topSuggestion.size() == 1) {
-            mn.Movie_Title__c = topTiebreaker[0].Name + ' (' + topSuggestion[0].Year__c + ')';
+            mnCurrent.Movie_Title__c = topTiebreaker[0].Name + ' (' + topSuggestion[0].Year__c + ')';
             // only change the "tie" state during regular voting
-            if (mn.Showtime__c > DateTime.now()) {
-                mn.Tie__c = 'False';
+            if (mnCurrent.Showtime__c > DateTime.now()) {
+                mnCurrent.Tie__c = 'False';
             }
-            update mn;
+            update mnCurrent;
         } else if (topSuggestion.size() > 1) {
             String topPicks = '';
             for (Movie_Suggestion__c ms : topTiebreaker) {
                 topPicks += ms.Name + ' (' + topTiebreaker[0].Year__c + ')' + ', ';
             }
             topPicks = topPicks.left(topPicks.length() - 2);
-            mn.Movie_Title__c = topPicks;
+            mnCurrent.Movie_Title__c = topPicks;
             // only change the "tie" state during regular voting
-            if (mn.Showtime__c > DateTime.now()) {
-                mn.Tie__c = 'True';
+            if (mnCurrent.Showtime__c > DateTime.now()) {
+                mnCurrent.Tie__c = 'True';
             }
-            update mn;
+            update mnCurrent;
         }
     }
         
@@ -907,12 +917,20 @@ public without sharing class MovieNightExtension {
     // get randomly-assigned audience numbers
     public Movie_Audience__c randomAttendee {
         get {
+            // create offset based on showtime and number of attendees
+            Long msNow = DateTime.now().getTime();
+            Long msFinalVote = [SELECT Showtime__c FROM Movie_Night__c WHERE Id = :mn.Id].Showtime__c.addMinutes(5).getTime();
+            Integer finalVoteCycle = Integer.valueOf(Math.floor((msNow - msFinalVote) / 1000 / 60 / 5));
+            Integer attendeeCount = [SELECT Id FROM Movie_Audience__C WHERE Movie_Night__c = :mn.Id AND Attending__c = true].size();
+            Integer raOffset = Math.mod(finalVoteCycle, attendeeCount);
+            
             return [
                 SELECT Id, Contact__r.Id, Random_Number__c, Movie_Night__c, Attending__c
                 FROM Movie_Audience__c
                 WHERE Movie_Night__c = :mn.Id AND Attending__c = true
                 ORDER BY Random_Number__c
                 LIMIT 1
+                OFFSET :raOffset
             ];
         }
     }
