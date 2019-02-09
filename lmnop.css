@@ -417,6 +417,24 @@ div.newUser {
 
 /* manage movie night page */
 
+.formGroup p {
+    margin: 0px;
+}
+
+.formGroup.deadline .requiredBlock, .formGroup.deadline .requiredInput {
+    display: inline-block;
+}
+
+.formGroup.deadline input {
+    margin-right: 10px;
+    width: 45px;
+}
+
+.formGroup.deadline select {
+    margin-right: 5px;
+    width: unset;
+}
+
 .formGroup.audience {
     margin-bottom: 0px;
 }
@@ -913,10 +931,6 @@ p#searchResults {
     background-color: #00000080;
     font-weight: bold;
     padding: 10px;
-}
-
-#refreshments .cdText {
-    padding-right: 4px;
 }
 
 #refreshments img.popcorn {

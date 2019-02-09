@@ -37,26 +37,29 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 # Custom Objects & Fields
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
     1. Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula: 
-        IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Showtime__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
-        IF(DATEVALUE(Showtime__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24)) + ' hours left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
-        IF(FLOOR((Showtime__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
-        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR((Showtime__c - NOW()) * 24 * 60 + 5) > 1, TEXT(FLOOR((Showtime__c - NOW()) * 24 * 60 + 5)) + ' minutes left to choose a movie', 
-        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR((Showtime__c - NOW()) * 24 * 60 + 5) = 1, '1 minute left to choose a movie', 
-        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60) > 1, TEXT(FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60)) + ' seconds left to choose a movie', 
-        IF(ISPICKVAL(Tiebreaker__c, 'True') && FLOOR(((Showtime__c - NOW()) * 24 * 60 + 5) * 60) = 1, '1 second left to choose a movie', 
-        ''))))))))))
+        IF(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
+        IF(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24)) + ' hours left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
+        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
+        IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5)) + ' minutes left to choose a movie', 
+        IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) = 1, '1 minute left to choose a movie', 
+        IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) > 1, TEXT(FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60)) + ' seconds left to choose a movie', 
+        IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) = 1, '1 second left to choose a movie', 
+        ''))))))))))))
     2. Location__c (text, 255) - The event location for hosting a movie night
     3. Movie_Title__c (text, 255) - Displays the selected movie suggestion
     4. Organizer_Email__c (formula text) - Contains the email address of the movie night organizer using the following formula:
      CreatedBy.Email
-    5. Showtime__c (date/time) - The event date/time, used for the calendar and to determine when voting is over
+    5. Showtime__c (date/time) - The event date/time, used for the calendar and as the default movie submission and voting deadline
     6. Tie__c (picklist) - Includes the following values: "False" (default), "True" (if there is a tie), "Final" (if there is a second tie)
     7. Unregistered_Audience__C (long text area) - Lists email addresses for audience members who have been invited to a movie night, but not yet registered
+    8. Voting_Deadline__c (date/time) - Movies and regular votes cannot be added after this date/time
+    9. Voting_Deadline_Offset_Type__c (picklist) - Used with the Voting Deadline Offset Value field to set a deadline on submitting and voting on movies, values include "Minutes", "Hours", "Days"
+    10. Voting_Deadline_Offset_Value__c (number) - Used with the Voting Deadline Offset Type field to set a deadline on submitting and voting on movies
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
     1. Attending__c (checkbox) - Indicates if the invited audience contact will be attending the movie night
     2. Contact__c (master-detail)

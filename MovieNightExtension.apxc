@@ -28,6 +28,7 @@
  * 2019-02-06	TKC		Added tiebreaker/final vote controls
  * 2019-02-08	TKC		Added randomAttendee() query offset to cycle through attendees every 5 minutes
  * 2019-02-08	TKC		Updated MovieNight page functions to query new record instead of updating existing record (unintentionally)
+ * 2019-02-19	TKC		Refactored to support new Voting_Deadline__c datetime instead of Showtime__c where applicable
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -244,11 +245,32 @@ public without sharing class MovieNightExtension {
     
     // create new movie night event
     public String inputDate {get;set;}
+    /* public String inputVDNumber {get;set;}
+    public String inputVDOption {get;set;}
+    public List<SelectOption> voteDeadlineOptions {
+        get {
+            List<SelectOption> vdOptions = new List<SelectOption>();
+            vdOptions.add(new SelectOption('Minutes', 'Minutes'));
+            vdOptions.add(new SelectOption('Hours', 'Hours'));
+            vdOptions.add(new SelectOption('Days', 'Days'));
+            return vdOptions;
+        }
+    } */
     public String contactIds {get;set;}
     public PageReference createMovieNight() {
         // convert form datetime into showtime
-        inputDate = inputDate.replace('T', ' ');
-        mn.Showtime__c = Datetime.valueOf(inputDate + ':00');
+        Datetime inputDateTime = Datetime.valueOf(inputDate.replace('T', ' ') + ':00');
+        mn.Showtime__c = inputDateTime;
+        
+        // convert voting deadline inputs into datetime
+        Integer addTime = Integer.valueOf(mn.Voting_Deadline_Offset_Value__c * -1);
+        if (mn.Voting_Deadline_Offset_Type__c == 'Days') {
+            mn.Voting_Deadline__c = inputDateTime.addDays(addTime);
+        } else if (mn.Voting_Deadline_Offset_Type__c == 'Hours') {
+            mn.Voting_Deadline__c = inputDateTime.addHours(addTime);
+        } else if (mn.Voting_Deadline_Offset_Type__c == 'Minutes') {
+            mn.Voting_Deadline__c = inputDateTime.addMinutes(addTime);
+        }
         
         // create new movie night
         insert mn;
@@ -349,8 +371,18 @@ public without sharing class MovieNightExtension {
     public PageReference updateMovieNight() {
         
         // convert form datetime into showtime
-        inputDate = inputDate.replace('T', ' ');
-        mn.Showtime__c = Datetime.valueOf(inputDate + ':00');
+        Datetime inputDateTime = Datetime.valueOf(inputDate.replace('T', ' ') + ':00');
+        mn.Showtime__c = inputDateTime;
+        
+        // convert voting deadline inputs into datetime
+        Integer addTime = Integer.valueOf(mn.Voting_Deadline_Offset_Value__c * -1);
+        if (mn.Voting_Deadline_Offset_Type__c == 'Days') {
+            mn.Voting_Deadline__c = inputDateTime.addDays(addTime);
+        } else if (mn.Voting_Deadline_Offset_Type__c == 'Hours') {
+            mn.Voting_Deadline__c = inputDateTime.addHours(addTime);
+        } else if (mn.Voting_Deadline_Offset_Type__c == 'Minutes') {
+            mn.Voting_Deadline__c = inputDateTime.addMinutes(addTime);
+        }
         
         // update movie night
         update mn;
@@ -605,7 +637,7 @@ public without sharing class MovieNightExtension {
     
     // use IMDB id to add to list of suggestions for movie night
     public void suggestMovie() {
-        if (mn.Showtime__c > DateTime.now()) {
+        if (mn.Voting_Deadline__c > DateTime.now()) {
             
             // get IMDB id from user selection
             String imdb = ApexPages.currentPage().getParameters().get('imdb');
@@ -733,10 +765,12 @@ public without sharing class MovieNightExtension {
             
             // get top score from list, compare each suggestion with top score
             List<Movie_Suggestion__c> winners = new List<Movie_Suggestion__c>();
-            Integer topScore = Integer.valueOf(msList[0].Vote_Score__c - msList[0].Tiebreaker_Votes__c - msList[0].Final_Votes__c);
-            for (Movie_Suggestion__c ms : msList) {
-                if (ms.Vote_Score__c - ms.Tiebreaker_Votes__c - ms.Final_Votes__c == topScore) {
-                    winners.add(ms);
+            if (msList.size() > 0) {
+                Integer topScore = Integer.valueOf(msList[0].Vote_Score__c - msList[0].Tiebreaker_Votes__c - msList[0].Final_Votes__c);
+                for (Movie_Suggestion__c ms : msList) {
+                    if (ms.Vote_Score__c - ms.Tiebreaker_Votes__c - ms.Final_Votes__c == topScore) {
+                        winners.add(ms);
+                    }
                 }
             }
             
@@ -757,10 +791,12 @@ public without sharing class MovieNightExtension {
             
             // get top score from list, compare each suggestion with top score
             List<Movie_Suggestion__c> winners = new List<Movie_Suggestion__c>();
-            Integer topScore = Integer.valueOf(msList[0].Vote_Score__c);
-            for (Movie_Suggestion__c ms : msList) {
-                if (ms.Vote_Score__c == topScore) {
-                    winners.add(ms);
+            if (msList.size() > 0) {
+                Integer topScore = Integer.valueOf(msList[0].Vote_Score__c);
+                for (Movie_Suggestion__c ms : msList) {
+                    if (ms.Vote_Score__c == topScore) {
+                        winners.add(ms);
+                    }
                 }
             }
             
@@ -797,7 +833,7 @@ public without sharing class MovieNightExtension {
         String msId = ApexPages.currentPage().getParameters().get('selectedMovieSuggestionId');
         
         // for regular votes
-        if ((vType == 'Upvote' || vType == 'Downvote') && mn.Showtime__c > DateTime.now()) {
+        if ((vType == 'Upvote' || vType == 'Downvote') && mn.Voting_Deadline__c > DateTime.now()) {
             
             // check existing votes to prevent duplicates
             List<Movie_Vote__c> existingVotes = [
@@ -816,7 +852,7 @@ public without sharing class MovieNightExtension {
             }
             
             // for tiebreaker votes
-        } else if (vType == 'Tiebreaker' && mn.Showtime__c < DateTime.now() && mn.Showtime__c.addMinutes(5) > DateTime.now()) {
+        } else if (vType == 'Tiebreaker' && mn.Voting_Deadline__c < DateTime.now() && mn.Voting_Deadline__c.addMinutes(5) > DateTime.now()) {
             
             // check existing votes to prevent duplicates
             List<Movie_Vote__c> existingVotes = [
@@ -919,7 +955,7 @@ public without sharing class MovieNightExtension {
         get {
             // create offset based on showtime and number of attendees
             Long msNow = DateTime.now().getTime();
-            Long msFinalVote = [SELECT Showtime__c FROM Movie_Night__c WHERE Id = :mn.Id].Showtime__c.addMinutes(5).getTime();
+            Long msFinalVote = [SELECT Voting_Deadline__c FROM Movie_Night__c WHERE Id = :mn.Id].Voting_Deadline__c.addMinutes(5).getTime();
             Integer finalVoteCycle = Integer.valueOf(Math.floor((msNow - msFinalVote) / 1000 / 60 / 5));
             Integer attendeeCount = [SELECT Id FROM Movie_Audience__C WHERE Movie_Night__c = :mn.Id AND Attending__c = true].size();
             Integer raOffset = Math.mod(finalVoteCycle, attendeeCount);
@@ -987,27 +1023,23 @@ public without sharing class MovieNightExtension {
     // add new refreshment to current movie night
     public String newRefreshment {get;set;}
     public void submitRefreshment() {
-        if (mn.Showtime__c > DateTime.now()) {
-            Refreshment__c nr = new Refreshment__c();
-            nr.Name = newRefreshment;
-            nr.Movie_Night__c = mn.Id;
-            insert nr;
-        }
+        Refreshment__c nr = new Refreshment__c();
+        nr.Name = newRefreshment;
+        nr.Movie_Night__c = mn.Id;
+        insert nr;
     }
     
     // remove refreshment from movie night
     public void removeItem() {
-        if (mn.Showtime__c > DateTime.now()) {
-            
-            // get item id from user selection
-            String item = ApexPages.currentPage().getParameters().get('ritem');
-            
-            Refreshment__c rItem = [
-                SELECT Id
-                FROM Refreshment__c
-                WHERE Id = :item
-            ];
-            delete rItem;
-        }
+        
+        // get item id from user selection
+        String item = ApexPages.currentPage().getParameters().get('ritem');
+        
+        Refreshment__c rItem = [
+            SELECT Id
+            FROM Refreshment__c
+            WHERE Id = :item
+        ];
+        delete rItem;
     }
 }

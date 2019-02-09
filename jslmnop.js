@@ -15,10 +15,11 @@ function toggleDA() {
     }
 }
 
-// set date/time using custom input field
+// set date/time using custom input fields
 $(document).ready(function() {
     $('input[field="inputdate"]').prop('type', 'datetime-local');
     $('input[field="inputdate"]').val($('input[field="displaydate"]').val());
+    $('input[field="inputVDNumber"]').prop('type', 'number');
 });
 
 // toggle audience contact selection

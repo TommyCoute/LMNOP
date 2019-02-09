@@ -15,8 +15,21 @@
                     <apex:form >
                         <apex:pageMessages />
                         <div class="formGroup">
-                            Date/Time
+                            Showtime
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
+                        </div>
+                        <div class="formGroup deadline">
+                            <p>
+                                Voting Deadline
+                            </p>
+                            <!-- <apex:inputText value="{!inputVDNumber}" html-field="inputVDNumber" html-min="0" required="true" />
+                            <apex:selectList value="{!inputVDOption}" html-field="inputVDOption" multiselect="false" size="1">
+                                <apex:selectOptions value="{!voteDeadlineOptions}" />
+                            </apex:selectList> -->
+                            <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Value__c}" required="true"
+                                             html-field="inputVDNumber" html-min="0" />
+                            <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Type__c}" required="true" />
+                            Before Showtime
                         </div>
                         <div class="formGroup">
                             Location
@@ -69,6 +82,15 @@
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
                             <apex:inputHidden value="{!displayInputDate}" html-field="displaydate" />
                         </div>
+                        <div class="formGroup deadline">
+                            <p>
+                                Voting Deadline
+                            </p>
+                            <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Value__c}" required="true"
+                                             html-field="inputVDNumber" html-min="0" />
+                            <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Type__c}" required="true" />
+                            Before Showtime
+                        </div>
                         <div class="formGroup">
                             Location
                             <apex:inputField value="{!Movie_Night__c.Location__c}" required="true"
@@ -79,7 +101,7 @@
                                 Current Audience, Confirmed
                                 <div>
                                     <apex:repeat value="{!confirmedAudience}" var="contact">
-                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!contact.FirstName}')">
+                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!JSENCODE(contact.FirstName)}')">
                                             <i class="far fa-check-circle"></i>
                                             <span>{!contact.FirstName} {!contact.LastName}</span>
                                         </div>
@@ -92,14 +114,14 @@
                                 Current Audience, Unconfirmed
                                 <div>
                                     <apex:repeat value="{!unconfirmedAudience}" var="contact">
-                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!contact.FirstName}')">
+                                        <div id="{!contact.Id}" class="contact audience" onclick="toggleContact('{!contact.Id}', '{!JSENCODE(contact.FirstName)}')">
                                             <i class="far fa-check-circle"></i>
                                             <span>{!contact.FirstName} {!contact.LastName}</span>
                                         </div>
                                     </apex:repeat>
                                     <apex:repeat value="{!unregisteredAudience}" var="contact">
                                         <apex:variable value="{!SUBSTITUTE(SUBSTITUTE(contact, '@', ''), '.', '')}" var="cid" />
-                                        <div id="{!cid}" class="contact unregistered audience" onclick="toggleContact('{!cid}', '{!contact}')">
+                                        <div id="{!cid}" class="contact unregistered audience" onclick="toggleContact('{!cid}', '{!JSENCODE(contact)}')">
                                             <i class="far fa-check-circle"></i>
                                             <span>{!contact}</span>
                                         </div>

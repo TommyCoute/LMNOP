@@ -88,14 +88,17 @@
                                             <p>
                                                 <i class="fas fa-film"></i>
                                                 <apex:outputText value="{!IF(mn.maRecord.Movie_Night__r.Movie_Title__c = null, ' (no movies suggested yet)', 
+                                                                        IF(ISBLANK(mn.maRecord.Movie_Night__r.Countdown__c), ' ' + mn.maRecord.Movie_Night__r.Movie_Title__c, 
                                                                         IF(mn.maRecord.Movie_Night__r.Tie__c = 'True', 
                                                                         ' Top Suggestions: ' + mn.maRecord.Movie_Night__r.Movie_Title__c, 
-                                                                        ' Top Suggestion: ' + mn.maRecord.Movie_Night__r.Movie_Title__c))}" />
+                                                                        ' Top Suggestion: ' + mn.maRecord.Movie_Night__r.Movie_Title__c)))}" />
                                             </p>
-                                            <p>
-                                                <i class="fas fa-hourglass-half cal-countdown"></i>
-                                                <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Countdown__c}" />
-                                            </p>
+                                            <apex:outputPanel rendered="{!!ISBLANK(mn.maRecord.Movie_Night__r.Countdown__c)}">
+                                                <p>
+                                                    <i class="fas fa-hourglass-half cal-countdown"></i>
+                                                    <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Countdown__c}" />
+                                                </p>
+                                            </apex:outputPanel>
                                             <p>
                                                 <apex:outputPanel rendered="{!mn.maRecord.Movie_Night__r.CreatedBy.Id = $User.Id}">
                                                     <i class="fas fa-user-tie cal-organizer"></i>
@@ -167,6 +170,7 @@
             <!-- MOVIE NIGHT RECORD SECTION -->
             <apex:outputPanel rendered="{!acknowledged && Movie_Night__c.Id != null}">
                 <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
+                <apex:variable value="{!Movie_Night__c.Voting_Deadline__c}" var="vd" />
                 <div class="location">
                     Movie Night at {!Movie_Night__c.Location__c}!
                 </div>
@@ -215,7 +219,7 @@
                             <!-- SUGGESTED MOVIES CONTENT -->
                             <div class="tab-pane active in" id="movies" role="tabpanel">
                                 <!-- BEFORE SHOWTIME -->
-                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
+                                <apex:outputPanel rendered="{!DATETIMEVALUE(vd) > NOW()}">
                                     <div class="countdown">
                                         <div class="cdNumber titan"></div>
                                         <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
@@ -345,23 +349,23 @@
                                     </div>
                                 </apex:outputPanel>
                                 <!-- AFTER SHOWTIME -->
-                                <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
+                                <apex:outputPanel rendered="{!DATETIMEVALUE(vd) < NOW()}">
                                     <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
                                         <div class="countdown">
-                                            Editing has ended but no movies have been suggested.
+                                            Voting has ended but no movies have been suggested in time.
                                             The organizer can update the showtime if needed.
                                         </div>
                                     </apex:outputPanel>
                                     <!-- VOTING COMPLETE -->
-                                    <apex:outputPanel rendered="{!Movie_Night__c.Tie__c = 'False' || 
-                                                                (DATETIMEVALUE(st) + 5/1440 < NOW() && topTiebreaker.size = 1)}">
+                                    <apex:outputPanel rendered="{!(suggestedMovies.size > 0 && Movie_Night__c.Tie__c = 'False') || 
+                                                                (DATETIMEVALUE(vd) + 5/1440 < NOW() && topTiebreaker.size = 1)}">
                                         <div class="countdown">
                                             SELECTED MOVIE:
                                         </div>
                                         <div class="searchResult selectedMovie">
                                             <div class="poster" style="border-image-source:url({!$Resource.MovieBorderTop})">
                                                 <a href="javascript:void(null);">
-                                                    <img src="{!IF(topSuggestion[0].Poster__c = 'N/A', $Resource.PosterNotFound, topSuggestion[0].Poster__c)}" />
+                                                    <img src="{!IF(topTiebreaker[0].Poster__c = 'N/A', $Resource.PosterNotFound, topSuggestion[0].Poster__c)}" />
                                                 </a>
                                             </div>
                                             <div class="title" style="border-image-source:url({!$Resource.MovieBorderBottom})">
@@ -372,7 +376,7 @@
                                         </div>
                                     </apex:outputPanel>
                                     <!-- TIEBREAKER VOTING -->
-                                    <apex:outputPanel rendered="{!DATETIMEVALUE(st) + 5/1440 > NOW() && Movie_Night__c.Tie__c = 'True'}">
+                                    <apex:outputPanel rendered="{!DATETIMEVALUE(vd) + 5/1440 > NOW() && Movie_Night__c.Tie__c = 'True'}">
                                         <div class="countdown">
                                             <div class="cdNumber titan"></div>
                                             <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
@@ -411,7 +415,7 @@
                                         </apex:form>
                                     </apex:outputPanel>
                                     <!-- FINAL VOTING -->
-                                    <apex:outputPanel rendered="{!DATETIMEVALUE(st) + 5/1440 < NOW() && topTiebreaker.size > 1}">
+                                    <apex:outputPanel rendered="{!DATETIMEVALUE(vd) + 5/1440 < NOW() && topTiebreaker.size > 1}">
                                         <div class="countdown">
                                             <div class="cdNumber titan"></div>
                                             <div class="cdText">{!Movie_Night__c.Countdown__c}</div>

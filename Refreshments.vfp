@@ -10,7 +10,7 @@
             <apex:outputField value="{!Movie_Night__c.CreatedBy.Email}" rendered="false" />
             <apex:outputField value="{!Movie_Night__c.Showtime__c}" rendered="false" />            
             
-            <apex:outputPanel>
+            <apex:outputPanel >
                 <div class="location">
                     Movie Night at {!Movie_Night__c.Location__c}!
                 </div>
@@ -31,26 +31,23 @@
                         </div>
                     </apex:form>
                 </apex:outputPanel>
-                <div class="lmnopTabs">
-                    <ul class="nav nav-tabs nav-fill" id="lmnopTab" role="tablist">
-                        <li class="nav-item">
-                            <a class="titan nav-link" id="moviesTab" href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}">Suggested Movies</a>
-                        </li>
-                        <li class="nav-item active">
-                            <a class="titan nav-link active" id="refreshmentsTab" href="">Refreshments</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="silverback tabs">
-                    <div class="tab-content" id="lmnopTabs">
-                        <div class="tab-pane active in" id="refreshments" role="tabpanel">
-                            <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
-                            <!-- BEFORE SHOWTIME -->
-                            <apex:outputPanel rendered="{!DATETIMEVALUE(st) > NOW()}">
+                <apex:outputPanel rendered="{!isAttending || Movie_Night__c.CreatedBy.Id = $User.Id}">
+                    <div class="lmnopTabs">
+                        <ul class="nav nav-tabs nav-fill" id="lmnopTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="titan nav-link" id="moviesTab" href="{!$Site.Prefix}/MovieNight?id={!Movie_Night__c.Id}">Suggested Movies</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="titan nav-link active" id="refreshmentsTab" href="">Refreshments</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="silverback tabs">
+                        <div class="tab-content" id="lmnopTabs">
+                            <div class="tab-pane active in" id="refreshments" role="tabpanel">
                                 <div class="countdown">
                                     <div class="cdNumber titan"></div>
-                                    <div class="cdText">{!SUBSTITUTE(Movie_Night__c.Countdown__c,
-                                        "choose a movie", "add good stuff")}</div>
+                                    <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
                                 </div>
                                 
                                 <div class="container-fluid suggestions-container">
@@ -98,24 +95,11 @@
                                         <apex:commandButton action="{!submitRefreshment}" value=">>" styleClass="btn btn-primary titan" oncomplete="location.reload();" />
                                     </div>
                                 </apex:form>
-                            </apex:outputPanel>
-                            <!-- AFTER SHOWTIME -->
-                            <apex:outputPanel rendered="{!DATETIMEVALUE(st) < NOW()}">
-                                <div class="countdown">
-                                    Voting has ended
-                                </div>
-                                
-                            </apex:outputPanel>                                    
+                            </div>
                         </div>
                     </div>
-                </div>
+                </apex:outputPanel>
             </apex:outputPanel>
-            <script type="text/javascript">
-            /* refreshment removal */
-            function selectRefreshment(ritem) {
-                removeRefreshment(ritem);
-            }
-            </script>
         </apex:define>
     </apex:composition>
 </apex:page>
