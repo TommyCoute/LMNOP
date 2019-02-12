@@ -245,17 +245,6 @@ public without sharing class MovieNightExtension {
     
     // create new movie night event
     public String inputDate {get;set;}
-    /* public String inputVDNumber {get;set;}
-    public String inputVDOption {get;set;}
-    public List<SelectOption> voteDeadlineOptions {
-        get {
-            List<SelectOption> vdOptions = new List<SelectOption>();
-            vdOptions.add(new SelectOption('Minutes', 'Minutes'));
-            vdOptions.add(new SelectOption('Hours', 'Hours'));
-            vdOptions.add(new SelectOption('Days', 'Days'));
-            return vdOptions;
-        }
-    } */
     public String contactIds {get;set;}
     public PageReference createMovieNight() {
         // convert form datetime into showtime
@@ -852,7 +841,7 @@ public without sharing class MovieNightExtension {
             }
             
             // for tiebreaker votes
-        } else if (vType == 'Tiebreaker' && mn.Voting_Deadline__c < DateTime.now() && mn.Voting_Deadline__c.addMinutes(5) > DateTime.now()) {
+        } else if (vType == 'Tiebreaker' && mn.Voting_Deadline__c <= DateTime.now() && mn.Voting_Deadline__c.addMinutes(5) > DateTime.now()) {
             
             // check existing votes to prevent duplicates
             List<Movie_Vote__c> existingVotes = [
@@ -887,18 +876,18 @@ public without sharing class MovieNightExtension {
     }
     
     // update movie title on movie night
-    public void updateTopSuggestion() {
+    private void updateTopSuggestion() {
         
         // don't use mn from standard controller or else other values could get reset from viewstate
         Movie_Night__c mnCurrent = [
-            SELECT Id, Movie_Title__c, Showtime__c, Tie__c
+            SELECT Id, Movie_Title__c, Showtime__c, Voting_Deadline__c, Tie__c
             FROM Movie_Night__c
             WHERE Id = :mn.Id
         ];
         if (topSuggestion.size() == 1) {
             mnCurrent.Movie_Title__c = topTiebreaker[0].Name + ' (' + topSuggestion[0].Year__c + ')';
             // only change the "tie" state during regular voting
-            if (mnCurrent.Showtime__c > DateTime.now()) {
+            if (mnCurrent.Voting_Deadline__c > DateTime.now()) {
                 mnCurrent.Tie__c = 'False';
             }
             update mnCurrent;
@@ -910,7 +899,7 @@ public without sharing class MovieNightExtension {
             topPicks = topPicks.left(topPicks.length() - 2);
             mnCurrent.Movie_Title__c = topPicks;
             // only change the "tie" state during regular voting
-            if (mnCurrent.Showtime__c > DateTime.now()) {
+            if (mnCurrent.Voting_Deadline__c > DateTime.now()) {
                 mnCurrent.Tie__c = 'True';
             }
             update mnCurrent;

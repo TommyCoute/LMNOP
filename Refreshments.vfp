@@ -45,10 +45,12 @@
                     <div class="silverback tabs">
                         <div class="tab-content" id="lmnopTabs">
                             <div class="tab-pane active in" id="refreshments" role="tabpanel">
-                                <div class="countdown">
-                                    <div class="cdNumber titan"></div>
-                                    <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
-                                </div>
+                                <apex:outputPanel rendered="{!!ISBLANK(Movie_Night__c.Countdown__c)}">
+                                    <div class="countdown">
+                                        <div class="cdNumber titan"></div>
+                                        <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                    </div>
+                                </apex:outputPanel>
                                 
                                 <div class="container-fluid suggestions-container">
                                     <div class="row suggestions-header">

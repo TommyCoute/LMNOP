@@ -22,10 +22,6 @@
                             <p>
                                 Voting Deadline
                             </p>
-                            <!-- <apex:inputText value="{!inputVDNumber}" html-field="inputVDNumber" html-min="0" required="true" />
-                            <apex:selectList value="{!inputVDOption}" html-field="inputVDOption" multiselect="false" size="1">
-                                <apex:selectOptions value="{!voteDeadlineOptions}" />
-                            </apex:selectList> -->
                             <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Value__c}" required="true"
                                              html-field="inputVDNumber" html-min="0" />
                             <apex:inputField value="{!Movie_Night__c.Voting_Deadline_Offset_Type__c}" required="true" />
