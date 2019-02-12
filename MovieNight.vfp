@@ -191,7 +191,7 @@
                         </div>
                     </apex:form>
                 </apex:outputPanel>
-                <apex:outputPanel layout="block" rendered="{!Movie_Night__c.CreatedBy.Id != $User.Id && DATETIMEVALUE(st) < NOW()}">
+                <apex:outputPanel layout="block" rendered="{!Movie_Night__c.CreatedBy.Id != $User.Id && DATETIMEVALUE(st) <= NOW()}">
                     <apex:form >
                         <div class="attending">
                             <a href="javascript:void(null)" class="btn btn-primary titan attended{!IF(isAttending, '', ' notAttending')}">
@@ -349,7 +349,7 @@
                                     </div>
                                 </apex:outputPanel>
                                 <!-- AFTER SHOWTIME -->
-                                <apex:outputPanel rendered="{!DATETIMEVALUE(vd) < NOW()}">
+                                <apex:outputPanel rendered="{!DATETIMEVALUE(vd) <= NOW()}">
                                     <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
                                         <div class="countdown">
                                             Voting has ended but no movies have been suggested in time.
@@ -358,7 +358,7 @@
                                     </apex:outputPanel>
                                     <!-- VOTING COMPLETE -->
                                     <apex:outputPanel rendered="{!(suggestedMovies.size > 0 && Movie_Night__c.Tie__c = 'False') || 
-                                                                (DATETIMEVALUE(vd) + 5/1440 < NOW() && topTiebreaker.size = 1)}">
+                                                                (DATETIMEVALUE(vd) + 5/1440 <= NOW() && topTiebreaker.size = 1)}">
                                         <div class="countdown">
                                             SELECTED MOVIE:
                                         </div>
@@ -415,10 +415,21 @@
                                         </apex:form>
                                     </apex:outputPanel>
                                     <!-- FINAL VOTING -->
-                                    <apex:outputPanel rendered="{!DATETIMEVALUE(vd) + 5/1440 < NOW() && topTiebreaker.size > 1}">
+                                    <apex:outputPanel rendered="{!DATETIMEVALUE(vd) + 5/1440 <= NOW() && topTiebreaker.size > 1}">
                                         <div class="countdown">
+                                            <apex:variable var="finalTimeUnit" value="{!IF(
+                                                                                      4 - MOD(FLOOR((NOW() - Movie_Night__c.Voting_Deadline__c) * 24 * 60), 5) > 0, 
+                                                                                      'minutes', 'seconds')}" />
+                                            <apex:variable var="finalTimeLeft" value="{!IF(
+                                                                                      finalTimeUnit = 'minutes', 
+                                                                                      4 - MOD(FLOOR((NOW() - Movie_Night__c.Voting_Deadline__c) * 24 * 60), 5), 
+                                                                                      59 - MOD(FLOOR((NOW() - Movie_Night__c.Voting_Deadline__c) * 24 * 60 * 60), 60)
+                                                                                      )}" />
                                             <div class="cdNumber titan"></div>
-                                            <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                            <div class="cdText">{!finalTimeLeft} {!IF(
+                                                finalTimeUnit = 'minutes', 
+                                                IF(finalTimeLeft = 1, 'minute to submit final choice', 'minutes to submit final choice'), 
+                                                IF(finalTimeLeft = 1, 'second to submit final choice', 'seconds to submit final choice'))}</div>
                                         </div>
                                         <br/>
                                         <h2 class="titan">
@@ -426,7 +437,6 @@
                                         </h2>
                                         <p>
                                             One audience member has been selected at random to cast the final vote.
-                                            If no final vote is cast after 5 minutes, another audience member will be selected.
                                         </p>
                                         <apex:outputPanel rendered="{!randomAttendee.Contact__r.Id = $User.ContactId}">
                                             <p>
