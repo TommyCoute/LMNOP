@@ -1,0 +1,215 @@
+/*************************************************
+ * lmnop email notification controller
+ * Test code provided by lmnopTest
+ * 
+ * DATE			DEV		NOTES
+ * 2019-02-13	TKC		Initial creation from MovieNightExtension
+*************************************************/
+
+public class lmnopEmailer {
+    public static void sendInvitationEmail(Movie_Night__c mn, List<User> registeredUsers, String unregisteredEmailAddresses) {
+        List<Messaging.SingleEmailMessage> allEmail = new List<Messaging.SingleEmailMessage>();
+        String st = mn.Showtime__c.format('EEEE M/d/yyyy h:mm') + mn.Showtime__c.format('a').toLowerCase() + ' ' + mn.Showtime__c.format('z');
+        String vd = mn.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + mn.Voting_Deadline__c.format('a').toLowerCase() + ' ' + mn.Voting_Deadline__c.format('z');
+        
+        // prepare email for existing contacts
+        for (User u : registeredUsers) {
+            String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+            emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+            emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+            emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello ' + u.FirstName + ',</p>';
+            emailBody += '<p>' + UserInfo.getName() + ' has invited you to a new movie night!</p>';
+            emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+            emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+            emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '</p>';
+            emailBody += '<p>Log in to your lmnop account to continue: <a style="font-weight:bold;" href="https://lmnop.force.com">lmnop.force.com</a></p>';
+            emailBody += '<p style="margin:0px;">(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+            emailBody += '</div></div>';
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setTargetObjectId(u.Id);
+            email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+            email.setHtmlBody(emailBody);
+            email.setSaveAsActivity(false);
+            email.setUseSignature(false);
+            allEmail.add(email);
+        }
+        
+        // prepare email for unregistered audience
+        List<String> unregisteredRecipients = unregisteredEmailAddresses.split(',');
+        Boolean errorEmailingUnregisteredRecipients = false;
+        try {
+            // log error and move on if the number of unregistered audience members exceeds the daily single email limit
+            Messaging.reserveSingleEmailCapacity(unregisteredRecipients.size());
+            for (String s : unregisteredRecipients) {
+                String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+                emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+                emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello there,</p>';
+                emailBody += '<p>' + UserInfo.getName() + ' has invited you to a new movie night using the "little movie night online planner" (lmnop)!</p>';
+                emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '</p>';
+                emailBody += '<p>You can create a free lmnop account here to continue: <a style="font-weight:bold;" href="https://lmnop.force.com">lmnop.force.com</a></p>';
+                emailBody += '<p style="margin:0px;">(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                emailBody += '</div></div>';
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                List<String> toAddress = new List<String>();
+                toAddress.add(s);
+                email.setToAddresses(toAddress);
+                email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+                email.setHtmlBody(emailBody);
+                email.setUseSignature(false);
+                allEmail.add(email);
+            }
+        } Catch (Exception ex) {
+            System.debug(ex);
+            ApexPages.addMessages(ex);
+            errorEmailingUnregisteredRecipients = true;
+        }
+        
+        // send confirmation email to organizer
+        String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+        emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+        emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+        emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello ' + UserInfo.getFirstName() + ',</p>';
+        emailBody += '<p>Your new movie night has been created!</p>';
+        emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+        emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+        emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '<br/>';
+        emailBody += '<b>Audience:</b> invited ' + registeredUsers.size() + ' existing lmnop users and ' + unregisteredRecipients.size() + ' unregistered users</p>';
+        if (errorEmailingUnregisteredRecipients) {
+            emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to email your unregistered audience.</span><br/>';
+            emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
+            for (String s : unregisteredRecipients) {
+                emailBody += s + ', ';
+            }
+            emailBody = emailBody.removeEnd(', ');
+            emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
+            emailBody += '<a href="mailto:';
+            for (String s : unregisteredRecipients) {
+                emailBody += s + ',';
+            }
+            emailBody = emailBody.removeEnd(',');
+            emailBody += '?subject=New Movie Night ' + st + ' at ' + mn.Location__c + '">Compose new email message</a></p>';
+        }
+        emailBody += '<p style="margin:0px;">Log in to your lmnop account to continue: <a style="font-weight:bold;" href="https://lmnop.force.com">lmnop.force.com</a></p>';
+        emailBody += '</div></div>';
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setTargetObjectId(UserInfo.getUserId());
+        email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+        email.setHtmlBody(emailBody);
+        email.setSaveAsActivity(false);
+        email.setUseSignature(false);
+        allEmail.add(email);
+        
+        // send all email
+        List<Messaging.Email> notifications = new List<Messaging.Email>();
+        for (Messaging.SingleEmailMessage msem : allEmail) {
+            notifications.add(msem);
+        }
+        System.debug('notifications.size(): ' + notifications.size());
+        Messaging.sendEmail(notifications);
+    }
+    
+    public static void sendCancellationEmail(Movie_Night__c mn, List<User> registeredUsers, String unregisteredEmailAddresses) {
+        try {
+            List<Messaging.SingleEmailMessage> allEmail = new List<Messaging.SingleEmailMessage>();
+            String st = mn.Showtime__c.format('EEEE M/d/yyyy h:mm') + mn.Showtime__c.format('a').toLowerCase() + ' ' + mn.Showtime__c.format('z');
+            
+            // prepare email for existing contacts
+            for (User u : registeredUsers) {
+                String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+                emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+                emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello ' + u.FirstName + ',</p>';
+                emailBody += '<p>' + UserInfo.getName() + ' has <b>cancelled</b> this movie night.</p>';
+                emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                emailBody += '<p style="margin:0px;">(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                emailBody += '</div></div>';
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                email.setTargetObjectId(u.Id);
+                email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                email.setHtmlBody(emailBody);
+                email.setSaveAsActivity(false);
+                email.setUseSignature(false);
+                allEmail.add(email);
+            }
+            
+            // prepare email for unregistered audience
+            List<String> unregisteredRecipients = unregisteredEmailAddresses.split(',');
+            Boolean errorEmailingUnregisteredRecipients = false;
+            try {
+                // log error and move on if the number of unregistered audience members exceeds the daily single email limit
+                Messaging.reserveSingleEmailCapacity(unregisteredRecipients.size());
+                for (String s : unregisteredRecipients) {
+                    String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+                    emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                    emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+                    emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello there,</p>';
+                    emailBody += '<p>' + UserInfo.getName() + ' has <b>cancelled</b> this movie night.</p>';
+                    emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                    emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                    emailBody += '<p style="margin:0px;">(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                    emailBody += '</div></div>';
+                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                    List<String> toAddress = new List<String>();
+                    toAddress.add(s);
+                    email.setToAddresses(toAddress);
+                    email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                    email.setHtmlBody(emailBody);
+                    email.setUseSignature(false);
+                    allEmail.add(email);
+                }
+            } Catch (Exception ex) {
+                System.debug(ex);
+                ApexPages.addMessages(ex);
+                errorEmailingUnregisteredRecipients = true;
+            }
+            
+            // send confirmation email to organizer
+            String emailBody = '<div style="background-color:#000000; background-image:url(https://lmnop.force.com/resource/1547665310000/MovieTheater); background-position:-325px -75px; color:#000000; font-family:sans-serif; max-width:620px; padding:15px;">';
+            emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:22px; font-weight:bold; margin-bottom:10px; vertical-align:middle; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+            emailBody += '<span style="color:#ffd700; font-size:22px; font-weight:bold; line-height:25px; padding:10px; text-shadow:0px 0px 5px #daa520; vertical-align:middle;">Movie Night at ' + mn.Location__c + '</span>';
+            emailBody += '<div style="background-color:#ffffffc0; border-radius:4px; padding:10px;"><p style="margin:0px;">Hello ' + UserInfo.getFirstName() + ',</p>';
+            emailBody += '<p>Your movie night has been <b>deleted</b>!</p>';
+            emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+            emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+            emailBody += '<b>Audience:</b> sent cancellation emails to ' + registeredUsers.size() + ' existing lmnop users and ' + unregisteredRecipients.size() + ' unregistered users</p>';
+            if (errorEmailingUnregisteredRecipients) {
+                emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to email your unregistered audience.</span><br/>';
+                emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
+                for (String s : unregisteredRecipients) {
+                    emailBody += s + ', ';
+                }
+                emailBody = emailBody.removeEnd(', ');
+                emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
+                emailBody += '<a href="mailto:';
+                for (String s : unregisteredRecipients) {
+                    emailBody += s + ',';
+                }
+                emailBody = emailBody.removeEnd(',');
+                emailBody += '?subject=Movie Night Cancelled ' + st + ' at ' + mn.Location__c + '">Compose new email message</a></p>';
+            }
+            emailBody += '<p style="margin:0px;">Log in to your lmnop account to continue: <a style="font-weight:bold;" href="https://lmnop.force.com">lmnop.force.com</a></p>';
+            emailBody += '</div></div>';
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setTargetObjectId(UserInfo.getUserId());
+            email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+            email.setHtmlBody(emailBody);
+            email.setSaveAsActivity(false);
+            email.setUseSignature(false);
+            allEmail.add(email);
+            
+            // send all email
+            List<Messaging.Email> notifications = new List<Messaging.Email>();
+            for (Messaging.SingleEmailMessage msem : allEmail) {
+                notifications.add(msem);
+            }
+            System.debug('notifications.size(): ' + notifications.size());
+            Messaging.sendEmail(notifications);
+        } Catch (Exception ex) {
+            System.debug(ex);
+        }
+    }
+}
