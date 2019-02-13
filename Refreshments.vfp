@@ -47,8 +47,8 @@
                             <div class="tab-pane active in" id="refreshments" role="tabpanel">
                                 <apex:outputPanel rendered="{!!ISBLANK(Movie_Night__c.Countdown__c)}">
                                     <div class="countdown">
-                                        <div class="cdNumber titan"></div>
-                                        <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                        <div class="cdNumber titan"><span></span></div>
+                                        <div class="cdText"><span>{!Movie_Night__c.Countdown__c}</span></div>
                                     </div>
                                 </apex:outputPanel>
                                 

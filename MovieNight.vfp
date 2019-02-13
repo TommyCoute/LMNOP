@@ -218,11 +218,11 @@
                         <div class="tab-content" id="lmnopTabs">
                             <!-- SUGGESTED MOVIES CONTENT -->
                             <div class="tab-pane active in" id="movies" role="tabpanel">
-                                <!-- BEFORE SHOWTIME -->
+                                <!-- BEFORE DEADLINE -->
                                 <apex:outputPanel rendered="{!DATETIMEVALUE(vd) > NOW()}">
                                     <div class="countdown">
-                                        <div class="cdNumber titan"></div>
-                                        <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                        <div class="cdNumber titan"><span></span></div>
+                                        <div class="cdText"><span>{!Movie_Night__c.Countdown__c}</span></div>
                                     </div>
                                     
                                     <div class="container-fluid suggestions-container">
@@ -348,7 +348,7 @@
                                         </apex:outputPanel>
                                     </div>
                                 </apex:outputPanel>
-                                <!-- AFTER SHOWTIME -->
+                                <!-- AFTER DEADLINE -->
                                 <apex:outputPanel rendered="{!DATETIMEVALUE(vd) <= NOW()}">
                                     <apex:outputPanel rendered="{!suggestedMovies.size = 0}">
                                         <div class="countdown">
@@ -378,8 +378,8 @@
                                     <!-- TIEBREAKER VOTING -->
                                     <apex:outputPanel rendered="{!DATETIMEVALUE(vd) + 5/1440 > NOW() && Movie_Night__c.Tie__c = 'True'}">
                                         <div class="countdown">
-                                            <div class="cdNumber titan"></div>
-                                            <div class="cdText">{!Movie_Night__c.Countdown__c}</div>
+                                            <div class="cdNumber titan"><span></span></div>
+                                            <div class="cdText"><span>{!Movie_Night__c.Countdown__c}</span></div>
                                         </div>
                                         <br/>
                                         <h2 class="titan">
@@ -425,11 +425,13 @@
                                                                                       4 - MOD(FLOOR((NOW() - Movie_Night__c.Voting_Deadline__c) * 24 * 60), 5), 
                                                                                       59 - MOD(FLOOR((NOW() - Movie_Night__c.Voting_Deadline__c) * 24 * 60 * 60), 60)
                                                                                       )}" />
-                                            <div class="cdNumber titan"></div>
-                                            <div class="cdText">{!finalTimeLeft} {!IF(
-                                                finalTimeUnit = 'minutes', 
-                                                IF(finalTimeLeft = 1, 'minute to submit final choice', 'minutes to submit final choice'), 
-                                                IF(finalTimeLeft = 1, 'second to submit final choice', 'seconds to submit final choice'))}</div>
+                                            <div class="cdNumber titan"><span></span></div>
+                                            <div class="cdText">
+                                                <span>{!finalTimeLeft} {!IF(
+                                                    finalTimeUnit = 'minutes', 
+                                                    IF(finalTimeLeft = 1, 'minute to submit final choice', 'minutes to submit final choice'), 
+                                                    IF(finalTimeLeft = 1, 'second to submit final choice', 'seconds to submit final choice'))}</span>
+                                            </div>
                                         </div>
                                         <br/>
                                         <h2 class="titan">

@@ -57,12 +57,39 @@ function toggleContact(id, name) {
 
 // shift countdown text
 $(document).ready(function() {
-    var cd = $('div.cdText:eq(0)').text().split(' ');
-    $('div.cdNumber:eq(0)').text(cd.shift());
-    $('div.cdText:eq(0)').text(cd.join(' '));
-    var cd = $('div.cdText:eq(1)').text().split(' ');
-    $('div.cdNumber:eq(1)').text(cd.shift());
-    $('div.cdText:eq(1)').text(cd.join(' '));
+    var cd = $('div.cdText:eq(0) span').text().split(' ');
+    $('div.cdNumber:eq(0) span').text(cd.shift());
+    $('div.cdText:eq(0) span').text(cd.join(' '));
+    
+    // start countdown timer less than a minute left
+    var cdUnit = $('div.cdText:eq(0) span').text().split(' ').shift();
+    if (cdUnit == 'second' || cdUnit == 'seconds') {
+        var timeleft = $('div.cdNumber:eq(0) span').text() - 1;
+        $('div.cdNumber:eq(0) span').css('opacity', '1');
+        $('div.cdNumber:eq(0) span').animate({opacity: '0'}, 1000);
+        var x = setInterval(function() {
+            var distance = timeleft--;
+            
+            // refresh the page at 0
+            if (distance == 0) {
+                clearInterval(x);
+                $('div.cdNumber:eq(0) span').text(distance);
+                $('div.cdNumber:eq(0) span').finish();
+                $('div.cdNumber:eq(0) span').css('opacity', '1');
+                reloadNight();
+            } else {
+                $('div.cdNumber:eq(0) span').text(distance);
+                $('div.cdNumber:eq(0) span').finish();
+                $('div.cdNumber:eq(0) span').css('opacity', '1');
+                $('div.cdNumber:eq(0) span').animate({opacity: '0'}, 1000);
+            }
+        }, 1000);
+    }
+    
+    // update second copy (when refreshments is on the movienight page)
+    var cd = $('div.cdText:eq(1) span').text().split(' ');
+    $('div.cdNumber:eq(1) span').text(cd.shift());
+    $('div.cdText:eq(1) span').text(cd.join(' '));
 });
 
 // toggle suggested movie selection
