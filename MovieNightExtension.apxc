@@ -28,7 +28,8 @@
  * 2019-02-06	TKC		Added tiebreaker/final vote controls
  * 2019-02-08	TKC		Added randomAttendee() query offset to cycle through attendees every 5 minutes
  * 2019-02-08	TKC		Updated MovieNight page functions to query new record instead of updating existing record (unintentionally)
- * 2019-02-19	TKC		Refactored to support new Voting_Deadline__c datetime instead of Showtime__c where applicable
+ * 2019-02-09	TKC		Refactored to support new Voting_Deadline__c datetime instead of Showtime__c where applicable
+ * 2019-02-12	TKC		Added email notifications to createMovieNight() and deleteMovieNight()
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -296,7 +297,7 @@ public without sharing class MovieNightExtension {
         
         // lookup email addresses to determine existing users/contacts
         List<User> audienceList = [
-            SELECT Id, Email, Contact.Id, IsActive
+            SELECT Id, Email, Contact.Id, IsActive, FirstName
             FROM User
             WHERE Email IN :emailAddressList AND Contact.Id != null AND IsActive = true
         ];
@@ -332,8 +333,122 @@ public without sharing class MovieNightExtension {
         mn.Unregistered_Audience__c = newUnregisteredAudience;
         update mn;
         
-        // TODO: send email invitations
+        // send email invitations
+        List<Messaging.SingleEmailMessage> allEmail = new List<Messaging.SingleEmailMessage>();
+        String st = mn.Showtime__c.format('EEEE M/d/yyyy h:mm') + mn.Showtime__c.format('a').toLowerCase() + ' ' + mn.Showtime__c.format('z');
+        String vd = mn.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + mn.Voting_Deadline__c.format('a').toLowerCase() + ' ' + mn.Voting_Deadline__c.format('z');
+
+        // prepare email for existing contacts
+        List<User> userRecipients = new List<User>(audienceList);
+        if (contactIds != '') {
+            List<String> contactIdList = contactIds.split(',');
+            List<User> fromContactIds = [
+                SELECT Id, Email, Contact.Id, IsActive, FirstName
+                FROM User
+                WHERE IsActive = true AND Contact.Id IN :contactIdList
+            ];
+            for (User u : fromContactIds) {
+                userRecipients.add(u);
+            }
+        }        
+        for (User u : userRecipients) {
+            String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+            emailBody += '<p>Hello ' + u.FirstName + ',</p>';
+            emailBody += '<p>' + UserInfo.getName() + ' has invited you to a new movie night!</p>';
+            emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+            emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+            emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '</p>';
+            emailBody += '<p>Log in to your lmnop account to continue: <a href="https://lmnop.force.com">lmnop.force.com</a></p>';
+            emailBody += '<p>(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+            emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+            emailBody += '</div>';
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setTargetObjectId(u.Id);
+            email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+            email.setHtmlBody(emailBody);
+            email.setSaveAsActivity(false);
+            email.setUseSignature(false);
+            allEmail.add(email);
+        }
         
+        // prepare email for unregistered audience
+        List<String> unregisteredRecipients = mn.Unregistered_Audience__c.split(',');
+        Boolean errorEmailingUnregisteredRecipients = false;
+        try {
+            // log error and move on if the number of unregistered audience members exceeds the daily single email limit
+            Messaging.reserveSingleEmailCapacity(unregisteredRecipients.size());
+            for (String s : unregisteredRecipients) {
+                String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+                emailBody += '<p>Hello there,</p>';
+                emailBody += '<p>' + UserInfo.getName() + ' has invited you to a new movie night using the "little movie night online planner" (lmnop)!</p>';
+                emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '</p>';
+                emailBody += '<p>You can create a free lmnop account here to continue: <a href="https://lmnop.force.com">lmnop.force.com</a></p>';
+                emailBody += '<p>(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                emailBody += '</div>';
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                List<String> toAddress = new List<String>();
+                toAddress.add(s);
+                email.setToAddresses(toAddress);
+                email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+                email.setHtmlBody(emailBody);
+                email.setUseSignature(false);
+                allEmail.add(email);
+            }
+        } Catch (Exception ex) {
+            System.debug(ex);
+            ApexPages.addMessages(ex);
+            errorEmailingUnregisteredRecipients = true;
+        }
+        
+        // send confirmation email to organizer
+        List<Movie_Audience__c> newAudienceList = [
+            SELECT Id
+            FROM Movie_Audience__c
+            WHERE Movie_Night__c = :mn.Id AND Contact__c != :contactId
+        ];
+        String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+        emailBody += '<p>Hello ' + UserInfo.getFirstName() + ',</p>';
+        emailBody += '<p>Your new movie night has been created!</p>';
+        emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+        emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+        emailBody += '<b>Deadline to choose a movie:</b> ' + vd + '<br/>';
+        emailBody += '<b>Audience:</b> invited ' + newAudienceList.size() + ' existing lmnop users and ' + unregisteredRecipients.size() + ' unregistered users</p>';
+        if (errorEmailingUnregisteredRecipients) {
+            emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to email your unregistered audience.</span><br/>';
+            emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
+            for (String s : unregisteredRecipients) {
+                emailBody += s + ', ';
+            }
+            emailBody = emailBody.removeEnd(', ');
+            emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
+            emailBody += '<a href="mailto:';
+            for (String s : unregisteredRecipients) {
+                emailBody += s + ',';
+            }
+            emailBody = emailBody.removeEnd(',');
+            emailBody += '?subject=New Movie Night ' + st + ' at ' + mn.Location__c + '">Compose new email message</a></p>';
+        }
+        emailBody += '<p>Log in to your lmnop account to continue: <a href="https://lmnop.force.com">lmnop.force.com</a></p>';
+        emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+        emailBody += '</div>';
+        Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+        email.setTargetObjectId(UserInfo.getUserId());
+        email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+        email.setHtmlBody(emailBody);
+        email.setSaveAsActivity(false);
+        email.setUseSignature(false);
+        allEmail.add(email);
+                
+        // send all email
+        List<Messaging.Email> notifications = new List<Messaging.Email>();
+        for (Messaging.SingleEmailMessage msem : allEmail) {
+            notifications.add(msem);
+        }
+        System.debug('notifications.size(): ' + notifications.size());
+        Messaging.sendEmail(notifications);
         
         // return movie night page
         PageReference page = System.Page.MovieNight;
@@ -464,6 +579,9 @@ public without sharing class MovieNightExtension {
         }
         
         // TODO: send email invitations
+        // email new invitations to added users
+        // email cancellations to uninvited users
+        // email updates to existing audience
         
         
         // return movie night page
@@ -475,6 +593,123 @@ public without sharing class MovieNightExtension {
     
     // delete movie night event
     public PageReference deleteMovieNight() {
+        
+        // send email notifications
+        try {
+            List<Messaging.SingleEmailMessage> allEmail = new List<Messaging.SingleEmailMessage>();
+            String st = mn.Showtime__c.format('EEEE M/d/yyyy h:mm') + mn.Showtime__c.format('a').toLowerCase() + ' ' + mn.Showtime__c.format('z');
+            
+            // prepare email for existing contacts
+            List<Movie_Audience__c> maList = [
+                SELECT Contact__c
+                FROM Movie_Audience__c
+                WHERE Movie_Night__c = :mn.Id AND Contact__c != :contactId
+            ];
+            List<String> maContactIds = new List<String>();
+            for (Movie_Audience__c ma : maList) {
+                maContactIds.add(ma.Contact__c);
+            }
+            List<User> userRecipients = [
+                SELECT Id, Email, Contact.Id, IsActive, FirstName
+                FROM User
+                WHERE IsActive = true AND Contact.Id IN :maContactIds
+            ];
+            for (User u : userRecipients) {
+                String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+                emailBody += '<p>Hello ' + u.FirstName + ',</p>';
+                emailBody += '<p>' + UserInfo.getName() + ' has cancelled this movie night.</p>';
+                emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                emailBody += '<p>(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                emailBody += '</div>';
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                email.setTargetObjectId(u.Id);
+                email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                email.setHtmlBody(emailBody);
+                email.setSaveAsActivity(false);
+                email.setUseSignature(false);
+                allEmail.add(email);
+            }
+            
+            // prepare email for unregistered audience
+            List<String> unregisteredRecipients = mn.Unregistered_Audience__c.split(',');
+            Boolean errorEmailingUnregisteredRecipients = false;
+            try {
+                // log error and move on if the number of unregistered audience members exceeds the daily single email limit
+                Messaging.reserveSingleEmailCapacity(unregisteredRecipients.size());
+                for (String s : unregisteredRecipients) {
+                    String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+                    emailBody += '<p>Hello there,</p>';
+                    emailBody += '<p>' + UserInfo.getName() + ' has cancelled this movie night.</p>';
+                    emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+                    emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+                    emailBody += '<p>(This is an automated email, sent on behalf of ' + UserInfo.getName() + ')</p>';
+                    emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+                    emailBody += '</div>';
+                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                    List<String> toAddress = new List<String>();
+                    toAddress.add(s);
+                    email.setToAddresses(toAddress);
+                    email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                    email.setHtmlBody(emailBody);
+                    email.setUseSignature(false);
+                    allEmail.add(email);
+                }
+            } Catch (Exception ex) {
+                System.debug(ex);
+                ApexPages.addMessages(ex);
+                errorEmailingUnregisteredRecipients = true;
+            }
+            
+            // send confirmation email to organizer
+            List<Movie_Audience__c> newAudienceList = [
+                SELECT Id
+                FROM Movie_Audience__c
+                WHERE Movie_Night__c = :mn.Id AND Contact__c != :contactId
+            ];
+            String emailBody = '<div style="background-color:#ffffff; color:#000000; font-family:sans-serif;">';
+            emailBody += '<p>Hello ' + UserInfo.getFirstName() + ',</p>';
+            emailBody += '<p>Your movie night has been deleted!</p>';
+            emailBody += '<p><b>Location:</b> ' + mn.Location__c + '<br/>';
+            emailBody += '<b>Showtime:</b> ' + st + '<br/>';
+            emailBody += '<b>Audience:</b> sent cancellation emails to ' + newAudienceList.size() + ' existing lmnop users and ' + unregisteredRecipients.size() + ' unregistered users</p>';
+            if (errorEmailingUnregisteredRecipients) {
+                emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to email your unregistered audience.</span><br/>';
+                emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
+                for (String s : unregisteredRecipients) {
+                    emailBody += s + ', ';
+                }
+                emailBody = emailBody.removeEnd(', ');
+                emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
+                emailBody += '<a href="mailto:';
+                for (String s : unregisteredRecipients) {
+                    emailBody += s + ',';
+                }
+                emailBody = emailBody.removeEnd(',');
+                emailBody += '?subject=Movie Night Cancelled ' + st + ' at ' + mn.Location__c + '">Compose new email message</a></p>';
+            }
+            emailBody += '<img style="color:#ffd700; font-family:sans-serif; font-size:1.1em; font-weight:bold; width:50px;" alt="lmnop" src="https://lmnop.force.com/servlet/servlet.ImageServer?id=0151U000000OKIA&oid=00D1U000000uHGX" />';
+            emailBody += '</div>';
+            Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+            email.setTargetObjectId(UserInfo.getUserId());
+            email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+            email.setHtmlBody(emailBody);
+            email.setSaveAsActivity(false);
+            email.setUseSignature(false);
+            allEmail.add(email);
+            
+            // send all email
+            List<Messaging.Email> notifications = new List<Messaging.Email>();
+            for (Messaging.SingleEmailMessage msem : allEmail) {
+                notifications.add(msem);
+            }
+            System.debug('notifications.size(): ' + notifications.size());
+            Messaging.sendEmail(notifications);
+        } Catch (Exception ex) {
+            System.debug(ex);
+        }
+        
         delete mn;
         
         // return movie night page

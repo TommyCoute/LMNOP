@@ -33,7 +33,7 @@
                                              html-placeholder="Enter name of place or address" />
                         </div>
                         <div class="formGroup audience">
-                            Audience
+                            Audience 
                             <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
                         </div>
