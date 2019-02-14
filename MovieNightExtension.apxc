@@ -31,14 +31,17 @@
  * 2019-02-09	TKC		Refactored to support new Voting_Deadline__c datetime instead of Showtime__c where applicable
  * 2019-02-12	TKC		Added email notifications to createMovieNight() and deleteMovieNight()
  * 2019-02-13	TKC		Moved email notifications to new class lmnopEmailer
+ * 2019-02-14	TKC		Added mnOld variable to grab values before saving changes to movie night records (for email notifications)
 *************************************************/
 
 public without sharing class MovieNightExtension {
     
     // extend movie night standard controller
     private final Movie_Night__c mn;
+    private final Movie_Night__c mnOld;
     public MovieNightExtension(ApexPages.StandardController stdController) {
         this.mn = (Movie_Night__c)stdController.getRecord();
+        this.mnOld = (Movie_Night__c)stdController.getRecord().clone();
         this.mnsUpcoming = new List<maWrapped>();
         for (Movie_Audience__c ma : [
             SELECT Id, Movie_Night__r.Id, Movie_Night__r.Showtime__c, Movie_Night__r.Movie_Title__c,
@@ -387,12 +390,20 @@ public without sharing class MovieNightExtension {
         // update movie night
         update mn;
         
+        // get existing audience for email updates
+        List<Movie_Audience__c> existingAudience = [
+            SELECT Contact__c
+            FROM Movie_Audience__c
+            WHERE Movie_Night__c = :mn.Id AND Contact__c != :contactId
+        ];
+        
         // add selected contacts to audience
         List<Movie_Audience__c> maList = new List<Movie_Audience__c>();
         System.debug('contactIds: ' + contactIds);
+        List<String> selectedContactIds = new List<String>();
         if (contactIds != '') {
-            List<String> contactIdList = contactIds.split(',');
-            for (String s : contactIdList) {
+            selectedContactIds = contactIds.split(',');
+            for (String s : selectedContactIds) {
                 Movie_Audience__c ma = new Movie_Audience__c();
                 ma.Movie_Night__c = mn.Id;
                 ma.Contact__c = s;
@@ -450,17 +461,18 @@ public without sharing class MovieNightExtension {
         update mn;
         
         // remove selected contacts from audience
-        List<Movie_Audience__c> maRemoveList = new List<Movie_Audience__c>();
+        List<Movie_Audience__c> uninvitedAudience = new List<Movie_Audience__c>();
         System.debug('removeContactIds: ' + removeContactIds);
+        List<String> uninvitedContactIds = new List<String>();
         if (removeContactIds != '') {
             removeContactIds = String.escapeSingleQuotes(removeContactIds);
-            List<String> contactIdList = removeContactIds.split(',');
-            maList = [
+            uninvitedContactIds = removeContactIds.split(',');
+            uninvitedAudience = [
                 SELECT Id, Contact__c, Movie_Night__c
                 FROM Movie_Audience__c
-                WHERE Contact__c IN :contactIdList AND Movie_Night__c = :mn.Id
+                WHERE Contact__c IN :uninvitedContactIds AND Movie_Night__c = :mn.Id
             ];
-            delete maList;
+            delete uninvitedAudience;
         }
         
         // remove selected emails from unregistered audience
@@ -474,11 +486,30 @@ public without sharing class MovieNightExtension {
             update mn;
         }
         
-        // TODO: send email invitations
-        // email new invitations to added users
-        // email cancellations to uninvited users
-        // email updates to existing audience
-        
+        // send email notifications
+        List<String> existingContactIds = new List<String>();
+        for (Movie_Audience__c ma : existingAudience) {
+            existingContactIds.add(ma.Contact__c);
+        }
+        List<User> existingUsers = [
+            SELECT Id, Email, FirstName
+            FROM User
+            WHERE ContactId IN :existingContactIds AND IsActive = true
+        ];
+        List<User> invitedUsers = [
+            SELECT Id, Email, FirstName
+            FROM User
+            WHERE ContactId IN :selectedContactIds AND IsActive = true
+        ];
+        for (User u : audienceList) {
+            invitedUsers.add(u);
+        }
+        List<User> uninvitedUsers = [
+            SELECT Id, Email, FirstName
+            FROM User 
+            WHERE ContactId IN :uninvitedContactIds AND IsActive = true
+        ];        
+        lmnopEmailer.sendUpdateEmail(mn, mnOld, existingUsers, invitedUsers, uninvitedUsers);
         
         // return movie night page
         PageReference page = System.Page.MovieNight;
