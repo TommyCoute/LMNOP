@@ -18,8 +18,9 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 # Apex Classes
 1. MovieNightExtension - an extension of the standard "Movie Night" controller (for the custom Movie_Night__c object) and the primary controller for LMNOP
 2. lmnopActivity - contains methods for logging LMNOP user activity in Salesforce and passing custom variable dimensions to Google Analytics
-3. lmnopRegistrationController - a modified version of the Salesforce-provided "CommunitiesSelfRegController", handles new user registration
-4. lmnopTest - code coverage for the above
+3. lmnopEmailer - contains static methods for sending email notifications to users and unregistered audience members
+4. lmnopRegistrationController - a modified version of the Salesforce-provided "CommunitiesSelfRegController", handles new user registration
+5. lmnopTest - code coverage for the above
 
 # Apex Triggers
 1. UserTrigger - generic trigger on User object, calls MovieNightExtension.updateContactWithUser(Trigger.new) after update to keep contact names synced with user names since both are referenced within LMNOP
