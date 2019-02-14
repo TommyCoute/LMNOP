@@ -8,6 +8,7 @@
         <apex:define name="body">
             <!-- STANDARD OBJECT FIELD REFERENCES FOR CONTROLLER -->
             <apex:outputField value="{!Movie_Night__c.Showtime__c}" rendered="false" />
+            <apex:outputField value="{!Movie_Night__c.Voting_Deadline__c}" rendered="false" />
 
             <div class="col-md-12 silverback form">
                 <!-- NEW MOVIE NIGHT PAGE -->
@@ -116,7 +117,7 @@
                                         </div>
                                     </apex:repeat>
                                     <apex:repeat value="{!unregisteredAudience}" var="contact">
-                                        <apex:variable value="{!SUBSTITUTE(SUBSTITUTE(contact, '@', ''), '.', '')}" var="cid" />
+                                        <apex:variable value="{!SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(contact, '+', ''), '@', ''), '.', '')}" var="cid" />
                                         <div id="{!cid}" class="contact unregistered audience" onclick="toggleContact('{!cid}', '{!JSENCODE(contact)}')">
                                             <i class="far fa-check-circle"></i>
                                             <span>{!contact}</span>
