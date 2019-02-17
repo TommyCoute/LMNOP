@@ -5,6 +5,7 @@
  * DATE			DEV		NOTES
  * 2019-02-13	TKC		Initial creation from MovieNightExtension
  * 2019-02-14	TKC		Moved common emailBody components into static methods, started sendUpdateEmail method
+ * 2019-02-16	TKC		Added email updates to invited/uninvited unregistered audience
 *************************************************/
 
 public class lmnopEmailer {
@@ -311,6 +312,8 @@ public class lmnopEmailer {
         String oldST = oldMN.Showtime__c.format('EEEE M/d/yyyy h:mm') + oldMN.Showtime__c.format('a').toLowerCase() + ' ' + oldMN.Showtime__c.format('z');
         String newVD = newMN.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + newMN.Voting_Deadline__c.format('a').toLowerCase() + ' ' + newMN.Voting_Deadline__c.format('z');
         String oldVD = oldMN.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + oldMN.Voting_Deadline__c.format('a').toLowerCase() + ' ' + oldMN.Voting_Deadline__c.format('z');
+        Set<String> newUnregisteredAudience = new Set<String>(newMN.Unregistered_Audience__c.split(','));
+        Set<String> oldUnregisteredAudience = new Set<String>(oldMN.Unregistered_Audience__c.split(','));
         
         // prepare update to existing audience
         if (newMN.Showtime__c != oldMN.Showtime__c || newMN.Voting_Deadline__c != oldMN.Voting_Deadline__c || newMN.Location__c != oldMN.Location__c) {
@@ -367,7 +370,42 @@ public class lmnopEmailer {
         }
         
         // prepare new invitations for unregistered audience
-        
+        List<String> invitedUA = new List<String>();
+        for (String s : newUnregisteredAudience) {
+            if (!oldUnregisteredAudience.contains(s)) {
+                invitedUA.add(s);
+            }
+        }
+        Boolean errorInvitingUA = false;
+        try {
+            // log error and move on if the number of unregistered invitees exceeds the daily single email limit
+            Messaging.reserveSingleEmailCapacity(invitedUA.size());
+            for (String s : invitedUA) {
+                if (s.length() > 5) {
+                    System.debug('s: ' + s);
+                    String emailBody = container() + header('New Movie Night') + panel();
+                    emailBody += greeting('there');
+                    emailBody += intro(UserInfo.getName() + ' has invited you to a new movie night using the "little movie night online planner" (lmnop)!');
+                    emailBody += location(newMN.Location__c);
+                    emailBody += showtime(newST);
+                    emailBody += deadline(newVD);
+                    emailBody += login('Sign in here to continue');
+                    emailBody += closingTags();
+                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                    List<String> toAddress = new List<String>();
+                    toAddress.add(s);
+                    email.setToAddresses(toAddress);
+                    email.setSubject('New Movie Night: ' + newST + ' at ' + newMN.Location__c);
+                    email.setHtmlBody(emailBody);
+                    email.setUseSignature(false);
+                    allEmail.add(email);
+                }
+            }
+        } Catch (Exception ex) {
+            System.debug(ex);
+            ApexPages.addMessages(ex);
+            errorInvitingUA = true;
+        }
         
         // prepare cancellation for existing contacts
         for (User u : uninvitedUsers) {
@@ -388,7 +426,39 @@ public class lmnopEmailer {
         }
         
         // prepare cancellation for unregistered audience
-        
+        List<String> uninvitedUA = new List<String>();
+        for (String s : oldUnregisteredAudience) {
+            if (!newUnregisteredAudience.contains(s)) {
+                uninvitedUA.add(s);
+            }
+        }
+        Boolean errorUninvitingUA = false;
+        try {
+            // log error and move on if the number of unregistered uninvitees exceeds the daily single email limit
+            Messaging.reserveSingleEmailCapacity(uninvitedUA.size());
+            for (String s : uninvitedUA) {
+                if (s.length() > 5) {
+                    String emailBody = container() + header('Cancelled') + panel();
+                    emailBody += greeting('there');
+                    emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
+                    emailBody += location(newMN.Location__c);
+                    emailBody += showtime(newST);
+                    emailBody += closingTags();
+                    Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                    List<String> toAddress = new List<String>();
+                    toAddress.add(s);
+                    email.setToAddresses(toAddress);
+                    email.setSubject('Movie Night Cancelled: ' + newST + ' at ' + newMN.Location__c);
+                    email.setHtmlBody(emailBody);
+                    email.setUseSignature(false);
+                    allEmail.add(email);
+                }
+            }
+        } Catch (Exception ex) {
+            System.debug(ex);
+            ApexPages.addMessages(ex);
+            errorUninvitingUA = true;
+        }
         
         // send confirmation email to organizer
         /* String emailBody = container() + header('Movie Night Updated') + panel();
