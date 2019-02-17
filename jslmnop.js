@@ -94,7 +94,11 @@ $(document).ready(function() {
 
 // toggle suggested movie selection
 function toggleSelection(id) {
-    $('div#' + id).toggle(200);
+    if ($('div#' + id).css('display') == 'none') {
+        $('div#' + id).show(200).css('display', 'inline-block');
+    } else {
+        $('div#' + id).hide(200);
+    }
 }
 
 // refreshment removal
