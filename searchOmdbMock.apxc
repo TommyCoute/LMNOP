@@ -1,0 +1,16 @@
+/*************************************************
+* Web callout mock for MovieNightExtension.searchOmdb()
+* 
+* DATE			DEV		NOTES
+* 2019-02-18	TKC		Initial creation
+*************************************************/
+@isTest
+global class searchOmdbMock implements HttpCalloutMock {
+    global HttpResponse respond(HttpRequest request) {
+        HttpResponse response = new HttpResponse();
+        response.setHeader('Content-Type', 'application/json');
+        response.setBody('{"Search":[{"Title":"Eternal Sunshine of the Spotless Mind","Year":"2004","imdbID":"tt0338013","Type":"movie","Poster":"https://m.media-amazon.com/images/M/MV5BMTY4NzcwODg3Nl5BMl5BanBnXkFtZTcwNTEwOTMyMw@@._V1_SX300.jpg"},{"Title":"A Look Inside Eternal Sunshine of the Spotless Mind","Year":"2004","imdbID":"tt0486419","Type":"movie","Poster":"N/A"}],"totalResults":"2","Response":"True"}');
+        response.setStatusCode(200);
+        return response;
+    }
+}

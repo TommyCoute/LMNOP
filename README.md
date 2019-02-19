@@ -21,6 +21,8 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 3. lmnopEmailer - contains static methods for sending email notifications to users and unregistered audience members
 4. lmnopRegistrationController - a modified version of the Salesforce-provided "CommunitiesSelfRegController", handles new user registration
 5. lmnopTest - code coverage for the above
+6. searchOmdbMock - HttpCalloutMock implementation test code for supporting lmnopTest (MovieNightExtension.searchOmdb())
+7. suggestMovieMock - HttpCalloutMock implementation test code for supporting lmnopTest (MovieNightExtension.suggestMovie())
 
 # Apex Triggers
 1. UserTrigger - generic trigger on User object, calls MovieNightExtension.updateContactWithUser(Trigger.new) after update to keep contact names synced with user names since both are referenced within LMNOP
