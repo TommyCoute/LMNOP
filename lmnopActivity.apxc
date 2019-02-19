@@ -4,17 +4,18 @@
  * 
  * DATE			DEV		NOTES
  * 2019-01-29	TKC		Initial creation
+ * 2019-02-18	TKC		Updated gaId getter to query into a list to prevent potential exception
 *************************************************/
 
 public class lmnopActivity {
     // get Google Analytics tracking ID and custom dimensions
     public String gaId {
         get {
-            String gaIdCheck = [
+            List<API_Tokens__c> gaIdCheck = [
                 SELECT Name, Token__c FROM API_Tokens__c WHERE Name = 'Google_Analytics' LIMIT 1
-            ].Token__c;
-            if (gaIdCheck != null) {
-                return gaIdCheck;
+            ];
+            if (gaIdCheck.size() > 0) {
+                return gaIdCheck[0].Token__c;
             } else {
                 return '';
             }
