@@ -6,6 +6,7 @@
  * 2019-02-13	TKC		Initial creation from MovieNightExtension
  * 2019-02-14	TKC		Moved common emailBody components into static methods, started sendUpdateEmail method
  * 2019-02-16	TKC		Added email updates to invited/uninvited unregistered audience
+ * 2019-02-17	TKX		Added email updates to organizer
 *************************************************/
 
 public class lmnopEmailer {
@@ -101,13 +102,44 @@ public class lmnopEmailer {
         return html;
     }
     private static String invited(Integer existing, Integer unregistered) {
-        String html = '<p style="margin: 5px 0px;"><b>Audience:</b> invited ' + existing;
-        html += ' existing lmnop users and ' + unregistered + ' unregistered users</p>';
+        // check if "users" should be singular or plural
+        String eUsers = 'users';
+        if (existing == 1) {
+            eUsers = 'user';
+        }
+        String uUsers = 'users';
+        if (unregistered == 1) {
+            uUsers = 'user';
+        }
+        // build html
+        String html = '<p style="margin: 5px 0px;"><b>Invitations:</b> sent invitation email to ' + existing;
+        html += ' existing lmnop ' + eUsers + ' and ' + unregistered + ' unregistered ' + uUsers + '</p>';
         return html;
     }
     private static String cancelled(Integer existing, Integer unregistered) {
-        String html = '<p style="margin: 5px 0px;"><b>Audience:</b> sent cancellation emails to ' + existing;
-        html += ' existing lmnop users and ' + unregistered + ' unregistered users</p>';
+        // check if "users" should be singular or plural
+        String eUsers = 'users';
+        if (existing == 1) {
+            eUsers = 'user';
+        }
+        String uUsers = 'users';
+        if (unregistered == 1) {
+            uUsers = 'user';
+        }
+        // build html
+        String html = '<p style="margin: 5px 0px;"><b>Cancellations:</b> sent cancellation email to ' + existing;
+        html += ' existing lmnop ' + eUsers + ' and ' + unregistered + ' unregistered ' + uUsers + '</p>';
+        return html;
+    }
+    private static String updated(Integer existing) {
+        // check if "users" should be singular or plural
+        String eUsers = 'users';
+        if (existing == 1) {
+            eUsers = 'user';
+        }
+        // build html
+        String html = '<p style="margin: 5px 0px;"><b>Audience:</b> sent update email to ' + existing;
+        html += ' existing lmnop ' + eUsers + '</p>';
         return html;
     }
     
@@ -412,12 +444,12 @@ public class lmnopEmailer {
             String emailBody = container() + header('Cancelled') + panel();
             emailBody += greeting(u.FirstName);
             emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
-            emailBody += location(newMN.Location__c);
-            emailBody += showtime(newST);
+            emailBody += location(oldMN.Location__c);
+            emailBody += showtime(oldST);
             emailBody += closingTags();
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setTargetObjectId(u.Id);
-            email.setSubject('Movie Night Cancelled: ' + newST + ' at ' + newMN.Location__c);
+            email.setSubject('Movie Night Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
             email.setHtmlBody(emailBody);
             email.setSaveAsActivity(false);
             email.setUseSignature(false);
@@ -441,14 +473,14 @@ public class lmnopEmailer {
                     String emailBody = container() + header('Cancelled') + panel();
                     emailBody += greeting('there');
                     emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
-                    emailBody += location(newMN.Location__c);
-                    emailBody += showtime(newST);
+                    emailBody += location(oldMN.Location__c);
+                    emailBody += showtime(oldST);
                     emailBody += closingTags();
                     Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
                     List<String> toAddress = new List<String>();
                     toAddress.add(s);
                     email.setToAddresses(toAddress);
-                    email.setSubject('Movie Night Cancelled: ' + newST + ' at ' + newMN.Location__c);
+                    email.setSubject('Movie Night Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
                     email.setHtmlBody(emailBody);
                     email.setUseSignature(false);
                     allEmail.add(email);
@@ -461,7 +493,7 @@ public class lmnopEmailer {
         }
         
         // send confirmation email to organizer
-        /* String emailBody = container() + header('Movie Night Updated') + panel();
+        String emailBody = container() + header('Update') + panel();
         emailBody += greeting(UserInfo.getFirstName());
         emailBody += intro('Your movie night has been updated!');
         if (newMN.Location__c == oldMN.Location__c) {
@@ -479,26 +511,44 @@ public class lmnopEmailer {
         } else {
             emailBody += updatedDeadline(newVD, oldVD);
         }
-        if (newRegisteredUsers.size() > 0 || newUnregisteredRecipients.size() > 0) {
-            emailBody += invited(newRegisteredUsers.size(), newUnregisteredRecipients.size());
+        if (newMN.Location__c != oldMN.Location__c || newST != oldST || newVD != oldVD) {
+            emailBody += updated(existingUsers.size());
         }
-        if (errorEmailingUnregisteredRecipients) {
-            emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to email your unregistered audience.</span><br/>';
+        if (invitedUsers.size() > 0 || invitedUA.size() > 0) {
+            emailBody += invited(invitedUsers.size(), invitedUA.size());
+        }
+        if (errorInvitingUA) {
+            emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to send email invitations to your unregistered audience.</span><br/>';
             emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
-            for (String s : unregisteredRecipients) {
+            for (String s : invitedUA) {
                 emailBody += s + ', ';
             }
             emailBody = emailBody.removeEnd(', ');
             emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
             emailBody += '<a href="mailto:';
-            for (String s : unregisteredRecipients) {
+            for (String s : invitedUA) {
                 emailBody += s + ',';
             }
             emailBody = emailBody.removeEnd(',');
             emailBody += '?subject=New Movie Night ' + newST + ' at ' + newMN.Location__c + '">Compose new email message</a></p>';
         }
-        if (uninvitedRegisteredUsers.size() > 0 || uninvitedUnregisteredRecipients.size() > 0) {
-            emailBody += cancelled(uninvitedRegisteredUsers.size(), uninvitedUnregisteredRecipients.size());
+        if (uninvitedUsers.size() > 0 || uninvitedUA.size() > 0) {
+            emailBody += cancelled(uninvitedUsers.size(), uninvitedUA.size());
+        }
+        if (errorUninvitingUA) {
+            emailBody += '<p><span style="color:#cc0000;"><b>ERROR:</b> something went wrong when trying to send email cancellations to your unregistered audience.</span><br/>';
+            emailBody += 'Sorry about that! Here are the email addresses that have not yet been contacted: ';
+            for (String s : uninvitedUA) {
+                emailBody += s + ', ';
+            }
+            emailBody = emailBody.removeEnd(', ');
+            emailBody += '<br/>You can also use this link to manually email audience members that have not registered yet: ';
+            emailBody += '<a href="mailto:';
+            for (String s : uninvitedUA) {
+                emailBody += s + ',';
+            }
+            emailBody = emailBody.removeEnd(',');
+            emailBody += '?subject=Movie Night Cancelled ' + newST + ' at ' + newMN.Location__c + '">Compose new email message</a></p>';
         }
         emailBody += login('Log in to your lmnop account to continue');
         emailBody += closingTags();
@@ -508,7 +558,7 @@ public class lmnopEmailer {
         email.setHtmlBody(emailBody);
         email.setSaveAsActivity(false);
         email.setUseSignature(false);
-        allEmail.add(email); */
+        allEmail.add(email);
         
         // send all email
         List<Messaging.Email> notifications = new List<Messaging.Email>();

@@ -424,13 +424,13 @@ public without sharing class MovieNightExtension {
         
         // lookup email addresses to determine existing users/contacts
         List<User> audienceList = [
-            SELECT Id, Email, Contact.Id, IsActive
+            SELECT Id, Email, Contact.Id, IsActive, FirstName
             FROM User
             WHERE Email IN :emailAddressList AND Contact.Id != null AND IsActive = true
         ];
         System.debug('audienceList.size(): ' + audienceList.size());
         
-        // add registered memebers to audience
+        // add registered members to audience
         List<Movie_Audience__c> newAudience = new List<Movie_Audience__c>();
         for (User u : audienceList) {
             Movie_Audience__c registered = new Movie_Audience__c();
@@ -494,7 +494,7 @@ public without sharing class MovieNightExtension {
         List<User> existingUsers = [
             SELECT Id, Email, FirstName
             FROM User
-            WHERE ContactId IN :existingContactIds AND IsActive = true
+            WHERE ContactId IN :existingContactIds AND ContactId NOT IN :uninvitedContactIds AND IsActive = true
         ];
         List<User> invitedUsers = [
             SELECT Id, Email, FirstName
@@ -1072,8 +1072,11 @@ public without sharing class MovieNightExtension {
     public void submitRefreshment() {
         Refreshment__c nr = new Refreshment__c();
         nr.Name = newRefreshment;
+        System.debug('nr.Name: ' + nr.Name);
         nr.Movie_Night__c = mn.Id;
+        System.debug('nr.Movie_Night__c: ' + nr.Movie_Night__c);
         insert nr;
+        System.debug('nr.Id: ' + nr.Id);
     }
     
     // remove refreshment from movie night
