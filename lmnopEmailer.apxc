@@ -588,7 +588,7 @@ public class lmnopEmailer {
             if (u != null) {
                 String st = ma.Movie_Night__r.Showtime__c.format('EEEE M/d/yyyy h:mm') + ma.Movie_Night__r.Showtime__c.format('a').toLowerCase() + ' ' + ma.Movie_Night__r.Showtime__c.format('z');
                 String vd = ma.Movie_Night__r.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + ma.Movie_Night__r.Voting_Deadline__c.format('a').toLowerCase() + ' ' + ma.Movie_Night__r.Voting_Deadline__c.format('z');
-                String emailBody = container() + header('Movie Night Reminder') + panel();
+                String emailBody = container() + header('Reminder') + panel();
                 emailBody += greeting(u.FirstName);
                 emailBody += intro('The deadline to suggest and vote on movies is coming up for your movie night!');
                 emailBody += location(ma.Movie_Night__r.Location__c);
@@ -598,7 +598,7 @@ public class lmnopEmailer {
                 emailBody += closingTags();
                 Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
                 email.setTargetObjectId(u.Id);
-                email.setSubject('New Movie Night: ' + st + ' at ' + ma.Movie_Night__r.Location__c);
+                email.setSubject('Movie Night Reminder: ' + st + ' at ' + ma.Movie_Night__r.Location__c);
                 email.setHtmlBody(emailBody);
                 email.setSaveAsActivity(false);
                 email.setUseSignature(false);
