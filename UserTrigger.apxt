@@ -1,11 +1,19 @@
 /*************************************************
 * DATE			DEV		NOTES
 * 2019-02-04	TKC		Initial creation for use with MovieNightExtension.updateContactWithUser
+* 2019-02-19	TKC		Added filter for updateContactWithUser to only process users with name changes
 *************************************************/
 trigger UserTrigger on User (after update) {
     if (Trigger.isAfter && Trigger.isUpdate) {
         // update contact name to match user name changes
         // code coverage: lmnopTest
-        MovieNightExtension.updateContactWithUser(Trigger.new);
+        List<User> updatedNames = new List<User>();
+        for (User u : Trigger.new) {
+            User oldUser = Trigger.oldMap.get(u.Id);
+            if (oldUser.Name != u.Name) {
+                updatedNames.add(u);
+            }
+        }
+        MovieNightExtension.updateContactWithUser(updatedNames);
     }
 }
