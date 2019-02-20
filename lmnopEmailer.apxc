@@ -6,7 +6,8 @@
  * 2019-02-13	TKC		Initial creation from MovieNightExtension
  * 2019-02-14	TKC		Moved common emailBody components into static methods, started sendUpdateEmail method
  * 2019-02-16	TKC		Added email updates to invited/uninvited unregistered audience
- * 2019-02-17	TKX		Added email updates to organizer
+ * 2019-02-17	TKC		Added email updates to organizer
+ * 2019-02-19	TKC		Added email reminder to attendees (called from lmnopReminder scheduled job)
 *************************************************/
 
 public class lmnopEmailer {
@@ -97,8 +98,12 @@ public class lmnopEmailer {
         html += 'href="https://lmnop.force.com">lmnop.force.com</a></p>';
         return html;
     }
-    private static String closingTags() {
-        String html = '</div></div>';
+    private static String mnLink(String mnId, String message) {
+        String html = '<p style="margin: 15px 0px 5px 0px;">' + message + ': ';
+        html += '<a style="';
+        html += 'font-weight: bold;" ';
+        html += 'href="https://lmnop.force.com/movienight?id=' + mnId;
+        html += '">lmnop.force.com/movienight?id=' + mnId + '</a></p>';
         return html;
     }
     private static String invited(Integer existing, Integer unregistered) {
@@ -140,6 +145,10 @@ public class lmnopEmailer {
         // build html
         String html = '<p style="margin: 5px 0px;"><b>Audience:</b> sent update email to ' + existing;
         html += ' existing lmnop ' + eUsers + '</p>';
+        return html;
+    }
+    private static String closingTags() {
+        String html = '</div></div>';
         return html;
     }
     
@@ -559,6 +568,46 @@ public class lmnopEmailer {
         email.setSaveAsActivity(false);
         email.setUseSignature(false);
         allEmail.add(email);
+        
+        // send all email
+        List<Messaging.Email> notifications = new List<Messaging.Email>();
+        for (Messaging.SingleEmailMessage msem : allEmail) {
+            notifications.add(msem);
+        }
+        System.debug('notifications.size(): ' + notifications.size());
+        Messaging.sendEmail(notifications);
+    }
+    
+    // email reminder for upcoming movie nights
+    public static void sendReminderEmail(List<Movie_Audience__c> upcomingAttendees, Map<Id, User> userMap) {
+        List<Messaging.SingleEmailMessage> allEmail = new List<Messaging.SingleEmailMessage>();
+        
+        // prepare email for each attendee, if an active user record is found
+        for (Movie_Audience__c ma : upcomingAttendees) {
+            User u = userMap.get(ma.Contact__c);
+            if (u != null) {
+                String st = ma.Movie_Night__r.Showtime__c.format('EEEE M/d/yyyy h:mm') + ma.Movie_Night__r.Showtime__c.format('a').toLowerCase() + ' ' + ma.Movie_Night__r.Showtime__c.format('z');
+                String vd = ma.Movie_Night__r.Voting_Deadline__c.format('EEEE M/d/yyyy h:mm') + ma.Movie_Night__r.Voting_Deadline__c.format('a').toLowerCase() + ' ' + ma.Movie_Night__r.Voting_Deadline__c.format('z');
+                String emailBody = container() + header('Movie Night Reminder') + panel();
+                emailBody += greeting(u.FirstName);
+                emailBody += intro('The deadline to suggest and vote on movies is coming up for your movie night!');
+                emailBody += location(ma.Movie_Night__r.Location__c);
+                emailBody += showtime(st);
+                emailBody += '<b>' + deadline(vd) + '</b>';
+                emailBody += mnLink(ma.Movie_Night__r.Id, 'Log in to your lmnop account to continue');
+                emailBody += closingTags();
+                Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
+                email.setTargetObjectId(u.Id);
+                email.setSubject('New Movie Night: ' + st + ' at ' + ma.Movie_Night__r.Location__c);
+                email.setHtmlBody(emailBody);
+                email.setSaveAsActivity(false);
+                email.setUseSignature(false);
+                email.setReplyTo(ma.Movie_Night__r.Organizer_Email__c);
+                email.setSenderDisplayName(ma.Movie_Night__r.CreatedBy.Name);
+                allEmail.add(email);
+                System.debug('emailBody: ' + emailBody);
+            }
+        }
         
         // send all email
         List<Messaging.Email> notifications = new List<Messaging.Email>();

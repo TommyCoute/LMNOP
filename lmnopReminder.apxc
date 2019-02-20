@@ -1,0 +1,38 @@
+/*************************************************
+ * Run every hour to check for upcoming voting deadlines and send email reminders to movie night attendees
+ * Test code provided by lmnopTest
+ * 
+ * DATE			DEV		NOTES
+ * 2019-02-19	TKC		Initial creation to send email reminder about 6 hours before voting deadline
+*************************************************/
+public class lmnopReminder implements Schedulable {
+    public void execute(SchedulableContext ctx) {
+        
+        // find all attendees and movie nights where the voting countown shows 5 hours left
+        List<Movie_Audience__c> upcomingAttendees = [
+            SELECT Id, Attending__c, Contact__c, Movie_Night__r.Id, Movie_Night__r.Location__c, 
+            Movie_Night__r.Movie_Title__c, Movie_Night__r.Showtime__c, Movie_Night__r.Voting_Deadline__c, 
+            Movie_Night__r.CreatedBy.Name, Movie_Night__r.Organizer_Email__c
+            FROM Movie_Audience__c
+            WHERE Attending__c = true AND Movie_Night__r.Countdown__c LIKE '5 hours%'
+        ];
+        
+        // create map of contact ids to users
+        List<String> contactIds = new List<String>();
+        for (Movie_Audience__c ma : upcomingAttendees) {
+            contactIds.add(ma.Contact__c);
+        }
+        List<User> userList = [
+            SELECT Id, ContactId, Email, FirstName
+            FROM User
+            WHERE ContactId IN :contactIds AND IsActive = true
+        ];
+        Map<Id, User> userMap = new Map<Id, User>();
+        for (User u : userList) {
+            userMap.put(u.ContactId, u);
+        }
+        
+        // send email reminder
+        lmnopEmailer.sendReminderEmail(upcomingAttendees, userMap);
+    }
+}
