@@ -8,6 +8,7 @@
 * 2019-02-18	TKC		Added testRefreshments() for 100% coverage of refreshments page
 * 2019-02-18	TKC		Added testLogActivity() for 97% coverage of lmnopActivity class
 * 2019-02-18	TKC		Updated testNewMovieNight() and created methods for > 90% code coverage of MovieNightExtension class
+* 2019-02-19	TKC		Added testReminder() for 100% coverage of lmnopReminder and lmnopEmail.sendReminderEmail
 *************************************************/
 @isTest
 private class lmnopTest {
@@ -511,5 +512,29 @@ private class lmnopTest {
             con.logActivity();
             System.assertEquals('3.3.3.3', con.gaIP);
         }
+    }
+    
+    private static testMethod void testReminder() {
+        Test.startTest();
+        // create test data
+        User u = lmnopTest.testUser(0);
+        Movie_Night__c mn = new Movie_Night__c();
+        mn.Showtime__c = DateTime.now().addHours(5);
+        mn.Voting_Deadline__c = DateTime.now().addHours(5);
+        insert mn;
+        Movie_Audience__c ma = new Movie_Audience__c();
+        ma.Attending__c = true;
+        ma.Contact__c = u.ContactId;
+        ma.Movie_Night__c = mn.Id;
+        insert ma;
+        
+        // set cron expression and schedule apex job
+        String cronExp = '0 0 * * * ?';
+        String jobId = System.schedule('lmnopReminderTest', cronExp, new lmnopReminder());
+        
+        // verify job was scheduled
+        CronTrigger ct = [SELECT Id, CronExpression FROM CronTrigger WHERE Id = :jobId];
+        System.assertEquals(cronExp, ct.CronExpression);
+        Test.stopTest();
     }
 }
