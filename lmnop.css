@@ -440,6 +440,11 @@ div.newUser {
     margin-bottom: 0px;
 }
 
+.audienceWarning {
+    color: #cc0000;
+    display: none;
+}
+
 .contact {
     background-color: transparent;
     border: 1px dashed gold;

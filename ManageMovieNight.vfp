@@ -35,7 +35,9 @@
                         </div>
                         <div class="formGroup audience">
                             Audience 
-                            <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}"
+                            <span class="audienceWarning">(invalid email address detected)</span>
+                            <apex:inputField value="{!Movie_Night__c.Unregistered_Audience__c}" html-field="audienceEmail"
+                                             onblur="validateUAEmail()" onkeyup="validateUAEmail()"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
                         </div>
                         <div class="formGroup">
@@ -129,7 +131,9 @@
                         <div class="formGroup audience">
                             Invite <apex:outputText value="{!IF(confirmedAudience.size + unconfirmedAudience.size + unregisteredAudience.size > 0, 
                                                            ' More', ' Some')}" /> People
-                            <apex:inputTextarea rows="3" value="{!newEmailAudience}"
+                            <span class="audienceWarning">(invalid email address)</span>
+                            <apex:inputTextarea rows="3" value="{!newEmailAudience}" html-field="audienceEmail"
+                                             onblur="validateUAEmail()" onkeyup="validateUAEmail()"
                                              html-placeholder="Enter email addresses here, separated by a comma.{!IF(previousAudience.size > 0, ' You can also choose from previous movie night audience members below.', '')}" />
                         </div>
                         <div class="formGroup">

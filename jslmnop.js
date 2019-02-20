@@ -22,6 +22,27 @@ $(document).ready(function() {
     $('input[field="inputVDNumber"]').prop('type', 'number');
 });
 
+// validate unregistered audience email field
+function validateUAEmail() {
+    var invalidCount = 0
+    var uaEmail = $('textarea[field="audienceEmail"]').val();
+    var uaEmailArray = uaEmail.replace(/ /g, '').split(',');
+    if (uaEmail != '') {
+        for (var i = 0; i < uaEmailArray.length; i++) {
+            if (/(.+)@(.+){2,}\.(.+){2,}/.test(uaEmailArray[i])) {
+                // all good
+            } else {
+                invalidCount++;
+            }
+        }
+    }
+    if (invalidCount > 0) {
+        $('span.audienceWarning').show();
+    } else {
+        $('span.audienceWarning').hide();
+    }
+}
+
 // toggle audience contact selection
 function toggleContact(id, name) {
     var cids = $('input[field="contactIds"]').val();
