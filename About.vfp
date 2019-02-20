@@ -1,17 +1,32 @@
 <apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
     <apex:composition template="lmnopTemplate">
         <apex:define name="body">
-            <div class="col-md-12 silverback lmnopLogin about">
+            <div class="col-md-12 silverback about">
                 <p>
                     The "Little Movie Night Online Planner" (lmnop) is a force.com dev project meant to showcase
                     what is possible using a mix of standard and custom Salesforce development features.
                 </p>
                 <p>
-                    ...
+                    All source code and documentation available here (without license): 
+                    <br/>
+                    <a href="https://github.com/TommyCoute/LMNOP">
+                        <i class="fab fa-github"></i>
+                        github.com/TommyCoute/LMNOP
+                    </a>
+                </p>
+                <p>
+                    Feel free to reach out with any questions or feedback: 
+                    <br/>
+                    <a href="mailto:tommy.coute@gmail.com">
+                        <i class="far fa-envelope"></i>
+                        tommy.coute@gmail.com
+                    </a>
                 </p>
                 <p>
                     Background image credit/info here: 
+                    <br/>
                     <a href="https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg">
+                        <i class="fab fa-creative-commons"></i>
                         https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
                     </a>
                 </p>

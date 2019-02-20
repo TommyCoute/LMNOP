@@ -27,7 +27,9 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 8. lmnopTest - code coverage for the above
 
 # Apex Triggers
-1. UserTrigger - generic trigger on User object, calls MovieNightExtension.updateContactWithUser(Trigger.new) after update to keep contact names synced with user names since both are referenced within LMNOP
+1. UserTrigger - generic trigger on User object
+    1. Calls MovieNightExtension.updateUnregisteredAudience after insert to move any unregistered audience emails to the related movie audience records
+    2. Calls MovieNightExtension.updateContactWithUser after update to keep contact names synced with user names since both are referenced within LMNOP
 
 # Visualforce Pages
 1. lmnopTemplate - community composition template, used by all pages listed below
