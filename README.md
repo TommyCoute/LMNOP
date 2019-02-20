@@ -20,9 +20,11 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 2. lmnopActivity - contains methods for logging LMNOP user activity in Salesforce and passing custom variable dimensions to Google Analytics
 3. lmnopEmailer - contains static methods for sending email notifications to users and unregistered audience members
 4. lmnopRegistrationController - a modified version of the Salesforce-provided "CommunitiesSelfRegController", handles new user registration
-5. lmnopTest - code coverage for the above
+5. lmnopReminder - implements Schedulable apex, meant to run once an hour and send email reminders to all attendees where their movie night voting deadline is about 6 hours away
+    1. Scheduled via anonymous apex: `System.schedule('lmnop Reminder', '0 0 * * * ?', new lmnopReminder());`
 6. searchOmdbMock - HttpCalloutMock implementation test code for supporting lmnopTest (MovieNightExtension.searchOmdb())
 7. suggestMovieMock - HttpCalloutMock implementation test code for supporting lmnopTest (MovieNightExtension.suggestMovie())
+8. lmnopTest - code coverage for the above
 
 # Apex Triggers
 1. UserTrigger - generic trigger on User object, calls MovieNightExtension.updateContactWithUser(Trigger.new) after update to keep contact names synced with user names since both are referenced within LMNOP
@@ -40,18 +42,18 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 # Custom Objects & Fields
 1. Movie_Night__c - Main object for coordinating and tracking movie night events
     1. Countdown__c (formula text) - Displays the amount of time remaining until a movie is selected using the following formula: 
-        IF(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW())) + ' days left to choose a movie', 
-        IF(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW()) = 1, '1 day left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24)) + ' hours left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
-        IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
-        IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5)) + ' minutes left to choose a movie', 
-        IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) = 1, '1 minute left to choose a movie', 
-        IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) > 1, TEXT(FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60)) + ' seconds left to choose a movie', 
-        IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) = 1, '1 second left to choose a movie', 
+        > IF(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW()) > 1, TEXT(DATEVALUE(Voting_Deadline__c) - DATEVALUE(NOW())) + ' days left to choose a movie',
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24) > 23, '1 day left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24)) + ' hours left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24) = 1, '1 hour left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60)) + ' minutes left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60) = 1, '1 minute left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60)) + ' seconds left to choose a movie', 
+        > IF(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 * 60) = 1, '1 second left to choose a movie', 
+        > IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) > 1, TEXT(FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5)) + ' minutes left to choose a movie', 
+        > IF(ISPICKVAL(Tie__c, 'True') && FLOOR((Voting_Deadline__c - NOW()) * 24 * 60 + 5) = 1, '1 minute left to choose a movie', 
+        > IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) > 1, TEXT(FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60)) + ' seconds left to choose a movie', 
+        > IF(ISPICKVAL(Tie__c, 'True') && FLOOR(((Voting_Deadline__c - NOW()) * 24 * 60 + 5) * 60) = 1, '1 second left to choose a movie', 
         ''))))))))))))
     2. Location__c (text, 255) - The event location for hosting a movie night
     3. Movie_Title__c (text, 255) - Displays the selected movie suggestion
@@ -68,20 +70,20 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     2. Contact__c (master-detail)
     3. Movie_Night__c (master-detail)
     4. Random_Number__c (formula, number) - Assigns a random number to each audience member for final tiebreaker vote assignment using the following formula:
-        VALUE(RIGHT(TEXT(SQRT((VALUE((LEFT(RIGHT(
-        TEXT(CreatedDate),6),2)) & 
-        TEXT(DAY(DATEVALUE(CreatedDate))) & 
-        TEXT(MONTH(DATEVALUE(CreatedDate))) & 
-        TEXT(YEAR(DATEVALUE(CreatedDate))) & 
-        (LEFT(RIGHT(TEXT(CreatedDate),9),2)))) * 
-        (VALUE((LEFT(RIGHT(
-        TEXT(Contact__r.CreatedDate),6),2)) & 
-        TEXT(DAY(DATEVALUE(Contact__r.CreatedDate))) & 
-        TEXT(MONTH(DATEVALUE(Contact__r.CreatedDate))) & 
-        TEXT(YEAR(DATEVALUE(Contact__r.CreatedDate))) & 
-        (LEFT(RIGHT(
-        TEXT(Contact__r.CreatedDate),9),2))))
-        /10000)),3))
+        > VALUE(RIGHT(TEXT(SQRT((VALUE((LEFT(RIGHT(
+        > TEXT(CreatedDate),6),2)) & 
+        > TEXT(DAY(DATEVALUE(CreatedDate))) & 
+        > TEXT(MONTH(DATEVALUE(CreatedDate))) & 
+        > TEXT(YEAR(DATEVALUE(CreatedDate))) & 
+        > (LEFT(RIGHT(TEXT(CreatedDate),9),2)))) * 
+        > (VALUE((LEFT(RIGHT(
+        > TEXT(Contact__r.CreatedDate),6),2)) & 
+        > TEXT(DAY(DATEVALUE(Contact__r.CreatedDate))) & 
+        > TEXT(MONTH(DATEVALUE(Contact__r.CreatedDate))) & 
+        > TEXT(YEAR(DATEVALUE(Contact__r.CreatedDate))) & 
+        > (LEFT(RIGHT(
+        > TEXT(Contact__r.CreatedDate),9),2))))
+        > /10000)),3))
 3. Movie_Suggestion__c - Child of the Movie Night object for tracking movies suggested per event
     1. IMDB_Id__c (text, 255) - The ID of the movie defined by IMDB, used to check for duplicate suggestions and to link to IMDB page
     2. Movie_Night__c (master-detail)
