@@ -1,14 +1,15 @@
 /*************************************************
-* Code coverage for lmnop apex
-* 
-* DATE			DEV		NOTES
-* 2019-02-01	TKC		Initial creation
-* 2019-02-18	TKC		Updated testUser method to allow generating multiple users
-* 2019-02-18	TKC		Added testManageMovieNight() for 100% coverage of manage movie night page
-* 2019-02-18	TKC		Added testRefreshments() for 100% coverage of refreshments page
-* 2019-02-18	TKC		Added testLogActivity() for 97% coverage of lmnopActivity class
-* 2019-02-18	TKC		Updated testNewMovieNight() and created methods for > 90% code coverage of MovieNightExtension class
-* 2019-02-19	TKC		Added testReminder() for 100% coverage of lmnopReminder and lmnopEmail.sendReminderEmail
+ * Code coverage for lmnop apex
+ * 
+ * DATE			DEV		NOTES
+ * 2019-02-01	TKC		Initial creation
+ * 2019-02-18	TKC		Updated testUser method to allow generating multiple users
+ * 2019-02-18	TKC		Added testManageMovieNight() for 100% coverage of manage movie night page
+ * 2019-02-18	TKC		Added testRefreshments() for 100% coverage of refreshments page
+ * 2019-02-18	TKC		Added testLogActivity() for 97% coverage of lmnopActivity class
+ * 2019-02-18	TKC		Updated testNewMovieNight() and created methods for > 90% code coverage of MovieNightExtension class
+ * 2019-02-19	TKC		Added testReminder() for 100% coverage of lmnopReminder and lmnopEmail.sendReminderEmail
+ * 2019-02-20	TKC		Added testUnregisteredUserManager() for 100% coverage of new updateUnregisteredAudience features
 *************************************************/
 @isTest
 private class lmnopTest {
@@ -536,5 +537,24 @@ private class lmnopTest {
         CronTrigger ct = [SELECT Id, CronExpression FROM CronTrigger WHERE Id = :jobId];
         System.assertEquals(cronExp, ct.CronExpression);
         Test.stopTest();
+    }
+    
+    private static testMethod void testUnregisteredUserManager() {
+        // create test data
+        Movie_Night__c mn = new Movie_Night__c();
+        mn.Unregistered_Audience__c = 'test0@example.com, test1@example.com';
+        insert mn;
+        User newUser = lmnopTest.testUser(0);
+        
+        // verify that the new user has been moved from unregistered to movie audience
+        Movie_Audience__c ma = [
+            SELECT Contact__r.Email 
+            FROM Movie_Audience__c 
+            WHERE Movie_Night__c = :mn.Id
+            LIMIT 1
+        ];
+        System.assertEquals('test0@example.com', ma.Contact__r.Email);
+        String ua = [SELECT Unregistered_Audience__c FROM Movie_Night__c WHERE Id = :mn.Id].Unregistered_Audience__c;
+        System.assert(!ua.contains('test0@example.com'));
     }
 }

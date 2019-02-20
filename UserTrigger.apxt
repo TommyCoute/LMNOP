@@ -2,8 +2,25 @@
 * DATE			DEV		NOTES
 * 2019-02-04	TKC		Initial creation for use with MovieNightExtension.updateContactWithUser
 * 2019-02-19	TKC		Added filter for updateContactWithUser to only process users with name changes
+* 2019-02-20	TKC		Added after insert context for use with MovieNightExtension.updateUnregisteredAudience
 *************************************************/
-trigger UserTrigger on User (after update) {
+trigger UserTrigger on User (after insert, after update) {
+    if (Trigger.isAfter && Trigger.isInsert) {
+        // check movie night unregistered audiences for email address
+        // code coverage: lmnopTest
+        List<User> newLmnopUsers = new List<User>();
+        String lmnopProfile = [SELECT Id FROM Profile WHERE Name = 'Movie Night User'].Id;
+        for (User u : Trigger.new) {
+            if (u.ProfileId == lmnopProfile) {
+                newLmnopUsers.add(u);
+            }
+        }
+        System.debug('newLmnopUsers.size(): ' + newLmnopUsers.size());
+        if (newLmnopUsers.size() > 0) {
+            MovieNightExtension.updateUnregisteredAudience(newLmnopUsers);
+        }
+    }
+    
     if (Trigger.isAfter && Trigger.isUpdate) {
         // update contact name to match user name changes
         // code coverage: lmnopTest

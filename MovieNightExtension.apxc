@@ -32,6 +32,7 @@
  * 2019-02-12	TKC		Added email notifications to createMovieNight() and deleteMovieNight()
  * 2019-02-13	TKC		Moved email notifications to new class lmnopEmailer
  * 2019-02-14	TKC		Added mnOld variable to grab values before saving changes to movie night records (for email notifications)
+ * 2019-02-20	TKC		Added updateUnregisteredAudience method to be called from UserTrigger
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -100,6 +101,63 @@ public without sharing class MovieNightExtension {
         PageReference page = System.Page.Profile;
         page.setRedirect(true);
         return page;
+    }
+    
+    // scan all unregistered audiences and update for newly registered users
+    public static void updateUnregisteredAudience(List<User> newLmnopUsers) {
+        List<Movie_Night__c> mnUpdateList = new List<Movie_Night__c>();
+        List<Movie_Audience__c> newMAs = new List<Movie_Audience__c>();
+        System.debug('newLmnopUsers.size(): ' + newLmnopUsers.size());
+        
+        // get collection of all movie nights with unregistered users
+        // NOTE: can't filter on Unregistered_Audience__c since it's a long text area field
+        List<Movie_Night__c> mnUnregisteredList = [
+            SELECT Id, Unregistered_Audience__c
+            FROM Movie_Night__c
+        ];
+        System.debug('mnUnregisteredList.size(): ' + mnUnregisteredList.size());
+        // create a map of each unregistered audience email address to its MN record
+        Map<String, Movie_Night__c> uaMap = new Map<String, Movie_Night__c>();
+        for (Movie_Night__c mnu : mnUnregisteredList) {
+            if (mnu.Unregistered_Audience__c != null) {
+                List<String> emailList = String.escapeSingleQuotes(mnu.Unregistered_Audience__c).replace(' ', '').split(',');
+                for (String s : emailList) {
+                    uaMap.put(s.toLowerCase(), mnu);
+                }
+            }
+        }
+        System.debug('uaMap.size(): ' + uaMap.size());
+        
+        // check each new user email address against map and build lists
+        for (User u : newLmnopUsers) {
+            String uaEmail = u.Email.toLowerCase();
+            System.debug('uaEmail: ' + uaEmail);
+            if (uaMap.containsKey(uaEmail)) {
+                // clear email from MN unregistered audience
+                Movie_Night__c mnu = uaMap.get(uaEmail);
+                String ua = mnu.Unregistered_Audience__c;
+                mnu.Unregistered_Audience__c = ua.remove(uaEmail);
+                mnUpdateList.add(mnu);
+                
+                // add contact to MN registered movie audience
+                Movie_Audience__c ma = new Movie_Audience__c();
+                ma.Contact__c = u.ContactId;
+                ma.Movie_Night__c = mnu.Id;
+                newMAs.add(ma);
+            }
+        }
+        System.debug('mnUpdateList.size(): ' + mnUpdateList.size());
+        System.debug('newMAs.size(): ' + newMAs.size());
+        
+        // update records
+        if (newMAs.size() > 0) {
+            try {
+                update mnUpdateList;
+                insert newMAs;
+            } Catch (Exception ex) {
+                System.debug(ex);
+            }
+        }
     }
     
     // update contact name to match user name changes
