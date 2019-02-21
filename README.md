@@ -4,16 +4,48 @@ Copyright (c) 2019 Tommy Coute
 The Little Movie Night Online Planner (LMNOP) is a force.com dev project intended to showcase my Salesforce work and abilities, while developing something that I find fun and personally interesting. No licenses or rights are granted, however all source code and related objects/settings are documented here for reference.
 
 # Features
-1. Custom community activity logging: includes a custom "activity" object to record user activity such as the pages viewed, search terms used, browser/OS info, IP address, and also prepares some of this data to pass to Google Analytics. Reports can be created directly in Salesforce and related lists appear under contacts as well.
-2. Completely custom templates and styles: LMNOP uses the "Salesforce Tabs + Visualforce" community template to maximize customization and access to advanced features. This makes it possible to leverage existing Salesforce objects, controllers, and other features (such as authentication and security features), while gaining complete control over the user experience, business logic, and look/feel of the site.
-3. Community self-registration: for some projects, it makes sense to control access by forcing users to request login credentials, or to enable authentication via Single Sign-On (SSO) from another application. For this project, we want users to be able to invite others to the community, so anyone can create their own account without any need for manual support.
-4. Welcome (disclaimer) page: when users first visit LMNOP, they are presented with a welcome message. This is an opportunity to go over any rules or legal requirements before users can proceed into the community. Users must accept the disclaimer/agreement to proceed, and their acknowledgement is recorded in a custom field on their user record.
-5. Profile customization and locale/time zone support: after accepting the site disclaimer, users are taken to their profile page, where they can update their name and time zone as desired. Future enhancements to this community could include the ability to set a profile photo, set language/locale options, or change their email address (tied to usernames and therefore unchangable for v1).
-6. Event calendar: the LMNOP home page will look up any upcoming and past movie nights where the user is an audience member. Users can also create a new movie night from the home page. Any upcoming movie nights on the calendar include the showtime, location, current top movie suggestion, a countdown timer (formula field displaying number of days, hours, minutes, or seconds remaining), and the user's attendence status (organizing, attending, not attending).
-7. Movie night manager: when creating a new movie night, users can enter the basics (showtime/location), and select the initial audience members to invite. Any contacts that attended the same movie night as the user are listed for selection, and users can enter email addresses to invite others. If any email addresses match existing contacts then they those contacts will be listed once the new movie night is created, and email notifications will be sent to all invited users (regardless of registration status). Users creating a new movie night are designated the "organizer" and can make updates to the event details or audience list at any time.
-8. Movie suggestions: LMNOP uses the Open Movie Database (OMDb) API to search movie titles and add them to a list of movie suggestions per movie night. The list of currently suggested movies is displayed for users from the movie night detail page, along with the votes currently associated with that movie suggestion. Users can currently suggest as many movies as desired, although options to customize and control the number of suggestions or other parameters may be added in the future.
-9. Movie voting and selection: the title selected for a given movie night is determined by audience member votes. Each audience member can choose to upvote or downvote (or abstain) each movie suggestion. Votes are tallied and displayed from the movie night detail page, along with a countdown timer until showtime. Once showtime is reached, the movie suggestion with the highest number of "points" (all upvotes minus all downvotes) is the selected title. In the case of a tie, each audience member will have the option to cast one tiebreaker vote on the titles that are tied for selection. In the unlikely event of a second tie, a random audience member will be selected to choose the movie from the titles tied for selection.
-10. Refreshments: in addition to suggesting titles for a movie night event, users can also submit to the list of refreshments, so everyone can see what everyone else is bringing to the movie night.
+1. Custom community activity logging
+    - Includes a custom "activity" object to record user activity such as the pages viewed, search terms used, browser/OS info, IP address, and also prepares some of this data to pass to Google Analytics. 
+    - Reports can be created directly in Salesforce and related lists appear under contacts as well.
+2. Completely custom templates and styles
+    - LMNOP uses the "Salesforce Tabs + Visualforce" community template to maximize customization and access to advanced features. 
+    - This makes it possible to leverage existing Salesforce objects, controllers, and other features (such as authentication and security features), while gaining complete control over the user experience, business logic, and look/feel of the site.
+    - Custom site error pages are also used, which not only better fit the site template but provide better details and reporting capabilities to end users.
+3. Email notificatoins and scheduled reminders
+    - A custom emailer class stores email template elements and methods to invite and update movie night audiences.
+    - A scheduled apex job runs once an hour to send reminders to all attendees when their movie night voting deadlines are coming up soon.
+3. Community self-registration
+    - For some projects, it makes sense to control access by forcing users to request login credentials, or to enable authentication via Single Sign-On (SSO) from another application. 
+    - For this project, we want users to be able to invite others to the community, so anyone can create their own account without any need for manual support.
+4. Welcome (disclaimer) page
+    - When users first visit LMNOP, they are presented with a welcome message. 
+    - This is an opportunity to go over any rules or legal requirements before users can proceed into the community. 
+    - Users must accept the disclaimer/agreement to proceed, and their acknowledgement is recorded in a custom field on their user record.
+5. Profile customization and locale/time zone support
+    - After accepting the site disclaimer, users are taken to their profile page, where they can update their name and time zone as desired. 
+    - Future enhancements to this community could include the ability to set a profile photo, set language/locale options, or change their email address (tied to usernames and therefore unchangable for v1).
+6. Event calendar
+    - The LMNOP home page will look up any upcoming and past movie nights where the user is an audience member. 
+    - Users can also create a new movie night from the home page. 
+    - Any upcoming movie nights on the calendar include the showtime, location, current top movie suggestion, a countdown timer (formula field displaying number of days, hours, minutes, or seconds remaining), and the user's attendence status (organizing, attending, not attending).
+7. Movie night manager
+    - When creating a new movie night, users can enter the basics (showtime/location), and select the initial audience members to invite. 
+    - Any contacts that attended the same movie night as the user are listed for selection, and users can enter email addresses to invite others. 
+    - If any email addresses match existing contacts then they those contacts will be listed once the new movie night is created, and email notifications will be sent to all invited users (regardless of registration status). 
+    - Users creating a new movie night are designated the "organizer" and can make updates to the event details or audience list at any time.
+8. Movie suggestions
+    - LMNOP uses the Open Movie Database (OMDb) API to search movie titles and add them to a list of movie suggestions per movie night. 
+    - The list of currently suggested movies is displayed for users from the movie night detail page, along with the votes currently associated with that movie suggestion. 
+    - Users can currently suggest as many movies as desired, although options to customize and control the number of suggestions or other parameters may be added in the future.
+9. Movie voting and selection
+    - The title selected for a given movie night is determined by audience member votes. 
+    - Each audience member can choose to upvote or downvote (or abstain) each movie suggestion. 
+    - Votes are tallied and displayed from the movie night detail page, along with a countdown timer until showtime (or the seleted voting deadline). 
+    - Once the deadline is reached, the movie suggestion with the highest number of "points" (all upvotes minus all downvotes) is the selected title. 
+    - In the case of a tie, each audience member will have the option to cast one tiebreaker vote on the titles that are tied for selection. 
+    - In the unlikely event of a second tie, a random audience member will be selected to choose the movie from the titles tied for selection.
+10. Refreshments
+    - In addition to suggesting titles for a movie night event, users can also submit to the list of refreshments, so everyone can see what everyone else is bringing to the movie night.
 
 # Apex Classes
 1. MovieNightExtension - an extension of the standard "Movie Night" controller (for the custom Movie_Night__c object) and the primary controller for LMNOP
