@@ -12,6 +12,11 @@
             <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
             <apex:stylesheet value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
             <apex:includeScript value="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" />
+
+            <!-- Datepicker -->
+            <apex:includeScript value="{!URLFOR($Resource.moment)}" />
+            <apex:stylesheet value="{!URLFOR($Resource.datetimepicker_css)}" />
+            <apex:includeScript value="{!URLFOR($Resource.datetimepicker_js)}" />
             
             <!-- Fonts -->
             <apex:stylesheet value="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />

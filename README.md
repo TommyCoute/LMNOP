@@ -167,12 +167,15 @@ NOTE: if using Google Analytics, you can configure custom "dimensions" to collec
 NOTE: all static resources listed below should be set to "Public"
 1. jslmnop - JS 
 2. lmnop - CSS
-3. Countdown - Background image for countdown timer
-4. Popcorn - PNG image for refreshments icon since FontAwesome free doesn't provide one (found on pixabay)
-5. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
-6. MovieBorderBottom - Bottom border grid for LMNOP movie frames
-7. MovieBorderTop - Top border grid for LMNOP movie frames
-8. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
+3. moment - Moment.js v2.24.0
+4. datetimepicker_css - Bootstrap Datepicker v4.17.47
+5. datetimepicker_js - Bootstrap Datepicker v4.17.47
+6. Countdown - Background image for countdown timer
+7. Popcorn - PNG image for refreshments icon since FontAwesome free doesn't provide one (found on pixabay)
+8. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
+9. MovieBorderBottom - Bottom border grid for LMNOP movie frames
+10. MovieBorderTop - Top border grid for LMNOP movie frames
+11. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
 
 # Other Setup
 1. Remote Site Settings: add http://omdbapi.com

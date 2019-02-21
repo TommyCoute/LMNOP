@@ -10,6 +10,7 @@
  * 2019-02-18	TKC		Updated testNewMovieNight() and created methods for > 90% code coverage of MovieNightExtension class
  * 2019-02-19	TKC		Added testReminder() for 100% coverage of lmnopReminder and lmnopEmail.sendReminderEmail
  * 2019-02-20	TKC		Added testUnregisteredUserManager() for 100% coverage of new updateUnregisteredAudience features
+ * 2019-02-21	TKC		Updated MovieNightExtension.inputDate references to remove the formatting adjustments (no longer needed)
 *************************************************/
 @isTest
 private class lmnopTest {
@@ -110,7 +111,7 @@ private class lmnopTest {
             // user input
             con.contactIds = testUser1.ContactId;
             DateTime dt = DateTime.now() + 1;
-            con.inputDate = String.valueOf(dt).replace(' ', 'T').left(16);
+            con.inputDate = String.valueOf(dt);
             nmn.Voting_Deadline_Offset_Value__c = 0;
             nmn.Voting_Deadline_Offset_Type__c = 'Minutes';
             nmn.Location__c = 'testing123';
@@ -133,7 +134,7 @@ private class lmnopTest {
             // user input with date in past
             con.contactIds = '';
             dt = DateTime.now() - 1;
-            con.inputDate = String.valueOf(dt).replace(' ', 'T').left(16);
+            con.inputDate = String.valueOf(dt);
             nmn2.Voting_Deadline_Offset_Value__c = 0;
             nmn2.Voting_Deadline_Offset_Type__c = 'Hours';
             nmn2.Location__c = 'testing123';
@@ -364,7 +365,7 @@ private class lmnopTest {
             con.removeContactIds = '';
             con.removeEmails = '';
             DateTime dt = DateTime.now() + 1;
-            con.inputDate = String.valueOf(dt).replace(' ', 'T').left(16);
+            con.inputDate = String.valueOf(dt);
             
             // check values
             DateTime st = nmn.Showtime__c;
@@ -403,7 +404,7 @@ private class lmnopTest {
             con.removeContactIds = '';
             con.removeEmails = '';
             st = nmn.Showtime__c;
-            con.inputDate = String.valueOf(st).replace(' ', 'T').left(16);
+            con.inputDate = String.valueOf(st);
             nmn.Location__c = 'updated';
             con.updateMovieNight();
             

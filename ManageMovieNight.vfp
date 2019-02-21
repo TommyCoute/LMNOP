@@ -58,7 +58,8 @@
                             </p>
                         </div>
                         <div class="formGroup">
-                            <apex:commandButton action="{!createMovieNight}" value="Create Movie Night" styleClass="btn btn-primary titan" />
+                            <apex:commandButton action="{!createMovieNight}" value="Create Movie Night"
+                                                styleClass="btn btn-primary titan" onclick="fixDateTime()" />
                         </div>
                     </apex:form>
                 </apex:outputPanel>
@@ -148,7 +149,8 @@
                             <apex:inputHidden value="{!removeEmails}" html-field="removeEmails" />
                         </div>
                         <div class="manage-buttons">
-                            <apex:commandButton action="{!updateMovieNight}" value="Update Movie Night" styleClass="btn btn-primary titan update" />
+                            <apex:commandButton action="{!updateMovieNight}" value="Update Movie Night"
+                                                styleClass="btn btn-primary titan update" onclick="fixDateTime()" />
                             <a href="javascript:window.history.back()" class="btn btn-primary titan cancel width-100p">
                                 Cancel Update
                             </a>

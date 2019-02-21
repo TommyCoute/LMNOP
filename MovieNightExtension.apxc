@@ -33,6 +33,7 @@
  * 2019-02-13	TKC		Moved email notifications to new class lmnopEmailer
  * 2019-02-14	TKC		Added mnOld variable to grab values before saving changes to movie night records (for email notifications)
  * 2019-02-20	TKC		Added updateUnregisteredAudience method to be called from UserTrigger
+ * 2019-02-21	TKC		Updated inputDate references to remove the formatting adjustments (no longer needed)
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -311,7 +312,7 @@ public without sharing class MovieNightExtension {
     public String contactIds {get;set;}
     public PageReference createMovieNight() {
         // convert form datetime into showtime
-        Datetime inputDateTime = Datetime.valueOf(inputDate.replace('T', ' ') + ':00');
+        Datetime inputDateTime = Datetime.valueOf(inputDate);
         mn.Showtime__c = inputDateTime;
         
         // convert voting deadline inputs into datetime
@@ -432,7 +433,7 @@ public without sharing class MovieNightExtension {
     public PageReference updateMovieNight() {
         
         // convert form datetime into showtime
-        Datetime inputDateTime = Datetime.valueOf(inputDate.replace('T', ' ') + ':00');
+        Datetime inputDateTime = Datetime.valueOf(inputDate);
         mn.Showtime__c = inputDateTime;
         
         // convert voting deadline inputs into datetime
@@ -700,7 +701,7 @@ public without sharing class MovieNightExtension {
             userQuery = ApexPages.currentPage().getParameters().get('titlesearch');
             
             // sanitize user query
-            String movieTitle = String.escapeSingleQuotes(userQuery).replaceAll(' ', '+');
+            String movieTitle = userQuery.replaceAll(' ', '+');
 
             // get API token from custom settings
             String token = [

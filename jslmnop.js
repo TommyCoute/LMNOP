@@ -17,10 +17,21 @@ function toggleDA() {
 
 // set date/time using custom input fields
 $(document).ready(function() {
-    $('input[field="inputdate"]').prop('type', 'datetime-local');
-    $('input[field="inputdate"]').val($('input[field="displaydate"]').val());
+    $('input[field="inputdate"]').datetimepicker();
+    var dd = $('input[field="displaydate"]').val();
+    if (dd != null) {
+        $('input[field="inputdate"]').val(moment(dd).format('MM/DD/YYYY h:mm A'));
+    }
     $('input[field="inputVDNumber"]').prop('type', 'number');
 });
+
+function fixDateTime() {
+    var st = $('input[field="inputdate"]').val();
+    if (st != "") {
+        var stFixed = moment(st).format('YYYY-MM-DD HH:mm:ss');
+        $('input[field="inputdate"]').val(stFixed);
+    }
+}
 
 // validate unregistered audience email field
 function validateUAEmail() {
