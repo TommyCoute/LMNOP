@@ -115,10 +115,12 @@ a, a:hover {
 }
 
 .silverback {
+    background-color: rgba(255, 255, 255, .5);
     background-color: #ffffff7f;
     border-radius: 4px;
     margin: 10px 0px;
     padding: 10px;
+    z-index: 1;
 }
 
 .clickable {
@@ -134,6 +136,7 @@ a, a:hover {
     min-height: 35px;
     padding-left: 4px;
     width: 100%;
+    -webkit-appearance: none;
 }
 
 .form .btn-disabled {
@@ -524,6 +527,7 @@ label#confirmDelete {
 }
 
 .goldback {
+    background-color: rgba(255, 215, 1, .5);
     background-color: #ffd70180;
     border: 3px solid gold;
     border-radius: 4px;
@@ -533,6 +537,7 @@ label#confirmDelete {
 }
 
 .goldback.inactive {
+    background-color: rgba(255, 215, 1, .25);
     background-color: #ffd70140;
 }
 
@@ -610,6 +615,7 @@ a#moviesTab, a#refreshmentsTab {
 }
 
 li.nav-item.active>a.nav-link {
+    background-color: rgba(255, 255, 255, .5);
     background-color: #ffffff7f;
     color: black;
 }
