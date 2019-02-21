@@ -173,9 +173,8 @@ NOTE: all static resources listed below should be set to "Public"
 6. Countdown - Background image for countdown timer
 7. Popcorn - PNG image for refreshments icon since FontAwesome free doesn't provide one (found on pixabay)
 8. PosterNotFound - PNG image to be displayed if a poster is not found when searching OMDb
-9. MovieBorderBottom - Bottom border grid for LMNOP movie frames
-10. MovieBorderTop - Top border grid for LMNOP movie frames
-11. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
+9. NowShowing - PNG image containing movie poster frame for selected movie
+10. MovieTheater - Background image for LMNOP community, taken from https://commons.wikimedia.org/wiki/File:Sala_de_cine.jpg
 
 # Other Setup
 1. Remote Site Settings: add http://omdbapi.com

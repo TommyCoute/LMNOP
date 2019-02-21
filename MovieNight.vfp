@@ -328,12 +328,12 @@
                                                     </p>
                                                     <apex:repeat value="{!omdbList}" var="movie">
                                                         <div class="searchResult" onclick="selectMovie('{!JSENCODE(movie.Title)}', '{!movie.ImdbId}')">
-                                                            <div class="poster" style="border-image-source:url({!$Resource.MovieBorderTop})">
+                                                            <div class="poster">
                                                                 <a href="javascript:void(null);">
                                                                     <img src="{!IF(movie.Poster = 'N/A', $Resource.PosterNotFound, movie.Poster)}" />
                                                                 </a>
                                                             </div>
-                                                            <div class="title" style="border-image-source:url({!$Resource.MovieBorderBottom})">
+                                                            <div class="title">
                                                                 <div>
                                                                     {!movie.Title} ({!movie.Year})
                                                                 </div>
@@ -359,19 +359,15 @@
                                     <!-- VOTING COMPLETE -->
                                     <apex:outputPanel rendered="{!(suggestedMovies.size > 0 && Movie_Night__c.Tie__c = 'False') || 
                                                                 (DATETIMEVALUE(vd) + 5/1440 <= NOW() && topTiebreaker.size = 1)}">
-                                        <div class="countdown">
-                                            SELECTED MOVIE:
-                                        </div>
-                                        <div class="searchResult selectedMovie">
-                                            <div class="poster" style="border-image-source:url({!$Resource.MovieBorderTop})">
-                                                <a href="javascript:void(null);">
-                                                    <img src="{!IF(topTiebreaker[0].Poster__c = 'N/A', $Resource.PosterNotFound, topSuggestion[0].Poster__c)}" />
-                                                </a>
+                                        <div class="now-showing-frame" style="background-image:url({!$Resource.NowShowing})">
+                                            <div class="now-showing titan">
+                                                SELECTED MOVIE
                                             </div>
-                                            <div class="title" style="border-image-source:url({!$Resource.MovieBorderBottom})">
-                                                <div>
-                                                    {!topSuggestion[0].Name} ({!topSuggestion[0].Year__c})
-                                                </div>
+                                            <div class="now-showing-poster">
+                                                <apex:outputPanel rendered="{!topTiebreaker[0].Poster__c = 'N/A'}">
+                                                    {!topTieBreaker[0].Name} ({!topTieBreaker[0].Year__c})
+                                                </apex:outputPanel>
+                                                <img src="{!IF(topTiebreaker[0].Poster__c = 'N/A', $Resource.PosterNotFound, topSuggestion[0].Poster__c)}" />
                                             </div>
                                         </div>
                                     </apex:outputPanel>
