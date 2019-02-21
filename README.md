@@ -11,7 +11,7 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     - LMNOP uses the "Salesforce Tabs + Visualforce" community template to maximize customization and access to advanced features. 
     - This makes it possible to leverage existing Salesforce objects, controllers, and other features (such as authentication and security features), while gaining complete control over the user experience, business logic, and look/feel of the site.
     - Custom site error pages are also used, which not only better fit the site template but provide better details and reporting capabilities to end users.
-3. Email notificatoins and scheduled reminders
+3. Email notifications and scheduled reminders
     - A custom emailer class stores email template elements and methods to invite and update movie night audiences.
     - A scheduled apex job runs once an hour to send reminders to all attendees when their movie night voting deadlines are coming up soon.
 3. Community self-registration
