@@ -1,0 +1,26 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="body">
+            <div class="col-md-12 silverback about">
+                <h2 class="bigger">
+                    <i class="far fa-dizzy"></i>
+                    404 error, page not found
+                </h2>
+                <p class="red">
+                    <b>Not found:</b> {!$Site.OriginalUrl}
+                </p>
+                <p class="red">
+                    The URL may be invalid or the record you are trying to access may no longer exist.
+                </p>
+                <p>
+                    Feel free to reach out with any questions or feedback: 
+                    <a href="mailto:tommy.coute@gmail.com?subject=lmnop error
+                             &body=Page not found: {!$Site.OriginalUrl}">
+                        <i class="far fa-envelope"></i>
+                        tommy.coute@gmail.com
+                    </a>
+                </p>
+            </div>
+        </apex:define>
+    </apex:composition>
+</apex:page>

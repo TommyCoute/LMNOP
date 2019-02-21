@@ -40,6 +40,8 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
 6. MovieNight - home page, conditionally renders the "welcome" (disclaimer) message for new users, the details of a given movie night if an id parameter is passed, or the calendar of movie night events for the user otherwise
 7. ManageMovieNight - allows users to update movie nights they are organizing (have created) if an id parameter is passed, otherwise will present the "new movie night" creation form
 8. Refreshments - the "Refreshments" tab within a movie night reord detail page, separated for improved controls and analytics
+9. lmnopError - custom "generic" 500 error page, with error description and link to email site admin with details
+10. lmnopNotFound - custom "not found" 404 error page, with error description and link to email site admin with details
 
 # Custom Objects & Fields
 1. Movie_Night__c - Main object for coordinating and tracking movie night events

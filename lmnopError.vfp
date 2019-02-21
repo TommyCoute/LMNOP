@@ -1,0 +1,23 @@
+<apex:page docType="html-5.0" standardStylesheets="false" showHeader="false" sidebar="false">
+    <apex:composition template="lmnopTemplate">
+        <apex:define name="body">
+            <div class="col-md-12 silverback about">
+                <h2 class="bigger">
+                    <i class="far fa-flushed"></i>
+                    Something's not right...
+                </h2>
+                <p class="red">
+                    {!$Site.ErrorMessage} {!$Site.ErrorDescription}
+                </p>
+                <p>
+                    Feel free to reach out with any questions or feedback: 
+                    <a href="mailto:tommy.coute@gmail.com?subject=lmnop error
+                             &body={!$Site.ErrorMessage} {!$Site.ErrorDescription}">
+                        <i class="far fa-envelope"></i>
+                        tommy.coute@gmail.com
+                    </a>
+                </p>
+            </div>
+        </apex:define>
+    </apex:composition>
+</apex:page>

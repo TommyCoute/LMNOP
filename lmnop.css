@@ -4,12 +4,20 @@
     color: black;
 }
 
+.bigger {
+    font-size: 1.2em;
+}
+
 .center {
     text-align: center;
 }
 
 .gold {
     color: gold;
+}
+
+.red {
+    color: #cc0000;
 }
 
 .titan {
@@ -272,23 +280,6 @@ a, a:hover {
 
 #lmnopFooter a {
     color: silver;
-}
-
-/* error pages */
-
-table.topPanelContainer {
-    background-color: #ffffff7f;
-    border-radius: 4px;
-    margin-top: -50px;
-}
-
-td img {
-    display: none;
-}
-
-div.messageText {
-    color: #cc0000;
-    margin-bottom: 15px;
 }
 
 /* login pages */
