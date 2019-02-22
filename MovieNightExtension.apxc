@@ -34,6 +34,7 @@
  * 2019-02-14	TKC		Added mnOld variable to grab values before saving changes to movie night records (for email notifications)
  * 2019-02-20	TKC		Added updateUnregisteredAudience method to be called from UserTrigger
  * 2019-02-21	TKC		Updated inputDate references to remove the formatting adjustments (no longer needed)
+ * 2019-02-21	TKC		Fixed issue with updateTopSuggestion() returning the same year when multiple top suggestions are found
 *************************************************/
 
 public without sharing class MovieNightExtension {
@@ -1011,7 +1012,7 @@ public without sharing class MovieNightExtension {
         } else if (topSuggestion.size() > 1) {
             String topPicks = '';
             for (Movie_Suggestion__c ms : topTiebreaker) {
-                topPicks += ms.Name + ' (' + topTiebreaker[0].Year__c + ')' + ', ';
+                topPicks += ms.Name + ' (' + ms.Year__c + ')' + ', ';
             }
             topPicks = topPicks.left(topPicks.length() - 2);
             mnCurrent.Movie_Title__c = topPicks;
