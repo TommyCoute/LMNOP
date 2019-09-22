@@ -78,7 +78,7 @@
                     <apex:form >
                         <apex:pageMessages />
                         <div class="formGroup">
-                            Date/Time
+                            Showtime
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
                             <apex:inputHidden value="{!displayInputDate}" html-field="displaydate" />
                         </div>
