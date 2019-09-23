@@ -80,7 +80,7 @@
                             <div class="lmnopIcon-b2" />
                         </div>
                         <a href="{!$Site.Prefix}/MovieNight">
-                            <h1 class="titan">
+                            <h1 id="lmnopHeading" class="titan">
                                 {!heading}
                             </h1>
                         </a>

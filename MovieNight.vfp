@@ -81,6 +81,12 @@
                                             <h2 class="titan">
                                                 <apex:outputText value="{!mn.formattedShowtime}" />
                                             </h2>
+                                            <apex:outputPanel rendered="{!mn.maRecord.Movie_Night__r.Theme__c != 'Movie Night'}">
+                                                <p>
+                                                    <i class="fas fa-theater-masks cal-theme"></i>
+                                                    <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Theme__c}" />
+                                                </p>
+                                            </apex:outputPanel>
                                             <p>
                                                 <i class="fas fa-map-marker-alt cal-location"></i>
                                                 <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
@@ -135,6 +141,12 @@
                                             <h2 class="titan">
                                                 <apex:outputText value="{!mn.formattedShowtime}" />
                                             </h2>
+                                            <apex:outputPanel rendered="{!mn.maRecord.Movie_Night__r.Theme__c != 'Movie Night'}">
+                                                <p>
+                                                    <i class="fas fa-theater-masks cal-theme"></i>
+                                                    <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Theme__c}" />
+                                                </p>
+                                            </apex:outputPanel>
                                             <p>
                                                 <i class="fas fa-map-marker-alt cal-location"></i>
                                                 <apex:outputText value=" {!mn.maRecord.Movie_Night__r.Location__c}" />
@@ -172,7 +184,7 @@
                 <apex:variable value="{!Movie_Night__c.Showtime__c}" var="st" />
                 <apex:variable value="{!Movie_Night__c.Voting_Deadline__c}" var="vd" />
                 <div class="location">
-                    Movie Night at {!Movie_Night__c.Location__c}!
+                    {!Movie_Night__c.Theme__c} at {!Movie_Night__c.Location__c}!
                 </div>
                 <apex:outputPanel rendered="{!Movie_Night__c.CreatedBy.Id = $User.Id}">
                     <a href="{!$Site.Prefix}/ManageMovieNight?id={!Movie_Night__c.Id}" class="btn btn-primary titan width-100p">

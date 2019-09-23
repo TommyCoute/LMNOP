@@ -15,6 +15,12 @@ function toggleDA() {
     }
 }
 
+// update heading when creating/managing movie night theme
+function updateHeading() {
+    var mnTheme = $('input[field="theme"]').val();
+    $('h1#lmnopHeading').text('New ' + mnTheme);
+}
+
 // set date/time using custom input fields
 $(document).ready(function() {
     $('input[field="inputdate"]').datetimepicker();

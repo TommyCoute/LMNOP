@@ -2,7 +2,7 @@
            standardController="Movie_Night__c" extensions="MovieNightExtension">
     <apex:composition template="lmnopTemplate">
         <apex:define name="header">
-            <apex:variable var="heading" value="{!IF(Movie_Night__c.Id = null, 'New Movie Night', 'Manage Movie Night')}">
+            <apex:variable var="heading" value="{!IF(Movie_Night__c.Id = null, 'New Movie Night', 'Manage ' + Movie_Night__c.Theme__c)}">
             </apex:variable>
         </apex:define>
         <apex:define name="body">
@@ -15,6 +15,11 @@
                 <apex:outputPanel rendered="{!Movie_Night__c.Id = null}">
                     <apex:form >
                         <apex:pageMessages />
+                        <div class="formGroup">
+                            Theme
+                            <apex:inputField value="{!Movie_Night__c.Theme__c}" html-field="theme" required="true"
+                                             onchange="updateHeading()" onkeyup="updateHeading()" />
+                        </div>
                         <div class="formGroup">
                             Showtime
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />
@@ -77,6 +82,10 @@
                 <apex:outputPanel rendered="{!Movie_Night__c.CreatedBy.Id = $User.Id && Movie_Night__c.Id != null && $CurrentPage.parameters.delete != '1'}">
                     <apex:form >
                         <apex:pageMessages />
+                        <div class="formGroup">
+                            Theme
+                            <apex:inputText value="{!Movie_Night__c.Theme__c}" html-field="theme" required="true" />
+                        </div>
                         <div class="formGroup">
                             Showtime
                             <apex:inputText value="{!inputDate}" html-field="inputdate" required="true" />

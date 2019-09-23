@@ -101,6 +101,7 @@ The Little Movie Night Online Planner (LMNOP) is a force.com dev project intende
     8. Voting_Deadline__c (date/time) - Movies and regular votes cannot be added after this date/time
     9. Voting_Deadline_Offset_Type__c (picklist) - Used with the Voting Deadline Offset Value field to set a deadline on submitting and voting on movies, values include "Minutes", "Hours", "Days"
     10. Voting_Deadline_Offset_Value__c (number) - Used with the Voting Deadline Offset Type field to set a deadline on submitting and voting on movies
+    11. Theme__c (text) - Optional theme of the movie night event, e.g. "Scary Movie Night", used on page headers and email subjects. Defaults to "Movie Night".
 2. Movie_Audience__c - Junction object between Movie Nights and Contacts
     1. Attending__c (checkbox) - Indicates if the invited audience contact will be attending the movie night
     2. Contact__c (master-detail)
