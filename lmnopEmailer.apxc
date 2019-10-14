@@ -8,6 +8,7 @@
  * 2019-02-16	TKC		Added email updates to invited/uninvited unregistered audience
  * 2019-02-17	TKC		Added email updates to organizer
  * 2019-02-19	TKC		Added email reminder to attendees (called from lmnopReminder scheduled job)
+ * 2019-10-14	TKC		Added support for new Movie_Night__c.Theme__c field
 *************************************************/
 
 public class lmnopEmailer {
@@ -62,6 +63,15 @@ public class lmnopEmailer {
     }
     private static String intro(String intro) {
         String html = '<p style="margin: 5px 0px;">' + intro + '</p>';
+        return html;
+    }
+    private static String theme(String theme) {
+        String html = '<p style="margin: 5px 0px;"><b>Theme:</b> ' + theme + '</p>';
+        return html;
+    }
+    private static String updatedTheme(String newTheme, String oldTheme) {
+        String html = '<p style="margin: 5px 0px;"><b>New Theme:</b> ' + newTheme;
+        html += ' <i>(changed from ' + oldTheme + ')</i></p>';
         return html;
     }
     private static String location(String location) {
@@ -160,9 +170,12 @@ public class lmnopEmailer {
         
         // prepare email for existing contacts
         for (User u : registeredUsers) {
-            String emailBody = container() + header('New Movie Night') + panel();
+            String emailBody = container() + header('New ' + mn.Theme__c) + panel();
             emailBody += greeting(u.FirstName);
             emailBody += intro(UserInfo.getName() + ' has invited you to a new movie night!');
+            if (mn.Theme__c != 'Movie Night') {
+                emailBody += theme(mn.Theme__c);
+            }
             emailBody += location(mn.Location__c);
             emailBody += showtime(st);
             emailBody += deadline(vd);
@@ -170,7 +183,7 @@ public class lmnopEmailer {
             emailBody += closingTags();
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setTargetObjectId(u.Id);
-            email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+            email.setSubject('New ' + mn.Theme__c + ': ' + st + ' at ' + mn.Location__c);
             email.setHtmlBody(emailBody);
             email.setSaveAsActivity(false);
             email.setUseSignature(false);
@@ -185,9 +198,12 @@ public class lmnopEmailer {
             // log error and move on if the number of unregistered audience members exceeds the daily single email limit
             Messaging.reserveSingleEmailCapacity(unregisteredRecipients.size());
             for (String s : unregisteredRecipients) {
-                String emailBody = container() + header('New Movie Night') + panel();
+                String emailBody = container() + header('New ' + mn.Theme__c) + panel();
                 emailBody += greeting('there');
                 emailBody += intro(UserInfo.getName() + ' has invited you to a new movie night using the "little movie night online planner" (lmnop)!');
+                if (mn.Theme__c != 'Movie Night') {
+                    emailBody += theme(mn.Theme__c);
+                }
                 emailBody += location(mn.Location__c);
                 emailBody += showtime(st);
                 emailBody += deadline(vd);
@@ -197,7 +213,7 @@ public class lmnopEmailer {
                 List<String> toAddress = new List<String>();
                 toAddress.add(s);
                 email.setToAddresses(toAddress);
-                email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+                email.setSubject('New ' + mn.Theme__c + ': ' + st + ' at ' + mn.Location__c);
                 email.setHtmlBody(emailBody);
                 email.setUseSignature(false);
                 allEmail.add(email);
@@ -209,9 +225,12 @@ public class lmnopEmailer {
         }
         
         // send confirmation email to organizer
-        String emailBody = container() + header('New Movie Night') + panel();
+        String emailBody = container() + header('New ' + mn.Theme__c) + panel();
         emailBody += greeting(UserInfo.getFirstName());
         emailBody += intro('Your new movie night has been created!');
+        if (mn.Theme__c != 'Movie Night') {
+            emailBody += theme(mn.Theme__c);
+        }
         emailBody += location(mn.Location__c);
         emailBody += showtime(st);
         emailBody += deadline(vd);
@@ -235,7 +254,7 @@ public class lmnopEmailer {
         emailBody += closingTags();
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         email.setTargetObjectId(UserInfo.getUserId());
-        email.setSubject('New Movie Night: ' + st + ' at ' + mn.Location__c);
+        email.setSubject('New ' + mn.Theme__c + ': ' + st + ' at ' + mn.Location__c);
         email.setHtmlBody(emailBody);
         email.setSaveAsActivity(false);
         email.setUseSignature(false);
@@ -261,12 +280,15 @@ public class lmnopEmailer {
                 String emailBody = container() + header('Cancelled') + panel();
                 emailBody += greeting(u.FirstName);
                 emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
+                if (mn.Theme__c != 'Movie Night') {
+                    emailBody += theme(mn.Theme__c);
+                }
                 emailBody += location(mn.Location__c);
                 emailBody += showtime(st);
                 emailBody += closingTags();
                 Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
                 email.setTargetObjectId(u.Id);
-                email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                email.setSubject(mn.Theme__c + ' Cancelled: ' + st + ' at ' + mn.Location__c);
                 email.setHtmlBody(emailBody);
                 email.setSaveAsActivity(false);
                 email.setUseSignature(false);
@@ -284,6 +306,9 @@ public class lmnopEmailer {
                     String emailBody = container() + header('Cancelled') + panel();
                     emailBody += greeting('there');
                     emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
+                    if (mn.Theme__c != 'Movie Night') {
+                        emailBody += theme(mn.Theme__c);
+                    }
                     emailBody += location(mn.Location__c);
                     emailBody += showtime(st);
                     emailBody += closingTags();
@@ -291,7 +316,7 @@ public class lmnopEmailer {
                     List<String> toAddress = new List<String>();
                     toAddress.add(s);
                     email.setToAddresses(toAddress);
-                    email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+                    email.setSubject(mn.Theme__c + ' Cancelled: ' + st + ' at ' + mn.Location__c);
                     email.setHtmlBody(emailBody);
                     email.setUseSignature(false);
                     allEmail.add(email);
@@ -306,6 +331,9 @@ public class lmnopEmailer {
             String emailBody = container() + header('Cancelled') + panel();
             emailBody += greeting(UserInfo.getFirstName());
             emailBody += intro('Your movie night has been <b>deleted</b>!');
+            if (mn.Theme__c != 'Movie Night') {
+                emailBody += theme(mn.Theme__c);
+            }
             emailBody += location(mn.Location__c);
             emailBody += showtime(st);
             emailBody += cancelled(registeredUsers.size(), unregisteredRecipients.size());
@@ -328,7 +356,7 @@ public class lmnopEmailer {
             emailBody += closingTags();
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setTargetObjectId(UserInfo.getUserId());
-            email.setSubject('Movie Night Cancelled: ' + st + ' at ' + mn.Location__c);
+            email.setSubject(mn.Theme__c + ' Cancelled: ' + st + ' at ' + mn.Location__c);
             email.setHtmlBody(emailBody);
             email.setSaveAsActivity(false);
             email.setUseSignature(false);
@@ -357,11 +385,18 @@ public class lmnopEmailer {
         Set<String> oldUnregisteredAudience = new Set<String>(oldMN.Unregistered_Audience__c.split(','));
         
         // prepare update to existing audience
-        if (newMN.Showtime__c != oldMN.Showtime__c || newMN.Voting_Deadline__c != oldMN.Voting_Deadline__c || newMN.Location__c != oldMN.Location__c) {
+        if (newMN.Showtime__c != oldMN.Showtime__c || newMN.Voting_Deadline__c != oldMN.Voting_Deadline__c || newMN.Location__c != oldMN.Location__c || newMN.Theme__c != oldMN.Theme__c) {
             for (User u : existingUsers) {
                 String emailBody = container() + header('Update') + panel();
                 emailBody += greeting(u.FirstName);
                 emailBody += intro(UserInfo.getName() + ' has updated the movie night!');
+                if (newMN.Theme__c == oldMN.Theme__c) {
+                    if (newMN.Theme__c != 'Movie Night') {
+                        emailBody += theme(newMN.Theme__c);
+                    }
+                } else {
+                    emailBody += updatedTheme(newMN.Theme__c, oldMN.Theme__c);
+                }
                 if (newMN.Location__c == oldMN.Location__c) {
                     emailBody += location(newMN.Location__c);
                 } else {
@@ -381,7 +416,7 @@ public class lmnopEmailer {
                 emailBody += closingTags();
                 Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
                 email.setTargetObjectId(u.Id);
-                email.setSubject('Updated Movie Night: ' + newST + ' at ' + newMN.Location__c);
+                email.setSubject('Updated ' + newMN.Theme__c + ': ' + newST + ' at ' + newMN.Location__c);
                 email.setHtmlBody(emailBody);
                 email.setSaveAsActivity(false);
                 email.setUseSignature(false);
@@ -392,9 +427,12 @@ public class lmnopEmailer {
         
         // prepare new invitations for existing contacts
         for (User u : invitedUsers) {
-            String emailBody = container() + header('New Movie Night') + panel();
+            String emailBody = container() + header('New ' + newMN.Theme__c) + panel();
             emailBody += greeting(u.FirstName);
             emailBody += intro(UserInfo.getName() + ' has invited you to a new movie night!');
+            if (newMN.Theme__c != 'Movie Night') {
+                emailBody += theme(newMN.Theme__c);
+            }
             emailBody += location(newMN.Location__c);
             emailBody += showtime(newST);
             emailBody += deadline(newVD);
@@ -402,7 +440,7 @@ public class lmnopEmailer {
             emailBody += closingTags();
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setTargetObjectId(u.Id);
-            email.setSubject('New Movie Night: ' + newST + ' at ' + newMN.Location__c);
+            email.setSubject('New ' + newMN.Theme__c + ': ' + newST + ' at ' + newMN.Location__c);
             email.setHtmlBody(emailBody);
             email.setSaveAsActivity(false);
             email.setUseSignature(false);
@@ -424,9 +462,12 @@ public class lmnopEmailer {
             for (String s : invitedUA) {
                 if (s.length() > 5) {
                     System.debug('s: ' + s);
-                    String emailBody = container() + header('New Movie Night') + panel();
+                    String emailBody = container() + header('New ' + newMN.Theme__c) + panel();
                     emailBody += greeting('there');
                     emailBody += intro(UserInfo.getName() + ' has invited you to a new movie night using the "little movie night online planner" (lmnop)!');
+                    if (newMN.Theme__c != 'Movie Night') {
+                        emailBody += theme(newMN.Theme__c);
+                    }
                     emailBody += location(newMN.Location__c);
                     emailBody += showtime(newST);
                     emailBody += deadline(newVD);
@@ -436,7 +477,7 @@ public class lmnopEmailer {
                     List<String> toAddress = new List<String>();
                     toAddress.add(s);
                     email.setToAddresses(toAddress);
-                    email.setSubject('New Movie Night: ' + newST + ' at ' + newMN.Location__c);
+                    email.setSubject('New ' + newMN.Theme__c + ': ' + newST + ' at ' + newMN.Location__c);
                     email.setHtmlBody(emailBody);
                     email.setUseSignature(false);
                     allEmail.add(email);
@@ -453,12 +494,15 @@ public class lmnopEmailer {
             String emailBody = container() + header('Cancelled') + panel();
             emailBody += greeting(u.FirstName);
             emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
+            if (oldMN.Theme__c != 'Movie Night') {
+                emailBody += theme(oldMN.Theme__c);
+            }
             emailBody += location(oldMN.Location__c);
             emailBody += showtime(oldST);
             emailBody += closingTags();
             Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
             email.setTargetObjectId(u.Id);
-            email.setSubject('Movie Night Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
+            email.setSubject(oldMN.Theme__c + ' Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
             email.setHtmlBody(emailBody);
             email.setSaveAsActivity(false);
             email.setUseSignature(false);
@@ -482,6 +526,9 @@ public class lmnopEmailer {
                     String emailBody = container() + header('Cancelled') + panel();
                     emailBody += greeting('there');
                     emailBody += intro(UserInfo.getName() + ' has <b>cancelled</b> this movie night.');
+                    if (oldMN.Theme__c != 'Movie Night') {
+                        emailBody += theme(oldMN.Theme__c);
+                    }
                     emailBody += location(oldMN.Location__c);
                     emailBody += showtime(oldST);
                     emailBody += closingTags();
@@ -489,7 +536,7 @@ public class lmnopEmailer {
                     List<String> toAddress = new List<String>();
                     toAddress.add(s);
                     email.setToAddresses(toAddress);
-                    email.setSubject('Movie Night Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
+                    email.setSubject(oldMN.Theme__c + ' Cancelled: ' + oldST + ' at ' + oldMN.Location__c);
                     email.setHtmlBody(emailBody);
                     email.setUseSignature(false);
                     allEmail.add(email);
@@ -505,6 +552,13 @@ public class lmnopEmailer {
         String emailBody = container() + header('Update') + panel();
         emailBody += greeting(UserInfo.getFirstName());
         emailBody += intro('Your movie night has been updated!');
+        if (newMN.Theme__c == oldMN.Theme__c) {
+            if (newMN.Theme__c != 'Movie Night') {
+                emailBody += theme(newMN.Theme__c);
+            }
+        } else {
+            emailBody += updatedTheme(newMN.Theme__c, oldMN.Theme__c);
+        }
         if (newMN.Location__c == oldMN.Location__c) {
             emailBody += location(newMN.Location__c);
         } else {
@@ -563,7 +617,7 @@ public class lmnopEmailer {
         emailBody += closingTags();
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         email.setTargetObjectId(UserInfo.getUserId());
-        email.setSubject('Updated Movie Night: ' + newST + ' at ' + newMN.Location__c);
+        email.setSubject('Updated ' + newMN.Theme__c + ': ' + newST + ' at ' + newMN.Location__c);
         email.setHtmlBody(emailBody);
         email.setSaveAsActivity(false);
         email.setUseSignature(false);
@@ -591,6 +645,9 @@ public class lmnopEmailer {
                 String emailBody = container() + header('Reminder') + panel();
                 emailBody += greeting(u.FirstName);
                 emailBody += intro('The deadline to suggest and vote on movies is coming up for your movie night!');
+                if (ma.Movie_Night__r.Theme__c != 'Movie Night') {
+                    emailBody += theme(ma.Movie_Night__r.Theme__c);
+                }
                 emailBody += location(ma.Movie_Night__r.Location__c);
                 emailBody += showtime(st);
                 emailBody += '<b>' + deadline(vd) + '</b>';
@@ -598,7 +655,7 @@ public class lmnopEmailer {
                 emailBody += closingTags();
                 Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
                 email.setTargetObjectId(u.Id);
-                email.setSubject('Movie Night Reminder: ' + st + ' at ' + ma.Movie_Night__r.Location__c);
+                email.setSubject(ma.Movie_Night__r.Theme__c + ' Reminder: ' + st + ' at ' + ma.Movie_Night__r.Location__c);
                 email.setHtmlBody(emailBody);
                 email.setSaveAsActivity(false);
                 email.setUseSignature(false);
